@@ -51,7 +51,7 @@ struct AddMedicationFlowView: View {
         }
         
         // Create medication with first strength (you may want to create multiple medications for multiple strengths)
-        let medication = viewModel.addMedication(
+        _ = viewModel.addMedication(
             name: state.medicationName,
             form: form,
             strength: firstStrength.value,
