@@ -6,19 +6,43 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            TodayView()
+                .tabItem {
+                    Label("Today", systemImage: "calendar")
+                }
+            
+            PillBoxView()
+                .tabItem {
+                    Label("Pill Box", systemImage: "pills.fill")
+                }
+            
+            HistoryView()
+                .tabItem {
+                    Label("History", systemImage: "clock.arrow.circlepath")
+                }
+            
+            AccountView()
+                .tabItem {
+                    Label("Account", systemImage: "person.fill")
+                }
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: [
+            Medication.self,
+            StockSource.self,
+            MedicationGroup.self,
+            DoseConfiguration.self,
+            DoseComponent.self,
+            IntakeLog.self,
+            StockDeduction.self
+        ])
 }
