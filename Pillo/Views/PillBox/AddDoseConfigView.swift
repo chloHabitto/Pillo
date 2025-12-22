@@ -20,12 +20,10 @@ struct AddDoseConfigView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Dose name
                 Section("Dose Name") {
                     TextField("e.g., 72mg or Morning dose", text: $displayName)
                 }
                 
-                // Assign to group
                 Section("Assign to Group") {
                     if viewModel.groups.isEmpty {
                         Text("Create a group first in Pill Box")
@@ -41,25 +39,23 @@ struct AddDoseConfigView: View {
                     }
                 }
                 
-                // Components (which pills make up this dose)
                 Section {
                     if components.isEmpty {
                         Text("Add at least one medication")
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(components.indices, id: \.self) { index in
+                        ForEach(Array(components.enumerated()), id: \.element.id) { index, component in
                             HStack {
                                 VStack(alignment: .leading) {
-                                    Text(components[index].medication.name)
+                                    Text(component.medication.name)
                                         .font(.body)
-                                    Text("\(Int(components[index].medication.strength))\(components[index].medication.strengthUnit)")
+                                    Text("\(Int(component.medication.strength))\(component.medication.strengthUnit)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
                                 
                                 Spacer()
                                 
-                                // Quantity stepper
                                 HStack {
                                     Button {
                                         if components[index].quantity > 1 {
@@ -117,12 +113,13 @@ struct AddDoseConfigView: View {
                 }
             }
             .sheet(isPresented: $showingAddComponent) {
-                SelectMedicationView(
+                SelectMedicationSheet(
                     medications: viewModel.medications,
-                    existingComponents: components
-                ) { medication in
-                    components.append(DoseComponentInput(medication: medication, quantity: 1))
-                }
+                    existingComponents: components,
+                    onSelect: { medication in
+                        components.append(DoseComponentInput(medication: medication, quantity: 1))
+                    }
+                )
             }
         }
     }
@@ -141,19 +138,22 @@ struct AddDoseConfigView: View {
     }
 }
 
-// Helper struct for building the dose
 struct DoseComponentInput: Identifiable {
     let id = UUID()
     var medication: Medication
     var quantity: Int
 }
 
-// Sheet to select a medication to add
-struct SelectMedicationView: View {
+struct SelectMedicationSheet: View {
     let medications: [Medication]
     let existingComponents: [DoseComponentInput]
     let onSelect: (Medication) -> Void
     @Environment(\.dismiss) private var dismiss
+    
+    private var availableMedications: [Medication] {
+        let existingIds = Set(existingComponents.map { $0.medication.id })
+        return medications.filter { !existingIds.contains($0.id) }
+    }
     
     var body: some View {
         NavigationStack {
@@ -162,7 +162,7 @@ struct SelectMedicationView: View {
                     Text("All medications already added")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(availableMedications) { medication in
+                    ForEach(Array(availableMedications.enumerated()), id: \.element.id) { index, medication in
                         Button {
                             onSelect(medication)
                             dismiss()
@@ -192,10 +192,5 @@ struct SelectMedicationView: View {
                 }
             }
         }
-    }
-    
-    private var availableMedications: [Medication] {
-        let existingIds = Set(existingComponents.map { $0.medication.id })
-        return medications.filter { !existingIds.contains($0.id) }
     }
 }
