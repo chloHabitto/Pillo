@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PilloApp: App {
@@ -13,5 +14,14 @@ struct PilloApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            Medication.self,
+            StockSource.self,
+            MedicationGroup.self,
+            DoseConfiguration.self,
+            DoseComponent.self,
+            IntakeLog.self,
+            StockDeduction.self
+        ])
     }
 }
