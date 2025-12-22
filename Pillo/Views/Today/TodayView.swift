@@ -25,6 +25,9 @@ struct TodayView: View {
             .onAppear {
                 if viewModel == nil {
                     viewModel = TodayViewModel(modelContext: modelContext)
+                } else {
+                    // Reload plan when view appears to catch newly added medications
+                    viewModel?.loadPlan()
                 }
             }
         }
@@ -99,6 +102,10 @@ struct TodayContentView: View {
             Text("How would you like to log this intake?")
         }
         .refreshable {
+            viewModel.loadPlan()
+        }
+        .onAppear {
+            // Reload plan when content view appears to ensure fresh data
             viewModel.loadPlan()
         }
     }

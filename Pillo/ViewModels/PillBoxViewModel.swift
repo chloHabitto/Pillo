@@ -161,6 +161,11 @@ class PillBoxViewModel {
         )
         modelContext.insert(doseConfig)
         
+        // Explicitly add to the group's array to ensure relationship is established
+        if let group = group {
+            group.doseConfigurations.append(doseConfig)
+        }
+        
         for component in components {
             let doseComponent = DoseComponent(
                 quantity: component.quantity,
