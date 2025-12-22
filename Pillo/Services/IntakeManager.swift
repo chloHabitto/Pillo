@@ -169,8 +169,10 @@ class IntakeManager {
             log.scheduledFor >= startOfDay && log.scheduledFor < endOfDay
         }
         
-        let descriptor = FetchDescriptor<IntakeLog>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.scheduledFor, order: .forward)]
+        let descriptor = FetchDescriptor<IntakeLog>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.scheduledFor, order: .forward)]
+        )
         
         return (try? modelContext.fetch(descriptor)) ?? []
     }
