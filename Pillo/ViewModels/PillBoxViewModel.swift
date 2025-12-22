@@ -176,5 +176,64 @@ class PillBoxViewModel {
         try? modelContext.save()
         loadGroups()
     }
+    
+    // MARK: - Schedule Information
+    
+    /// Get schedule information for a medication (times and time frames)
+    func getScheduleInfo(for medication: Medication) -> (times: [Date], timeFrames: [TimeFrame]) {
+        var times: [Date] = []
+        var timeFrames: Set<TimeFrame> = []
+        
+        // Fetch all and filter in memory - SwiftData #Predicate has limitations with optional relationships
+        let descriptor = FetchDescriptor<DoseComponent>()
+        
+        guard let allComponents = try? modelContext.fetch(descriptor) else {
+            return (times: [], timeFrames: [])
+        }
+        
+        let components = allComponents.filter { $0.medication?.id == medication.id }
+        
+        for component in components {
+            guard let doseConfig = component.doseConfiguration,
+                  let group = doseConfig.group else {
+                continue
+            }
+            
+            timeFrames.insert(group.timeFrame)
+            
+            if let reminderTime = group.reminderTime {
+                times.append(reminderTime)
+            }
+        }
+        
+        return (times: times.sorted(), timeFrames: Array(timeFrames).sorted { $0.rawValue < $1.rawValue })
+    }
+    
+    /// Format schedule as a readable string
+    func formatSchedule(for medication: Medication) -> String {
+        let scheduleInfo = getScheduleInfo(for: medication)
+        
+        if scheduleInfo.times.isEmpty && scheduleInfo.timeFrames.isEmpty {
+            return "No schedule"
+        }
+        
+        var parts: [String] = []
+        
+        // Add time frames
+        if !scheduleInfo.timeFrames.isEmpty {
+            let frameNames = scheduleInfo.timeFrames.map { $0.rawValue.capitalized }
+            parts.append(frameNames.joined(separator: ", "))
+        }
+        
+        // Add times
+        if !scheduleInfo.times.isEmpty {
+            let formatter = DateFormatter()
+            formatter.timeStyle = .short
+            let timeStrings = scheduleInfo.times.map { formatter.string(from: $0) }
+            parts.append(timeStrings.joined(separator: ", "))
+        }
+        
+        return parts.joined(separator: " • ")
+    }
 }
 

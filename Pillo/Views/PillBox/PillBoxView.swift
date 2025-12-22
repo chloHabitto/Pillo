@@ -34,8 +34,6 @@ struct PillBoxView: View {
 struct PillBoxContentView: View {
     @Bindable var viewModel: PillBoxViewModel
     @State private var showingAddMedication = false
-    @State private var showingAddGroup = false
-    @State private var showingAddDose = false
     
     var body: some View {
         List {
@@ -52,36 +50,6 @@ struct PillBoxContentView: View {
                         for index in indexSet {
                             viewModel.deleteMedication(viewModel.medications[index])
                         }
-                    }
-                }
-            }
-            
-            // Groups Section
-            Section("My Dose Groups") {
-                if viewModel.groups.isEmpty {
-                    Text("No groups created yet")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(viewModel.groups) { group in
-                        GroupRow(group: group)
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            viewModel.deleteGroup(viewModel.groups[index])
-                        }
-                    }
-                }
-            }
-            
-            // Dose Configurations Section
-            Section("My Doses") {
-                let allDoses = viewModel.groups.flatMap { $0.doseConfigurations }
-                if allDoses.isEmpty {
-                    Text("No doses created yet")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(allDoses) { dose in
-                        DoseConfigRow(dose: dose)
                     }
                 }
             }
@@ -104,16 +72,8 @@ struct PillBoxContentView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button("Add Medication", systemImage: "pills") {
-                        showingAddMedication = true
-                    }
-                    Button("Add Dose", systemImage: "list.bullet.rectangle") {
-                        showingAddDose = true
-                    }
-                    Button("Add Group", systemImage: "folder") {
-                        showingAddGroup = true
-                    }
+                Button {
+                    showingAddMedication = true
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -121,12 +81,6 @@ struct PillBoxContentView: View {
         }
         .sheet(isPresented: $showingAddMedication) {
             AddMedicationFlowView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingAddDose) {
-            AddDoseConfigView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingAddGroup) {
-            AddGroupView(viewModel: viewModel)
         }
         .refreshable {
             viewModel.loadData()
@@ -139,7 +93,7 @@ struct MedicationRow: View {
     let viewModel: PillBoxViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(medication.name)
                     .font(.headline)
@@ -148,18 +102,37 @@ struct MedicationRow: View {
                     .foregroundStyle(.secondary)
             }
             
+            // Schedule information
+            let schedule = viewModel.formatSchedule(for: medication)
+            if !schedule.isEmpty && schedule != "No schedule" {
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(schedule)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            // Stock information
             let stock = viewModel.getCurrentStock(for: medication)
             let unknownSources = medication.stockSources.filter { !$0.countingEnabled }.count
             
             HStack {
-                Text("\(stock) pills")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
-                if unknownSources > 0 {
-                    Text("+ \(unknownSources) unknown")
+                if stock > 0 || unknownSources > 0 {
+                    Text("\(stock) pills")
                         .font(.caption)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.secondary)
+                    
+                    if unknownSources > 0 {
+                        Text("•")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("+ \(unknownSources) unknown")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
         }

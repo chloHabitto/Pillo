@@ -77,7 +77,9 @@ struct AddMedicationFlowView: View {
         // Group times by TimeFrame and create groups/dose configurations
         let calendar = Calendar.current
         var timeFrameGroups: [TimeFrame: MedicationGroup] = [:]
+        var timeFrameTimes: [TimeFrame: [Date]] = [:]
         
+        // First, group all times by their TimeFrame
         for time in state.times {
             // Determine TimeFrame based on hour
             let hour = calendar.component(.hour, from: time)
@@ -93,26 +95,35 @@ struct AddMedicationFlowView: View {
                 }
             }()
             
+            if timeFrameTimes[timeFrame] == nil {
+                timeFrameTimes[timeFrame] = []
+            }
+            timeFrameTimes[timeFrame]?.append(time)
+        }
+        
+        // For each TimeFrame, find or create group and create dose configurations
+        for (timeFrame, times) in timeFrameTimes {
             // Find or create MedicationGroup for this TimeFrame
             let group: MedicationGroup
-            if let existingGroup = timeFrameGroups[timeFrame] {
-                group = existingGroup
-            } else if let existingGroup = viewModel.groups.first(where: { $0.timeFrame == timeFrame }) {
+            if let existingGroup = viewModel.groups.first(where: { $0.timeFrame == timeFrame }) {
                 group = existingGroup
                 timeFrameGroups[timeFrame] = existingGroup
             } else {
                 // Create new group for this TimeFrame
+                // Use the earliest time as the reminder time
+                let earliestTime = times.min() ?? times.first ?? Date()
                 let groupName = "\(timeFrame.rawValue.capitalized) Medications"
                 group = viewModel.addGroup(
                     name: groupName,
                     selectionRule: .exactlyOne,
                     timeFrame: timeFrame,
-                    reminderTime: time
+                    reminderTime: earliestTime
                 )
                 timeFrameGroups[timeFrame] = group
             }
             
-            // Create DoseConfiguration for this medication and time
+            // Create one DoseConfiguration for this TimeFrame (not per time)
+            // The times are used to determine the TimeFrame and set reminder time on the group
             let displayName = state.displayName.isEmpty ? state.medicationName : state.displayName
             _ = viewModel.addDoseConfiguration(
                 displayName: displayName,
@@ -121,6 +132,9 @@ struct AddMedicationFlowView: View {
                 scheduleType: scheduleType
             )
         }
+        
+        // Reload data to ensure everything is up to date
+        viewModel.loadData()
         
         dismiss()
     }
