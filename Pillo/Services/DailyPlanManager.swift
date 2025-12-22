@@ -94,9 +94,6 @@ class DailyPlanManager {
                     doseOptions.append(doseOption)
                 }
                 
-                // Get reminder time from group (or use default based on time frame)
-                let reminderTime = group.reminderTime ?? defaultReminderTime(for: timeFrame)
-                
                 let groupPlan = GroupPlan(
                     group: group,
                     doseOptions: doseOptions,

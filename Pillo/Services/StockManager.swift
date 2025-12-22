@@ -183,13 +183,17 @@ class StockManager {
     // Get all deductions for a medication that don't have an intake log yet
     // Useful for finding deductions created during a transaction
     func getUnlinkedDeductions(for medication: Medication) -> [StockDeduction] {
-        let descriptor = FetchDescriptor<StockDeduction>(
-            predicate: #Predicate<StockDeduction> { deduction in
-                deduction.medication?.id == medication.id &&
-                deduction.intakeLog == nil
-            }
-        )
-        return (try? modelContext.fetch(descriptor)) ?? []
+        // Fetch all deductions and filter in memory
+        // SwiftData #Predicate has limitations with optional relationship comparisons
+        let descriptor = FetchDescriptor<StockDeduction>()
+        
+        guard let allDeductions = try? modelContext.fetch(descriptor) else {
+            return []
+        }
+        
+        return allDeductions.filter { deduction in
+            deduction.medication?.id == medication.id && deduction.intakeLog == nil
+        }
     }
     
     // Get medications below threshold
