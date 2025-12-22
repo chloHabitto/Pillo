@@ -51,16 +51,76 @@ struct AddMedicationFlowView: View {
         }
         
         // Create medication with first strength (you may want to create multiple medications for multiple strengths)
-        _ = viewModel.addMedication(
+        let medication = viewModel.addMedication(
             name: state.medicationName,
             form: form,
             strength: firstStrength.value,
             strengthUnit: firstStrength.unit
         )
         
-        // TODO: Save additional data like schedule, appearance, display name, notes
-        // This would require extending the Medication model or creating related models
-        // For now, we're just creating the basic medication
+        // Map ScheduleOption to ScheduleType
+        let scheduleType: ScheduleType = {
+            switch state.scheduleOption {
+            case .everyDay:
+                return .everyday
+            case .specificDays:
+                return .specificDays
+            case .cyclical:
+                return .cyclical
+            case .asNeeded:
+                return .asNeeded
+            case .everyFewDays:
+                return .everyday // Treat "Every Few Days" as everyday for now
+            }
+        }()
+        
+        // Group times by TimeFrame and create groups/dose configurations
+        let calendar = Calendar.current
+        var timeFrameGroups: [TimeFrame: MedicationGroup] = [:]
+        
+        for time in state.times {
+            // Determine TimeFrame based on hour
+            let hour = calendar.component(.hour, from: time)
+            let timeFrame: TimeFrame = {
+                if hour >= 5 && hour < 12 {
+                    return .morning
+                } else if hour >= 12 && hour < 17 {
+                    return .afternoon
+                } else if hour >= 17 && hour < 21 {
+                    return .evening
+                } else {
+                    return .night
+                }
+            }()
+            
+            // Find or create MedicationGroup for this TimeFrame
+            let group: MedicationGroup
+            if let existingGroup = timeFrameGroups[timeFrame] {
+                group = existingGroup
+            } else if let existingGroup = viewModel.groups.first(where: { $0.timeFrame == timeFrame }) {
+                group = existingGroup
+                timeFrameGroups[timeFrame] = existingGroup
+            } else {
+                // Create new group for this TimeFrame
+                let groupName = "\(timeFrame.rawValue.capitalized) Medications"
+                group = viewModel.addGroup(
+                    name: groupName,
+                    selectionRule: .exactlyOne,
+                    timeFrame: timeFrame,
+                    reminderTime: time
+                )
+                timeFrameGroups[timeFrame] = group
+            }
+            
+            // Create DoseConfiguration for this medication and time
+            let displayName = state.displayName.isEmpty ? state.medicationName : state.displayName
+            _ = viewModel.addDoseConfiguration(
+                displayName: displayName,
+                components: [(medication: medication, quantity: 1)],
+                group: group,
+                scheduleType: scheduleType
+            )
+        }
         
         dismiss()
     }
