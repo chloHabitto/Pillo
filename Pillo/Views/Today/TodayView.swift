@@ -36,33 +36,39 @@ struct TodayContentView: View {
     @State private var showingConfirmation = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Date display
-                Text(viewModel.selectedDate, style: .date)
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                
-                if viewModel.dailyPlan.timeFrames.isEmpty {
-                    // Empty state
-                    ContentUnavailableView(
-                        "No Medications",
-                        systemImage: "pills",
-                        description: Text("Add medications in the Pill Box tab to get started.")
-                    )
-                } else {
-                    // Time frame sections
-                    ForEach(viewModel.dailyPlan.timeFrames) { timeFrame in
-                        TimeFrameSection(
-                            timeFrame: timeFrame,
-                            viewModel: viewModel
+        VStack(spacing: 0) {
+            // Weekly calendar at the top
+            WeeklyCalendarView(selectedDate: Binding(
+                get: { viewModel.selectedDate },
+                set: { viewModel.changeDate(to: $0) }
+            ))
+            .padding(.top, 8)
+            .padding(.bottom, 16)
+            
+            // Main content
+            ScrollView {
+                VStack(spacing: 20) {
+                    if viewModel.dailyPlan.timeFrames.isEmpty {
+                        // Empty state
+                        ContentUnavailableView(
+                            "No Medications",
+                            systemImage: "pills",
+                            description: Text("Add medications in the Pill Box tab to get started.")
                         )
+                    } else {
+                        // Time frame sections
+                        ForEach(viewModel.dailyPlan.timeFrames) { timeFrame in
+                            TimeFrameSection(
+                                timeFrame: timeFrame,
+                                viewModel: viewModel
+                            )
+                        }
                     }
+                    
+                    Spacer(minLength: 80)
                 }
-                
-                Spacer(minLength: 80)
+                .padding(.horizontal)
             }
-            .padding()
         }
         .overlay(alignment: .bottom) {
             if !viewModel.selectedDoses.isEmpty {
