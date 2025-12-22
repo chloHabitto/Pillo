@@ -35,6 +35,7 @@ struct PillBoxContentView: View {
     @Bindable var viewModel: PillBoxViewModel
     @State private var showingAddMedication = false
     @State private var showingAddGroup = false
+    @State private var showingAddDose = false
     
     var body: some View {
         List {
@@ -72,6 +73,19 @@ struct PillBoxContentView: View {
                 }
             }
             
+            // Dose Configurations Section
+            Section("My Doses") {
+                let allDoses = viewModel.groups.flatMap { $0.doseConfigurations }
+                if allDoses.isEmpty {
+                    Text("No doses created yet")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(allDoses) { dose in
+                        DoseConfigRow(dose: dose)
+                    }
+                }
+            }
+            
             // Low Stock Warnings
             let lowStockMeds = viewModel.getLowStockMedications()
             if !lowStockMeds.isEmpty {
@@ -94,6 +108,9 @@ struct PillBoxContentView: View {
                     Button("Add Medication", systemImage: "pills") {
                         showingAddMedication = true
                     }
+                    Button("Add Dose", systemImage: "list.bullet.rectangle") {
+                        showingAddDose = true
+                    }
                     Button("Add Group", systemImage: "folder") {
                         showingAddGroup = true
                     }
@@ -104,6 +121,9 @@ struct PillBoxContentView: View {
         }
         .sheet(isPresented: $showingAddMedication) {
             AddMedicationView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingAddDose) {
+            AddDoseConfigView(viewModel: viewModel)
         }
         .sheet(isPresented: $showingAddGroup) {
             AddGroupView(viewModel: viewModel)
@@ -274,6 +294,35 @@ struct AddGroupView: View {
                 }
             }
         }
+    }
+}
+
+struct DoseConfigRow: View {
+    let dose: DoseConfiguration
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(dose.displayName)
+                .font(.headline)
+            
+            if let group = dose.group {
+                Text(group.name)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if !dose.components.isEmpty {
+                let componentText = dose.components.compactMap { component -> String? in
+                    guard let med = component.medication else { return nil }
+                    return "\(med.name) ×\(component.quantity)"
+                }.joined(separator: " + ")
+                
+                Text(componentText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 
