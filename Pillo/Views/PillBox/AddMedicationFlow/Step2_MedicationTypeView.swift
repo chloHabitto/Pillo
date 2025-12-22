@@ -158,6 +158,7 @@ struct MedicationTypeView: View {
                 }
             }
             .padding()
+            .contentShape(Rectangle())
             .background(state.selectedForm == form ? Color.cyan.opacity(0.1) : Color.clear)
         }
         .buttonStyle(PlainButtonStyle())

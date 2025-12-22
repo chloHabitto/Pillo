@@ -53,6 +53,7 @@ struct ScheduleView: View {
                                     }
                                 }
                                 .padding()
+                                .contentShape(Rectangle())
                                 .background(state.scheduleOption == option ? Color.cyan.opacity(0.1) : Color.clear)
                             }
                             .buttonStyle(PlainButtonStyle())

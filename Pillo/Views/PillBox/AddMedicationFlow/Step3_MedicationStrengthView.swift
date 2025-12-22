@@ -69,6 +69,7 @@ struct MedicationStrengthView: View {
                                     }
                                 }
                                 .padding()
+                                .contentShape(Rectangle())
                                 .background(state.currentStrengthUnit == unit ? Color.cyan.opacity(0.1) : Color.clear)
                             }
                             .buttonStyle(PlainButtonStyle())
