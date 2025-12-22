@@ -25,10 +25,14 @@ struct PilloApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            // During development: delete corrupted database and retry
             print("Failed to load database, attempting to delete and recreate: \(error)")
+            
+            // Delete the database files
             let url = URL.applicationSupportDirectory.appending(path: "default.store")
             try? FileManager.default.removeItem(at: url)
+            try? FileManager.default.removeItem(at: URL.applicationSupportDirectory.appending(path: "default.store-wal"))
+            try? FileManager.default.removeItem(at: URL.applicationSupportDirectory.appending(path: "default.store-shm"))
+            
             do {
                 return try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
