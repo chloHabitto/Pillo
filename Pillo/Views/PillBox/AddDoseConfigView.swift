@@ -178,7 +178,7 @@ struct SelectMedicationSheet: View {
                                 }
                                 Spacer()
                                 Image(systemName: "plus.circle")
-                                    .foregroundStyle(.accentColor)
+                                    .foregroundStyle(Color.accentColor)
                             }
                         }
                     }
