@@ -138,6 +138,16 @@ struct AddMedicationFlowView: View {
         // Reload data to ensure everything is up to date
         viewModel.loadData()
         
+        // DEBUG: Print medication and group information
+        print("DEBUG: Created medication: \(medication.name)")
+        print("DEBUG: viewModel.groups count: \(viewModel.groups.count)")
+        for group in viewModel.groups {
+            print("DEBUG: Group '\(group.name)' has \(group.doseConfigurations.count) dose configs")
+            for dc in group.doseConfigurations {
+                print("DEBUG:   - DoseConfig '\(dc.displayName)' isActive=\(dc.isActive) startDate=\(dc.startDate) components=\(dc.components.count)")
+            }
+        }
+        
         dismiss()
     }
 }

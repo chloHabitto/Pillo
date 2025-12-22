@@ -173,6 +173,8 @@ class PillBoxViewModel {
                 medication: component.medication
             )
             modelContext.insert(doseComponent)
+            // Explicitly add to the dose config's array to ensure relationship is established
+            doseConfig.components.append(doseComponent)
         }
         
         try? modelContext.save()

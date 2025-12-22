@@ -21,8 +21,12 @@ class DailyPlanManager {
     
     /// Generate the medication plan for a specific date, grouped by time frame
     func getPlan(for date: Date = Date()) -> DailyPlan {
+        // DEBUG: Print plan generation info
+        print("DEBUG: getPlan for date: \(date)")
+        
         // 1. Fetch all MedicationGroups
         let allGroups = fetchAllGroups()
+        print("DEBUG: Found \(allGroups.count) groups")
         
         // 2. Group them by timeFrame (morning, afternoon, evening, night)
         let groupsByTimeFrame = Dictionary(grouping: allGroups) { $0.timeFrame }
@@ -41,6 +45,9 @@ class DailyPlanManager {
             var groupPlans: [GroupPlan] = []
             
             for group in groups {
+                // DEBUG: Print group info
+                print("DEBUG: Group '\(group.name)' timeFrame=\(group.timeFrame) doseConfigs=\(group.doseConfigurations.count)")
+                
                 // Get dose configurations for this group that are active and valid for the date
                 let calendar = Calendar.current
                 let doseConfigs = group.doseConfigurations.filter { config in
