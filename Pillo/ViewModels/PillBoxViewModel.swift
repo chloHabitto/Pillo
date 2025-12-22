@@ -148,11 +148,15 @@ class PillBoxViewModel {
         displayName: String,
         components: [(medication: Medication, quantity: Int)],
         group: MedicationGroup?,
-        scheduleType: ScheduleType = .everyday
+        scheduleType: ScheduleType = .everyday,
+        startDate: Date = Date(),
+        endDate: Date? = nil
     ) -> DoseConfiguration {
         let doseConfig = DoseConfiguration(
             displayName: displayName,
             scheduleType: scheduleType,
+            startDate: startDate,
+            endDate: endDate,
             group: group
         )
         modelContext.insert(doseConfig)

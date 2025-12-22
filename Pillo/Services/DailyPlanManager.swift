@@ -41,8 +41,24 @@ class DailyPlanManager {
             var groupPlans: [GroupPlan] = []
             
             for group in groups {
-                // Get dose configurations for this group
-                let doseConfigs = group.doseConfigurations.filter { $0.isActive }
+                // Get dose configurations for this group that are active and valid for the date
+                let calendar = Calendar.current
+                let doseConfigs = group.doseConfigurations.filter { config in
+                    guard config.isActive else { return false }
+                    
+                    // Check if the date is on or after the start date
+                    let startOfDay = calendar.startOfDay(for: date)
+                    let configStartOfDay = calendar.startOfDay(for: config.startDate)
+                    guard startOfDay >= configStartOfDay else { return false }
+                    
+                    // Check if the date is before or on the end date (if end date exists)
+                    if let endDate = config.endDate {
+                        let configEndOfDay = calendar.startOfDay(for: endDate)
+                        guard startOfDay <= configEndOfDay else { return false }
+                    }
+                    
+                    return true
+                }
                 
                 // Find which dose was completed (if any)
                 let completedIntake = intakes.first { intake in

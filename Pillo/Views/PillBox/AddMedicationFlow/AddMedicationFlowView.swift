@@ -129,7 +129,9 @@ struct AddMedicationFlowView: View {
                 displayName: displayName,
                 components: [(medication: medication, quantity: 1)],
                 group: group,
-                scheduleType: scheduleType
+                scheduleType: scheduleType,
+                startDate: state.startDate,
+                endDate: state.endDate
             )
         }
         

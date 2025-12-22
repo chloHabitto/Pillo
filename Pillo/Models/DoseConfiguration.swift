@@ -23,6 +23,8 @@ final class DoseConfiguration {
     var scheduleData: Data?
     var isActive: Bool
     var createdAt: Date
+    var startDate: Date
+    var endDate: Date?
     
     var group: MedicationGroup?
     
@@ -39,6 +41,8 @@ final class DoseConfiguration {
         scheduleData: Data? = nil,
         isActive: Bool = true,
         createdAt: Date = Date(),
+        startDate: Date = Date(),
+        endDate: Date? = nil,
         group: MedicationGroup? = nil
     ) {
         self.id = id
@@ -47,6 +51,8 @@ final class DoseConfiguration {
         self.scheduleData = scheduleData
         self.isActive = isActive
         self.createdAt = createdAt
+        self.startDate = startDate
+        self.endDate = endDate
         self.group = group
     }
 }
