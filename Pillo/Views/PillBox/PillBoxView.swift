@@ -120,7 +120,7 @@ struct PillBoxContentView: View {
             }
         }
         .sheet(isPresented: $showingAddMedication) {
-            AddMedicationView(viewModel: viewModel)
+            AddMedicationFlowView(viewModel: viewModel)
         }
         .sheet(isPresented: $showingAddDose) {
             AddDoseConfigView(viewModel: viewModel)
