@@ -17,9 +17,12 @@ struct MedicationStrengthView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Animated pill icons
-                animatedPillIcons
-                    .padding(.top, 20)
+                // Medication strength image
+                Image("medstrength")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 28)
+                    .padding(.top, 12)
                 
                 // Title
                 Text("Add the Medication Strength")
@@ -224,33 +227,6 @@ struct MedicationStrengthView: View {
         }
     }
     
-    private var animatedPillIcons: some View {
-        HStack(spacing: 20) {
-            // Yellow outlined capsule
-            Capsule()
-                .stroke(Color.yellow, style: StrokeStyle(lineWidth: 2, dash: [5]))
-                .frame(width: 50, height: 25)
-            
-            // Light blue filled capsule
-            Capsule()
-                .fill(Color.cyan)
-                .frame(width: 50, height: 25)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white, style: StrokeStyle(lineWidth: 1, dash: [3]))
-                )
-            
-            // Dark blue filled capsule
-            Capsule()
-                .fill(Color.blue)
-                .frame(width: 50, height: 25)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white, style: StrokeStyle(lineWidth: 1, dash: [3]))
-                )
-        }
-        .padding()
-    }
 }
 
 #Preview {

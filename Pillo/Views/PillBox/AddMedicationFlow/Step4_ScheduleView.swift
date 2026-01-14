@@ -19,8 +19,10 @@ struct ScheduleView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // Calendar icon
-                Image(systemName: "calendar")
-                    .font(.system(size: 48))
+                Image("calendar")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
                     .foregroundStyle(.cyan)
                     .padding(.top, 20)
                 

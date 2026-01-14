@@ -24,7 +24,7 @@ struct MedicationTypeView: View {
             VStack(spacing: 24) {
                 // Colorful pill icons illustration
                 pillIconsIllustration
-                    .padding(.top, 20)
+                    .padding(.top, 0)
                 
                 // Title
                 Text("Choose the Medication Type")
@@ -117,28 +117,11 @@ struct MedicationTypeView: View {
     }
     
     private var pillIconsIllustration: some View {
-        HStack(spacing: 16) {
-            // Blue capsule
-            Capsule()
-                .fill(Color.blue)
-                .frame(width: 50, height: 25)
-            
-            // Cyan hexagon
-            HexagonShape()
-                .fill(Color.cyan)
-                .frame(width: 35, height: 35)
-            
-            // Pink circle
-            Circle()
-                .fill(Color.pink)
-                .frame(width: 30, height: 30)
-            
-            // Yellow circle
-            Circle()
-                .fill(Color.yellow)
-                .frame(width: 25, height: 25)
-        }
-        .padding()
+        Image("Shapes-horizontal")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 28)
+            .padding()
     }
     
     private func formRow(_ form: MedicationForm) -> some View {

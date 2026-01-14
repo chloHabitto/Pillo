@@ -14,11 +14,18 @@ struct DosingTypeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                // Take meds icon
+                Image("takemeds")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .foregroundStyle(.cyan)
+                    .padding(.top, 20)
+                
                 // Title
                 Text("How do you dose?")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(Color.primary)
-                    .padding(.top, 20)
                     .padding(.horizontal)
                 
                 // Description
