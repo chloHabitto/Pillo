@@ -85,26 +85,78 @@ struct AddMedicationFlowView: View {
         var timeFrameGroups: [TimeFrame: MedicationGroup] = [:]
         var timeFrameTimes: [TimeFrame: [Date]] = [:]
         
-        // First, group all times by their TimeFrame
-        for time in state.times {
-            // Determine TimeFrame based on hour
-            let hour = calendar.component(.hour, from: time)
-            let timeFrame: TimeFrame = {
-                if hour >= 5 && hour < 12 {
-                    return .morning
-                } else if hour >= 12 && hour < 17 {
-                    return .afternoon
-                } else if hour >= 17 && hour < 21 {
-                    return .evening
-                } else {
-                    return .night
+        // Helper to convert TimeFrameType to TimeFrame enum
+        func mapToTimeFrame(_ type: TimeFrameType, startTime: Date?) -> TimeFrame {
+            switch type {
+            case .morning:
+                return .morning
+            case .afternoon:
+                return .afternoon
+            case .evening:
+                return .evening
+            case .night:
+                return .night
+            case .custom:
+                // For custom, determine based on start time hour
+                if let startTime = startTime {
+                    let hour = calendar.component(.hour, from: startTime)
+                    if hour >= 5 && hour < 12 {
+                        return .morning
+                    } else if hour >= 12 && hour < 17 {
+                        return .afternoon
+                    } else if hour >= 17 && hour < 21 {
+                        return .evening
+                    } else {
+                        return .night
+                    }
                 }
-            }()
-            
-            if timeFrameTimes[timeFrame] == nil {
-                timeFrameTimes[timeFrame] = []
+                return .morning // Default
             }
-            timeFrameTimes[timeFrame]?.append(time)
+        }
+        
+        // Process times based on selection mode
+        if state.timeSelectionMode == .specificTime {
+            // Original logic: group specific times by their TimeFrame
+            for time in state.times {
+                // Determine TimeFrame based on hour
+                let hour = calendar.component(.hour, from: time)
+                let timeFrame: TimeFrame = {
+                    if hour >= 5 && hour < 12 {
+                        return .morning
+                    } else if hour >= 12 && hour < 17 {
+                        return .afternoon
+                    } else if hour >= 17 && hour < 21 {
+                        return .evening
+                    } else {
+                        return .night
+                    }
+                }()
+                
+                if timeFrameTimes[timeFrame] == nil {
+                    timeFrameTimes[timeFrame] = []
+                }
+                timeFrameTimes[timeFrame]?.append(time)
+            }
+        } else {
+            // Time frame mode: group by the selected time frames
+            for timeFrameSelection in state.timeFrames {
+                let timeFrame = mapToTimeFrame(timeFrameSelection.type, startTime: timeFrameSelection.startTime)
+                
+                // Use start time if available, otherwise use a representative time
+                let representativeTime: Date
+                if let startTime = timeFrameSelection.startTime {
+                    representativeTime = startTime
+                } else {
+                    // Use default hour for the time frame type
+                    let hour = timeFrameSelection.type.defaultStartHour
+                    representativeTime = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
+                }
+                
+                if timeFrameTimes[timeFrame] == nil {
+                    timeFrameTimes[timeFrame] = []
+                }
+                timeFrameTimes[timeFrame]?.append(representativeTime)
+            }
         }
         
         // For each TimeFrame, find or create group and create dose configurations

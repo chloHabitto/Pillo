@@ -27,6 +27,63 @@ enum DosingType: String, CaseIterable {
     case flexible = "Flexible"
 }
 
+enum TimeSelectionMode: String, CaseIterable {
+    case specificTime = "Specific Time"
+    case timeFrame = "Time Frame"
+}
+
+struct TimeFrameSelection: Identifiable, Equatable {
+    var id: UUID
+    var type: TimeFrameType
+    var startTime: Date?
+    var endTime: Date?
+    
+    init(id: UUID = UUID(), type: TimeFrameType, startTime: Date? = nil, endTime: Date? = nil) {
+        self.id = id
+        self.type = type
+        self.startTime = startTime
+        self.endTime = endTime
+    }
+}
+
+enum TimeFrameType: String, CaseIterable {
+    case morning = "Morning"
+    case afternoon = "Afternoon"
+    case evening = "Evening"
+    case night = "Night"
+    case custom = "Custom"
+    
+    var defaultStartHour: Int {
+        switch self {
+        case .morning: return 5
+        case .afternoon: return 12
+        case .evening: return 17
+        case .night: return 21
+        case .custom: return 0
+        }
+    }
+    
+    var defaultEndHour: Int {
+        switch self {
+        case .morning: return 12
+        case .afternoon: return 17
+        case .evening: return 21
+        case .night: return 5
+        case .custom: return 8
+        }
+    }
+    
+    var displayRange: String {
+        switch self {
+        case .morning: return "5:00 AM - 12:00 PM"
+        case .afternoon: return "12:00 PM - 5:00 PM"
+        case .evening: return "5:00 PM - 9:00 PM"
+        case .night: return "9:00 PM - 5:00 AM"
+        case .custom: return "Custom Range"
+        }
+    }
+}
+
 struct DoseOptionInput: Identifiable {
     var id: UUID
     var components: [(strengthIndex: Int, quantity: Int)] // Index into strengths array
@@ -74,7 +131,9 @@ class AddMedicationFlowState {
     
     // Step 4: Schedule
     var scheduleOption: ScheduleOption = .everyDay
-    var times: [Date] = []
+    var timeSelectionMode: TimeSelectionMode = .specificTime
+    var times: [Date] = [] // For specific time mode
+    var timeFrames: [TimeFrameSelection] = [] // For time frame mode
     var startDate: Date = Date()
     var endDate: Date? = nil
     var specificDaysOfWeek: Set<Int> = [] // 1 = Sunday, 2 = Monday, etc.
@@ -120,7 +179,11 @@ class AddMedicationFlowState {
                 return !doseOptions.isEmpty
             }
         case 5:
-            return !times.isEmpty
+            if timeSelectionMode == .specificTime {
+                return !times.isEmpty
+            } else {
+                return !timeFrames.isEmpty
+            }
         case 6:
             return true // Appearance is optional
         case 7:
@@ -160,6 +223,47 @@ class AddMedicationFlowState {
     func removeTime(at index: Int) {
         guard index < times.count else { return }
         times.remove(at: index)
+    }
+    
+    func addTimeFrame(_ timeFrame: TimeFrameSelection) {
+        timeFrames.append(timeFrame)
+    }
+    
+    func removeTimeFrame(at index: Int) {
+        guard index < timeFrames.count else { return }
+        timeFrames.remove(at: index)
+    }
+    
+    func updateTimeFrame(at index: Int, with timeFrame: TimeFrameSelection) {
+        guard index < timeFrames.count else { return }
+        timeFrames[index] = timeFrame
+    }
+    
+    // Helper to get all times from both modes (for compatibility)
+    func getAllTimes() -> [Date] {
+        if timeSelectionMode == .specificTime {
+            return times
+        } else {
+            // Convert time frames to representative times
+            let calendar = Calendar.current
+            var result: [Date] = []
+            
+            for timeFrame in timeFrames {
+                switch timeFrame.type {
+                case .custom:
+                    if let startTime = timeFrame.startTime {
+                        result.append(startTime)
+                    }
+                default:
+                    // Use the default start hour for predefined time frames
+                    let hour = timeFrame.type.defaultStartHour
+                    if let date = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
+                        result.append(date)
+                    }
+                }
+            }
+            return result
+        }
     }
     
     // Dosing type helpers
