@@ -145,7 +145,7 @@ struct GroupCard: View {
                 CompactDoseSelector(
                     options: group.doseOptions,
                     selectedId: viewModel.selectedDoses[group.group.id]?.id,
-                    isCompleted: group.completedDose != nil,
+                    completedId: group.completedDose?.id,
                     onSelect: { dose in
                         viewModel.selectDose(dose, for: group.group)
                     }
@@ -153,9 +153,21 @@ struct GroupCard: View {
             } else if let singleOption = group.doseOptions.first {
                 // Single option: show the dose with low stock warning if applicable
                 HStack {
-                    Text(singleOption.doseConfig.displayName)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.secondary)
+                    if group.completedDose != nil {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(Color.green)
+                                .font(.subheadline)
+                            Text(singleOption.doseConfig.displayName)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color.green)
+                        }
+                    } else {
+                        Text(singleOption.doseConfig.displayName)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.secondary)
+                    }
                     
                     Spacer()
                     
@@ -178,20 +190,30 @@ struct GroupCard: View {
         .overlay(alignment: .topTrailing) {
             // Checkbox on the top right
             if let completed = group.completedDose {
-                // Already logged - show undo button
-                HStack(spacing: 6) {
-                    Label(completed.displayName, systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(Color.green)
-                        .font(.caption)
+                // Already logged - show prominent completed indicator with undo button
+                HStack(spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.white)
+                            .font(.subheadline)
+                        Text("Taken: \(completed.displayName)")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.white)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.green)
+                    .clipShape(Capsule())
                     
                     Button {
                         showingUndoConfirmation = true
                     } label: {
                         Image(systemName: "arrow.uturn.backward")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(Color.orange)
-                            .padding(4)
-                            .background(Color.orange.opacity(0.1))
+                            .padding(8)
+                            .background(Color.orange.opacity(0.15))
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
@@ -233,7 +255,7 @@ struct GroupCard: View {
 struct CompactDoseSelector: View {
     let options: [DoseOption]
     let selectedId: UUID?
-    let isCompleted: Bool
+    let completedId: UUID?
     let onSelect: (DoseConfiguration) -> Void
     
     var body: some View {
@@ -243,6 +265,13 @@ struct CompactDoseSelector: View {
                     onSelect(option.doseConfig)
                 } label: {
                     HStack(spacing: 4) {
+                        // Show checkmark if this dose is completed
+                        if completedId == option.doseConfig.id {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color.white)
+                        }
+                        
                         Text(option.doseConfig.displayName)
                             .font(.caption)
                             .fontWeight(.medium)
@@ -256,13 +285,31 @@ struct CompactDoseSelector: View {
                     .padding(.vertical, 6)
                     .background(
                         Capsule()
-                            .fill(selectedId == option.doseConfig.id ? Color.accentColor : Color(.systemGray5))
+                            .fill(backgroundColor(for: option.doseConfig.id))
                     )
-                    .foregroundStyle(selectedId == option.doseConfig.id ? Color.white : Color.primary)
+                    .foregroundStyle(foregroundColor(for: option.doseConfig.id))
                 }
-                .disabled(isCompleted || option.isCompleted)
+                .disabled(completedId != nil || option.isCompleted)
             }
             Spacer()
+        }
+    }
+    
+    private func backgroundColor(for doseId: UUID) -> Color {
+        if completedId == doseId {
+            return Color.green
+        } else if selectedId == doseId {
+            return Color.accentColor
+        } else {
+            return Color(.systemGray5)
+        }
+    }
+    
+    private func foregroundColor(for doseId: UUID) -> Color {
+        if completedId == doseId || selectedId == doseId {
+            return Color.white
+        } else {
+            return Color.primary
         }
     }
 }
