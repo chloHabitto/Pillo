@@ -194,17 +194,27 @@ class AddMedicationFlowState {
     var daysInterval: Int = 1 // For "Every Few Days"
     
     // Step 6: Shape Selection
-    var selectedShape: PillShape = .capsule
+    var selectedShape: PillShape = .capsule {
+        didSet {
+            // Set default colors when shape changes
+            setDefaultColors(for: selectedShape)
+        }
+    }
     
     // Step 7: Color Selection
-    var leftColor: Color = .white
-    var rightColor: Color = .white
-    var backgroundColor: Color = .blue
+    var leftColor: Color = Color("PillColor-White")
+    var rightColor: Color = Color("PillColor-LightGray")
+    var backgroundColor: Color = Color("BackgroundColor-Aqua")
     var selectedPhoto: UIImage? = nil
     
     // Step 8: Review
     var displayName: String = ""
     var notes: String = ""
+    
+    init() {
+        // Initialize with default colors for the default shape (capsule)
+        setDefaultColors(for: selectedShape)
+    }
     
     // Navigation
     func nextStep() {
@@ -354,6 +364,21 @@ class AddMedicationFlowState {
         fixedDoseComponents.reduce(0) { total, comp in
             guard comp.strengthIndex < strengths.count else { return total }
             return total + (strengths[comp.strengthIndex].value * Double(comp.quantity))
+        }
+    }
+    
+    // Set default colors based on selected shape
+    func setDefaultColors(for shape: PillShape) {
+        backgroundColor = Color("BackgroundColor-Aqua")
+        
+        if shape.isTwoTone {
+            // Capsule: left side white, right side light gray
+            leftColor = Color("PillColor-White")
+            rightColor = Color("PillColor-LightGray")
+        } else {
+            // Single color shapes: white
+            leftColor = Color("PillColor-White")
+            rightColor = Color("PillColor-White")
         }
     }
 }

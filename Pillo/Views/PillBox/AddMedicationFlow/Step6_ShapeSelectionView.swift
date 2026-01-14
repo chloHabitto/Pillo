@@ -17,7 +17,7 @@ struct ShapeSelectionView: View {
                 // Preview
                 ZStack {
                     Circle()
-                        .fill(Color(.secondarySystemBackground))
+                        .fill(state.backgroundColor)
                         .frame(width: 120, height: 120)
                     
                     shapePreview(state.selectedShape)
@@ -125,16 +125,17 @@ struct ShapeSelectionView: View {
     private func shapeButton(_ shape: PillShape) -> some View {
         Button {
             state.selectedShape = shape
+            // Default colors are automatically set via didSet
             let impact = UIImpactFeedbackGenerator(style: .light)
             impact.impactOccurred()
         } label: {
             ZStack {
+                // Use BackgroundColor-Aqua as default background
                 Circle()
-                    .fill(Color.cyan)
+                    .fill(Color("BackgroundColor-Aqua"))
                     .frame(width: 70, height: 70)
                 
-                shapeIcon(shape)
-                    .foregroundStyle(Color.white)
+                shapeIcon(shape, isSelected: state.selectedShape == shape)
                     .frame(width: 50, height: 50)
                 
                 if state.selectedShape == shape {
@@ -152,20 +153,25 @@ struct ShapeSelectionView: View {
     }
     
     @ViewBuilder
-    private func shapeIcon(_ shape: PillShape) -> some View {
+    private func shapeIcon(_ shape: PillShape, isSelected: Bool) -> some View {
         if shape == .capsule {
             ZStack {
                 Image("Shape-capsule_left")
+                    .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
                 Image("Shape-capsule_right")
+                    .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(isSelected ? Color("PillColor-LightGray") : Color("PillColor-LightGray"))
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
         }
     }
     
@@ -174,16 +180,21 @@ struct ShapeSelectionView: View {
         if shape == .capsule {
             ZStack {
                 Image("Shape-capsule_left")
+                    .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
                 Image("Shape-capsule_right")
+                    .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .foregroundStyle(state.leftColor)
         }
     }
 }

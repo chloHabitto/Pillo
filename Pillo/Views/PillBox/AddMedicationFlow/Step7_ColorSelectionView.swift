@@ -12,33 +12,33 @@ struct ColorSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     
     private let pillColors: [Color] = [
-        .white,
-        Color(white: 0.85), // light gray
-        Color(red: 1.0, green: 0.95, blue: 0.8), // cream
-        Color(red: 1.0, green: 0.8, blue: 0.6), // peach
-        Color(red: 0.9, green: 1.0, blue: 0.5), // yellow-green
-        Color(red: 0.5, green: 1.0, blue: 0.8), // mint
-        Color(red: 0.5, green: 0.8, blue: 1.0), // sky blue
-        Color(red: 0.4, green: 0.5, blue: 1.0), // blue
-        Color(red: 0.7, green: 0.5, blue: 1.0), // lavender
-        Color(red: 1.0, green: 0.7, blue: 0.8), // pink
-        Color(red: 1.0, green: 0.4, blue: 0.4), // red
-        Color(red: 1.0, green: 0.6, blue: 0.2), // orange
+        Color("PillColor-White"),
+        Color("PillColor-LightGray"),
+        Color("PillColor-Cream"),
+        Color("PillColor-Peach"),
+        Color("PillColor-YellowGreen"),
+        Color("PillColor-Mint"),
+        Color("PillColor-SkyBlue"),
+        Color("PillColor-Blue"),
+        Color("PillColor-Lavender"),
+        Color("PillColor-Pink"),
+        Color("PillColor-Red"),
+        Color("PillColor-Orange"),
     ]
     
     private let backgroundColors: [Color] = [
-        Color(red: 0.0, green: 0.5, blue: 0.6), // teal
-        Color(white: 0.4), // dark gray
-        Color(red: 0.7, green: 0.6, blue: 0.0), // olive/gold
-        Color(red: 1.0, green: 0.4, blue: 0.3), // coral
-        Color(red: 0.6, green: 0.8, blue: 0.4), // sage
-        Color(red: 0.4, green: 0.8, blue: 0.7), // aqua
-        Color(red: 0.2, green: 0.5, blue: 0.6), // dark teal
-        Color(red: 0.7, green: 0.4, blue: 0.7), // purple
-        Color(red: 0.6, green: 0.5, blue: 0.7), // muted purple
-        Color(red: 1.0, green: 0.5, blue: 0.6), // salmon
-        Color(red: 0.9, green: 0.3, blue: 0.3), // darker red
-        Color(red: 0.8, green: 0.5, blue: 0.2), // brown/copper
+        Color("BackgroundColor-Teal"),
+        Color("BackgroundColor-DarkGray"),
+        Color("BackgroundColor-OliveGold"),
+        Color("BackgroundColor-Coral"),
+        Color("BackgroundColor-Sage"),
+        Color("BackgroundColor-Aqua"),
+        Color("BackgroundColor-DarkTeal"),
+        Color("BackgroundColor-Purple"),
+        Color("BackgroundColor-MutedPurple"),
+        Color("BackgroundColor-Salmon"),
+        Color("BackgroundColor-DarkerRed"),
+        Color("BackgroundColor-BrownCopper"),
     ]
     
     var body: some View {
