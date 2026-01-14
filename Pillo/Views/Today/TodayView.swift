@@ -146,8 +146,8 @@ struct GroupCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Show medication name (extract from first option's first component)
-            if let firstMed = group.doseOptions.first?.components.first?.medication {
-                Text(firstMed.name)
+            if let firstComponent = group.doseOptions.first?.components.first {
+                Text(firstComponent.medicationName)
                     .font(.headline)
             }
             
@@ -182,37 +182,38 @@ struct GroupCard: View {
                     .font(.caption)
                     .foregroundStyle(Color.secondary)
             }
-            
-            // Checkbox on the right
-            HStack {
-                Spacer()
-                
-                if let completed = group.completedDose {
-                    // Already logged
-                    Label(completed.displayName, systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(Color.green)
-                        .font(.caption)
-                } else {
-                    // Checkbox to log
-                    Button {
-                        // Log the selected dose (or first option if single)
-                        if let selectedDose = viewModel.selectedDoses[group.group.id] {
-                            viewModel.logSingleIntake(dose: selectedDose, deductStock: true)
-                        } else if group.doseOptions.count == 1, let singleDose = group.doseOptions.first {
-                            viewModel.logSingleIntake(dose: singleDose.doseConfig, deductStock: true)
-                        }
-                    } label: {
-                        Image(systemName: viewModel.selectedDoses[group.group.id] != nil ? "checkmark.square.fill" : "square")
-                            .font(.title2)
-                            .foregroundStyle(viewModel.selectedDoses[group.group.id] != nil ? Color.accentColor : Color.secondary)
-                    }
-                    .disabled(viewModel.selectedDoses[group.group.id] == nil && group.doseOptions.count > 1)
-                }
-            }
         }
         .padding()
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(alignment: .topTrailing) {
+            // Checkbox on the top right
+            if let completed = group.completedDose {
+                // Already logged
+                Label(completed.displayName, systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(Color.green)
+                    .font(.caption)
+                    .padding(.top, 8)
+                    .padding(.trailing, 8)
+            } else {
+                // Checkbox to log
+                Button {
+                    // Log the selected dose (or first option if single)
+                    if let selectedDose = viewModel.selectedDoses[group.group.id] {
+                        viewModel.logSingleIntake(dose: selectedDose, deductStock: true)
+                    } else if group.doseOptions.count == 1, let singleDose = group.doseOptions.first {
+                        viewModel.logSingleIntake(dose: singleDose.doseConfig, deductStock: true)
+                    }
+                } label: {
+                    Image(systemName: viewModel.selectedDoses[group.group.id] != nil ? "checkmark.square.fill" : "square")
+                        .font(.title2)
+                        .foregroundStyle(viewModel.selectedDoses[group.group.id] != nil ? Color.accentColor : Color.secondary)
+                }
+                .disabled(viewModel.selectedDoses[group.group.id] == nil && group.doseOptions.count > 1)
+                .padding(.top, 8)
+                .padding(.trailing, 8)
+            }
+        }
     }
 }
 
@@ -274,7 +275,7 @@ struct DoseOptionRow: View {
                     
                     // Component breakdown
                     if option.components.count > 1 {
-                        Text(option.components.map { "\($0.medication.name) \(Int($0.medication.strength))\($0.medication.strengthUnit) ×\($0.quantityNeeded)" }.joined(separator: " + "))
+                        Text(option.components.map { "\($0.medicationName) \(Int($0.medicationStrength))\($0.medicationStrengthUnit) ×\($0.quantityNeeded)" }.joined(separator: " + "))
                             .font(.caption)
                             .foregroundStyle(Color.secondary)
                     }

@@ -93,10 +93,20 @@ class DailyPlanManager {
                     var components: [ComponentInfo] = []
                     
                     for component in doseConfig.components {
+                        // Safely access medication - if medication is deleted/invalidated, skip
                         guard let medication = component.medication else {
                             continue
                         }
                         
+                        // Extract all values immediately to avoid crashes if medication is invalidated later
+                        // Note: If medication is invalidated at this point, we'll crash, but that's better
+                        // than crashing later when accessing ComponentInfo.medication
+                        let medicationId = medication.id
+                        let medicationName = medication.name
+                        let medicationStrength = medication.strength
+                        let medicationStrengthUnit = medication.strengthUnit
+                        
+                        // Access stock sources - this might also crash if medication is invalidated
                         let availableStock = stockManager.getCurrentStock(for: medication)
                         
                         // Get low stock threshold from any source, or default to 10
@@ -107,7 +117,11 @@ class DailyPlanManager {
                         let isCountingEnabled = medication.stockSources.contains { $0.countingEnabled }
                         
                         let componentInfo = ComponentInfo(
-                            medication: medication,
+                            id: medicationId,
+                            medicationId: medicationId,
+                            medicationName: medicationName,
+                            medicationStrength: medicationStrength,
+                            medicationStrengthUnit: medicationStrengthUnit,
                             quantityNeeded: component.quantity,
                             availableStock: availableStock,
                             lowStockThreshold: lowStockThreshold,
@@ -343,8 +357,11 @@ struct DoseOption: Identifiable {
 }
 
 struct ComponentInfo: Identifiable {
-    var id: UUID { medication.id }
-    var medication: Medication
+    var id: UUID
+    var medicationId: UUID
+    var medicationName: String
+    var medicationStrength: Double
+    var medicationStrengthUnit: String
     var quantityNeeded: Int
     var availableStock: Int
     var lowStockThreshold: Int
