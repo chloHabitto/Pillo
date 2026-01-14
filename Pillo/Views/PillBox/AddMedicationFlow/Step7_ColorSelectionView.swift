@@ -114,16 +114,30 @@ struct ColorSelectionView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
-                state.nextStep()
-            } label: {
-                Text("Next")
-                    .font(.headline)
-                    .foregroundStyle(Color.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.cyan)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack(spacing: 12) {
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Skip")
+                        .font(.headline)
+                        .foregroundStyle(Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Next")
+                        .font(.headline)
+                        .foregroundStyle(Color.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.cyan)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
             }
             .padding()
             .background(Color(.systemBackground))
@@ -164,14 +178,30 @@ struct ColorSelectionView: View {
                 ForEach(colors, id: \.self) { color in
                     Button {
                         selectedColor.wrappedValue = color
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
                     } label: {
-                        Circle()
-                            .fill(color)
-                            .frame(width: 44, height: 44)
-                            .overlay(
+                        ZStack {
+                            Circle()
+                                .fill(color)
+                                .frame(width: 44, height: 44)
+                            
+                            // Light stroke for all colors to make them visible
+                            Circle()
+                                .stroke(Color(.separator), lineWidth: 0.5)
+                                .frame(width: 44, height: 44)
+                            
+                            if selectedColor.wrappedValue == color {
+                                // Outer ring for selected state
                                 Circle()
-                                    .stroke(Color.white, lineWidth: selectedColor.wrappedValue == color ? 3 : 0)
-                            )
+                                    .stroke(Color.primary, lineWidth: 3)
+                                    .frame(width: 50, height: 50)
+                                // Inner stroke for better visibility
+                                Circle()
+                                    .stroke(Color.white, lineWidth: 2)
+                                    .frame(width: 44, height: 44)
+                            }
+                        }
                     }
                 }
             }

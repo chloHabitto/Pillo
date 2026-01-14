@@ -122,18 +122,32 @@ struct DosingTypeView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
-                state.nextStep()
-            } label: {
-                Text("Next")
-                    .font(.headline)
-                    .foregroundStyle(state.canProceedFromStep(4) ? Color.white : Color.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack(spacing: 12) {
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Skip")
+                        .font(.headline)
+                        .foregroundStyle(Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Next")
+                        .font(.headline)
+                        .foregroundStyle(state.canProceedFromStep(4) ? Color.white : Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .disabled(!state.canProceedFromStep(4))
             }
-            .disabled(!state.canProceedFromStep(4))
             .padding()
             .background(Color(.systemBackground))
         }

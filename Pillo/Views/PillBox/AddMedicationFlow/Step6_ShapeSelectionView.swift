@@ -92,16 +92,30 @@ struct ShapeSelectionView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
-                state.nextStep()
-            } label: {
-                Text("Next")
-                    .font(.headline)
-                    .foregroundStyle(Color.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.cyan)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack(spacing: 12) {
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Skip")
+                        .font(.headline)
+                        .foregroundStyle(Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                
+                Button {
+                    state.nextStep()
+                } label: {
+                    Text("Next")
+                        .font(.headline)
+                        .foregroundStyle(Color.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.cyan)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
             }
             .padding()
             .background(Color(.systemBackground))
@@ -124,6 +138,11 @@ struct ShapeSelectionView: View {
                     .frame(width: 50, height: 50)
                 
                 if state.selectedShape == shape {
+                    // Outer ring for selected state
+                    Circle()
+                        .stroke(Color.primary, lineWidth: 4)
+                        .frame(width: 78, height: 78)
+                    // Inner stroke for better visibility
                     Circle()
                         .stroke(Color.white, lineWidth: 3)
                         .frame(width: 70, height: 70)
