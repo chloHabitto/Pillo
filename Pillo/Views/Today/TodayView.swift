@@ -180,6 +180,13 @@ struct GroupCard: View {
                             .foregroundStyle(Color.orange)
                             .font(.caption)
                     }
+                    
+                    // Show selection indicator
+                    if viewModel.selectedDoses[group.group.id]?.id == singleOption.doseConfig.id {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.accentColor)
+                            .font(.subheadline)
+                    }
                 }
             } else {
                 // No dose options - medication exists but not configured for dosing
@@ -189,11 +196,23 @@ struct GroupCard: View {
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(backgroundColor(for: group))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
+        )
+        .contentShape(Rectangle()) // Make entire area tappable
+        .onTapGesture {
+            // For single dose options, make the entire card tappable
+            if group.doseOptions.count == 1,
+               let singleOption = group.doseOptions.first {
+                viewModel.selectDose(singleOption.doseConfig, for: group.group)
+            }
+        }
         .overlay(alignment: .topTrailing) {
-            // Undo button on the top right (only shown when completed)
-            if group.completedDose != nil {
+            // Undo button on the top right (only shown when completed and not selected)
+            if group.completedDose != nil && !isSelected(group) {
                 Button {
                     showingUndoConfirmation = true
                 } label: {
@@ -207,20 +226,6 @@ struct GroupCard: View {
                 .buttonStyle(.plain)
                 .padding(.top, 8)
                 .padding(.trailing, 8)
-            } else if group.doseOptions.count == 1 {
-                // For single dose option, show checkbox to log
-                Button {
-                    // Log the single dose
-                    if let singleDose = group.doseOptions.first {
-                        viewModel.logSingleIntake(dose: singleDose.doseConfig, deductStock: true)
-                    }
-                } label: {
-                    Image(systemName: "checkmark.square")
-                        .font(.title2)
-                        .foregroundStyle(Color.secondary)
-                }
-                .padding(.top, 8)
-                .padding(.trailing, 8)
             }
         }
         .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
@@ -232,6 +237,29 @@ struct GroupCard: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will restore the stock and remove the intake log. Are you sure?")
+        }
+    }
+    
+    // Helper to check if this group has a selected dose
+    private func isSelected(_ group: GroupPlan) -> Bool {
+        viewModel.selectedDoses[group.group.id] != nil
+    }
+    
+    // Helper to get background color based on selection and completion state
+    private func backgroundColor(for group: GroupPlan) -> Color {
+        if isSelected(group) {
+            return Color.accentColor.opacity(0.1)
+        } else {
+            return Color(.systemGray6)
+        }
+    }
+    
+    // Helper to get border color based on selection state
+    private func borderColor(for group: GroupPlan) -> Color {
+        if isSelected(group) {
+            return Color.accentColor
+        } else {
+            return Color.clear
         }
     }
 }

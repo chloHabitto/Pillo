@@ -39,7 +39,10 @@ class TodayViewModel {
     // Select a dose option for a group (radio button behavior)
     func selectDose(_ dose: DoseConfiguration, for group: MedicationGroup) {
         // Allow selecting any dose, including completed ones (so they can be unlogged)
-        selectedDoses[group.id] = dose
+        // Reassign to trigger SwiftUI observation
+        var updated = selectedDoses
+        updated[group.id] = dose
+        selectedDoses = updated
     }
     
     // Check if a dose is the selected one for its group
