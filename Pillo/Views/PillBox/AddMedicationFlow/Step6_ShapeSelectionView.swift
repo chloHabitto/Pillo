@@ -254,6 +254,32 @@ struct ShapeSelectionView: View {
                         .frame(width: 60, height: 60)
                 }
             }
+        } else if shape == .triangle {
+            ZStack {
+                Image("Shape-triangle")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-triangle-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
+        } else if shape == .square {
+            ZStack {
+                Image("Shape-square")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-square-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -328,6 +354,28 @@ struct ShapeSelectionView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
+            }
+        } else if shape == .triangle {
+            ZStack {
+                Image("Shape-triangle")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-triangle-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .square {
+            ZStack {
+                Image("Shape-square")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-square-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
