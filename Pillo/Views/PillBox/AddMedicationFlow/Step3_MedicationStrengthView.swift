@@ -46,6 +46,38 @@ struct MedicationStrengthView: View {
                         .padding(.horizontal)
                 }
                 
+                // Added strengths
+                if !state.strengths.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Added Strengths")
+                            .font(.headline)
+                            .foregroundStyle(Color.primary)
+                            .padding(.horizontal)
+                        
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
+                            ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
+                                HStack(spacing: 4) {
+                                    Text("\(Int(strength.value))\(strength.unit)")
+                                        .font(.subheadline)
+                                        .foregroundStyle(Color.primary)
+                                    
+                                    Button {
+                                        state.removeStrength(at: index)
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(Color.secondary)
+                                    }
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.cyan.opacity(0.2))
+                                .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+                
                 // Unit selection
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Choose Unit")
@@ -85,38 +117,6 @@ struct MedicationStrengthView: View {
                     .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
-                }
-                
-                // Added strengths
-                if !state.strengths.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Added Strengths")
-                            .font(.headline)
-                            .foregroundStyle(Color.primary)
-                            .padding(.horizontal)
-                        
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
-                            ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
-                                HStack(spacing: 4) {
-                                    Text("\(Int(strength.value))\(strength.unit)")
-                                        .font(.subheadline)
-                                        .foregroundStyle(Color.primary)
-                                    
-                                    Button {
-                                        state.removeStrength(at: index)
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(Color.secondary)
-                                    }
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(Color.cyan.opacity(0.2))
-                                .clipShape(Capsule())
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
                 }
                 
                 Spacer(minLength: 100)
