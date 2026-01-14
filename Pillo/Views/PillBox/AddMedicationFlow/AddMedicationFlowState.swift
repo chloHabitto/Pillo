@@ -200,9 +200,9 @@ class AddMedicationFlowState {
             setDefaultColors(for: selectedShape)
         }
     }
-    var showRoundTabletLine: Bool = true
-    var showOvalTabletLine: Bool = true
-    var showOblongTabletLine: Bool = true
+    var showRoundTabletLine: Bool = false
+    var showOvalTabletLine: Bool = false
+    var showOblongTabletLine: Bool = false
     
     // Step 7: Color Selection
     var leftColor: Color = Color("PillColor-White")
