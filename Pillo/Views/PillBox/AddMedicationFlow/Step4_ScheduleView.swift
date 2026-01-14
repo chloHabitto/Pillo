@@ -25,14 +25,14 @@ struct ScheduleView: View {
                 // Title
                 Text("Set a Schedule")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
                 // When will you take this?
                 VStack(alignment: .leading, spacing: 12) {
                     Text("When will you take this?")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 0) {
@@ -43,7 +43,7 @@ struct ScheduleView: View {
                                 HStack {
                                     Text(option.rawValue)
                                         .font(.body)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.primary)
                                     
                                     Spacer()
                                     
@@ -60,11 +60,11 @@ struct ScheduleView: View {
                             
                             if option != ScheduleOption.allCases.last {
                                 Divider()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color(.separator))
                             }
                         }
                     }
-                    .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
@@ -73,7 +73,7 @@ struct ScheduleView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("At what time?")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 8) {
@@ -91,16 +91,15 @@ struct ScheduleView: View {
                                     set: { state.times[index] = $0 }
                                 ), displayedComponents: .hourAndMinute)
                                 .labelsHidden()
-                                .colorScheme(.dark)
                                 
                                 Text("1 capsule")
                                     .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.7))
+                                    .foregroundStyle(Color.secondary)
                                 
                                 Spacer()
                             }
                             .padding()
-                            .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         
@@ -116,7 +115,7 @@ struct ScheduleView: View {
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }
@@ -127,37 +126,37 @@ struct ScheduleView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Duration")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 12) {
                         HStack {
                             Text("START DATE")
                                 .font(.caption)
-                                .foregroundStyle(.white.opacity(0.6))
+                                .foregroundStyle(Color.secondary)
                             Spacer()
                             Text(state.startDate, style: .date)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.primary)
                         }
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         HStack {
                             Text("END DATE")
                                 .font(.caption)
-                                .foregroundStyle(.white.opacity(0.6))
+                                .foregroundStyle(Color.secondary)
                             Spacer()
                             if let endDate = state.endDate {
                                 Text(endDate, style: .date)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.primary)
                             } else {
                                 Text("None")
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .foregroundStyle(Color.secondary)
                             }
                         }
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         Button {
@@ -175,7 +174,7 @@ struct ScheduleView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -183,7 +182,7 @@ struct ScheduleView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -191,11 +190,11 @@ struct ScheduleView: View {
                 VStack {
                     Text(state.medicationName)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     if let form = state.selectedForm, let strength = state.strengths.first {
                         Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
                             .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             }
@@ -205,7 +204,7 @@ struct ScheduleView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -236,15 +235,15 @@ struct ScheduleView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(state.canProceedFromStep(5) ? Color.white : Color.secondary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(5) ? Color.cyan : Color.gray.opacity(0.3))
+                    .background(state.canProceedFromStep(5) ? Color.cyan : Color(.tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .disabled(!state.canProceedFromStep(5))
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
         .onAppear {
             if state.times.isEmpty {

@@ -51,13 +51,13 @@ struct MedicationAppearanceView: View {
                 
                 Text("OR")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Color.secondary)
                 
                 // Shape selection
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Choose the Shape")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 16) {
@@ -69,7 +69,7 @@ struct MedicationAppearanceView: View {
                     
                     Text("More")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                         .padding(.top)
                     
@@ -87,7 +87,7 @@ struct MedicationAppearanceView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Choose Colors")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                             .padding(.horizontal)
                         
                         colorSection(title: "Left Side", selectedColor: $state.leftColor)
@@ -99,7 +99,7 @@ struct MedicationAppearanceView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Choose Colors")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                             .padding(.horizontal)
                         
                         colorSection(title: "Color", selectedColor: $state.leftColor)
@@ -110,7 +110,7 @@ struct MedicationAppearanceView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -118,7 +118,7 @@ struct MedicationAppearanceView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -126,11 +126,11 @@ struct MedicationAppearanceView: View {
                 VStack {
                     Text(state.medicationName)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     if let form = state.selectedForm, let strength = state.strengths.first {
                         Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
                             .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             }
@@ -140,7 +140,7 @@ struct MedicationAppearanceView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -159,14 +159,14 @@ struct MedicationAppearanceView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.cyan)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
     }
     
@@ -180,7 +180,7 @@ struct MedicationAppearanceView: View {
                     .frame(width: 60, height: 60)
                 
                 shapeIcon(shape)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .frame(width: 40, height: 40)
             }
         }
@@ -230,7 +230,7 @@ struct MedicationAppearanceView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(Color.secondary)
                 .padding(.horizontal)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {

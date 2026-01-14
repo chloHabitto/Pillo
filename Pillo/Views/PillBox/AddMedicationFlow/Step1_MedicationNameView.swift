@@ -21,15 +21,15 @@ struct MedicationNameView: View {
             // Title
             Text("Medication Name")
                 .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.primary)
             
             // Text field
             TextField("Add Medication Name", text: $state.medicationName)
                 .textFieldStyle(.plain)
                 .font(.system(size: 16))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.primary)
                 .padding()
-                .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal, 20)
             
@@ -41,10 +41,10 @@ struct MedicationNameView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(state.canProceedFromStep(1) ? Color.white : Color.secondary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(1) ? Color.cyan : Color.gray.opacity(0.3))
+                    .background(state.canProceedFromStep(1) ? Color.cyan : Color(.tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .disabled(!state.canProceedFromStep(1))
@@ -52,7 +52,7 @@ struct MedicationNameView: View {
             .padding(.bottom, 32)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -60,7 +60,7 @@ struct MedicationNameView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }

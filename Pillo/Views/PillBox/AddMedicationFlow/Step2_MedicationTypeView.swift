@@ -29,14 +29,14 @@ struct MedicationTypeView: View {
                 // Title
                 Text("Choose the Medication Type")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
                 // Common Forms
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Common Forms")
                         .font(.headline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Color.secondary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 0) {
@@ -44,7 +44,7 @@ struct MedicationTypeView: View {
                             formRow(form)
                         }
                     }
-                    .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
@@ -53,7 +53,7 @@ struct MedicationTypeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("More Forms")
                         .font(.headline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Color.secondary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 0) {
@@ -61,7 +61,7 @@ struct MedicationTypeView: View {
                             formRow(form)
                         }
                     }
-                    .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
@@ -69,7 +69,7 @@ struct MedicationTypeView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -77,7 +77,7 @@ struct MedicationTypeView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -85,7 +85,7 @@ struct MedicationTypeView: View {
                 VStack {
                     Text(state.medicationName)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -94,7 +94,7 @@ struct MedicationTypeView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -104,15 +104,15 @@ struct MedicationTypeView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(state.canProceedFromStep(2) ? Color.white : Color.secondary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(2) ? Color.cyan : Color.gray.opacity(0.3))
+                    .background(state.canProceedFromStep(2) ? Color.cyan : Color(.tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .disabled(!state.canProceedFromStep(2))
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
     }
     
@@ -148,13 +148,13 @@ struct MedicationTypeView: View {
             HStack {
                 Text(form.rawValue.capitalized)
                     .font(.body)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                 
                 Spacer()
                 
                 if state.selectedForm == form {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(.cyan)
+                        .foregroundStyle(Color.cyan)
                 }
             }
             .padding()

@@ -18,7 +18,7 @@ struct ReviewDetailsView: View {
                 // Title
                 Text("Review Details")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .padding(.top, 20)
                 
                 // Pill preview
@@ -43,12 +43,12 @@ struct ReviewDetailsView: View {
                 VStack(spacing: 4) {
                     Text(state.medicationName)
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     
                     if let form = state.selectedForm, let strength = state.strengths.first {
                         Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(Color.secondary)
                     }
                 }
                 
@@ -56,27 +56,27 @@ struct ReviewDetailsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Schedule")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text(state.scheduleOption.rawValue)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                         
                         ForEach(state.times, id: \.self) { time in
                             HStack {
                                 Text(time, style: .time)
                                 Text("1 capsule")
-                                    .foregroundStyle(.white.opacity(0.7))
+                                    .foregroundStyle(Color.secondary)
                             }
                         }
                         
                         Text("Starts \(state.startDate, style: .date)")
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(Color.secondary)
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.horizontal)
@@ -85,25 +85,25 @@ struct ReviewDetailsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Optional Details")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 12) {
                         TextField("Display Name", text: $state.displayName)
                             .textFieldStyle(.plain)
                             .font(.body)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                             .padding()
-                            .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         TextField("Notes", text: $state.notes, axis: .vertical)
                             .textFieldStyle(.plain)
                             .font(.body)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                             .lineLimit(3...6)
                             .padding()
-                            .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.horizontal)
@@ -112,7 +112,7 @@ struct ReviewDetailsView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -120,14 +120,14 @@ struct ReviewDetailsView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
             ToolbarItem(placement: .principal) {
                 Text("Review Details")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -135,7 +135,7 @@ struct ReviewDetailsView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -146,14 +146,14 @@ struct ReviewDetailsView: View {
             } label: {
                 Text("Done")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.cyan)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
     }
     

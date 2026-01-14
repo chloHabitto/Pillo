@@ -23,23 +23,23 @@ struct MedicationStrengthView: View {
                 // Title
                 Text("Add the Medication Strength")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
                 // Strength input
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Strength")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     TextField("Add Strength", text: $state.currentStrengthValue)
                         .textFieldStyle(.plain)
                         .font(.system(size: 16))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .keyboardType(.decimalPad)
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal)
                 }
@@ -48,7 +48,7 @@ struct MedicationStrengthView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Choose Unit")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
                     VStack(spacing: 0) {
@@ -59,13 +59,13 @@ struct MedicationStrengthView: View {
                                 HStack {
                                     Text(unit)
                                         .font(.body)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.primary)
                                     
                                     Spacer()
                                     
                                     if state.currentStrengthUnit == unit {
                                         Image(systemName: "checkmark")
-                                            .foregroundStyle(.cyan)
+                                            .foregroundStyle(Color.cyan)
                                     }
                                 }
                                 .padding()
@@ -76,11 +76,11 @@ struct MedicationStrengthView: View {
                             
                             if unit != units.last {
                                 Divider()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color(.separator))
                             }
                         }
                     }
-                    .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
@@ -108,7 +108,7 @@ struct MedicationStrengthView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Added Strengths")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.primary)
                             .padding(.horizontal)
                         
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
@@ -116,13 +116,13 @@ struct MedicationStrengthView: View {
                                 HStack(spacing: 4) {
                                     Text("\(Int(strength.value))\(strength.unit)")
                                         .font(.subheadline)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.primary)
                                     
                                     Button {
                                         state.removeStrength(at: index)
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.white.opacity(0.6))
+                                            .foregroundStyle(Color.secondary)
                                     }
                                 }
                                 .padding(.horizontal, 12)
@@ -138,7 +138,7 @@ struct MedicationStrengthView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -146,7 +146,7 @@ struct MedicationStrengthView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -154,11 +154,11 @@ struct MedicationStrengthView: View {
                 VStack {
                     Text(state.medicationName)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     if let form = state.selectedForm {
                         Text(form.rawValue.capitalized)
                             .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             }
@@ -168,7 +168,7 @@ struct MedicationStrengthView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -179,10 +179,10 @@ struct MedicationStrengthView: View {
                 } label: {
                     Text("Next")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(state.canProceedFromStep(3) ? Color.white : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(state.canProceedFromStep(3) ? Color.cyan : Color.gray.opacity(0.3))
+                        .background(state.canProceedFromStep(3) ? Color.cyan : Color(.tertiarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .disabled(!state.canProceedFromStep(3))
@@ -192,15 +192,15 @@ struct MedicationStrengthView: View {
                 } label: {
                     Text("Skip")
                         .font(.headline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
     }
     

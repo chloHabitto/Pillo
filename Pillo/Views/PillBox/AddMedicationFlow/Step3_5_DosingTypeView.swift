@@ -19,7 +19,7 @@ struct DosingTypeView: View {
                 // Title
                 Text("How do you dose?")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                     .padding(.top, 20)
                     .padding(.horizontal)
                 
@@ -49,7 +49,7 @@ struct DosingTypeView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+        .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -57,7 +57,7 @@ struct DosingTypeView: View {
                     state.previousStep()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                 }
             }
             
@@ -65,11 +65,11 @@ struct DosingTypeView: View {
                 VStack {
                     Text(state.medicationName)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     if let form = state.selectedForm {
                         Text(form.rawValue.capitalized)
                             .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             }
@@ -79,7 +79,7 @@ struct DosingTypeView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
@@ -108,15 +108,15 @@ struct DosingTypeView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(state.canProceedFromStep(4) ? Color.white : Color.secondary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(4) ? Color.cyan : Color.gray.opacity(0.3))
+                    .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .disabled(!state.canProceedFromStep(4))
             .padding()
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
         }
     }
     
@@ -127,7 +127,7 @@ struct DosingTypeView: View {
                 HStack {
                     Text("\(Int(strength.value))\(strength.unit)")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .frame(width: 80, alignment: .leading)
                     
                     Spacer()
@@ -140,11 +140,11 @@ struct DosingTypeView: View {
                     
                     Text("\(state.getFixedDoseQuantity(for: index))")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .frame(width: 30)
                 }
                 .padding()
-                .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal)
@@ -158,7 +158,7 @@ struct DosingTypeView: View {
                 HStack {
                     Text("Total:")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                     
                     Spacer()
                     
@@ -168,7 +168,7 @@ struct DosingTypeView: View {
                         .foregroundStyle(.cyan)
                 }
                 .padding()
-                .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal)
             }
@@ -179,13 +179,13 @@ struct DosingTypeView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Dose Options")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.primary)
                 .padding(.horizontal)
             
             if state.doseOptions.isEmpty {
                 Text("Add dose options to choose from each day")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(Color.secondary)
                     .padding(.horizontal)
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
@@ -193,14 +193,14 @@ struct DosingTypeView: View {
                         HStack(spacing: 4) {
                             Text(option.displayName(strengths: state.strengths))
                                 .font(.subheadline)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.primary)
                             
                             Button {
                                 editingDoseOptionIndex = index
                                 showingAddDoseSheet = true
                             } label: {
                                 Image(systemName: "pencil.circle.fill")
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .foregroundStyle(Color.secondary)
                                     .font(.caption)
                             }
                             
@@ -208,7 +208,7 @@ struct DosingTypeView: View {
                                 state.removeDoseOption(at: index)
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .foregroundStyle(Color.secondary)
                             }
                         }
                         .padding(.horizontal, 12)
@@ -254,7 +254,7 @@ struct AddDoseSheet: View {
                 VStack(spacing: 24) {
                     Text(editingOption == nil ? "Add Dose Option" : "Edit Dose Option")
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.primary)
                         .padding(.top, 20)
                     
                     // Dose builder for each strength
@@ -262,7 +262,7 @@ struct AddDoseSheet: View {
                         HStack {
                             Text("\(Int(strength.value))\(strength.unit)")
                                 .font(.headline)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.primary)
                                 .frame(width: 80, alignment: .leading)
                             
                             Spacer()
@@ -285,11 +285,11 @@ struct AddDoseSheet: View {
                             
                             Text("\(tempComponents.first(where: { $0.strengthIndex == index })?.quantity ?? 0)")
                                 .font(.headline)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.primary)
                                 .frame(width: 30)
                         }
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.horizontal)
@@ -297,13 +297,13 @@ struct AddDoseSheet: View {
                     // Total
                     if !tempComponents.isEmpty {
                         Divider()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color(.separator))
                             .padding(.horizontal)
                         
                         HStack {
                             Text("Total:")
                                 .font(.headline)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.primary)
                             
                             Spacer()
                             
@@ -316,23 +316,23 @@ struct AddDoseSheet: View {
                             Text("\(Int(total))\(unit)")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.cyan)
+                                .foregroundStyle(Color.cyan)
                         }
                         .padding()
-                        .background(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal)
                     }
                 }
             }
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+            .background(Color(.systemBackground))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         onCancel()
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.primary)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
