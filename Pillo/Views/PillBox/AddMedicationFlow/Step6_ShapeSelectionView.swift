@@ -135,7 +135,7 @@ struct ShapeSelectionView: View {
     @ViewBuilder
     private func shapeIcon(_ shape: PillShape) -> some View {
         if shape == .capsule {
-            HStack(spacing: 0) {
+            ZStack {
                 Image("Shape-capsule_left")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -153,7 +153,7 @@ struct ShapeSelectionView: View {
     @ViewBuilder
     private func shapePreview(_ shape: PillShape) -> some View {
         if shape == .capsule {
-            HStack(spacing: 0) {
+            ZStack {
                 Image("Shape-capsule_left")
                     .resizable()
                     .aspectRatio(contentMode: .fit)

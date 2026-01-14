@@ -160,7 +160,7 @@ struct ReviewDetailsView: View {
     @ViewBuilder
     private var pillPreview: some View {
         if state.selectedShape == .capsule {
-            HStack(spacing: 0) {
+            ZStack {
                 Image("Shape-capsule_left")
                     .renderingMode(.template)
                     .resizable()
