@@ -270,16 +270,17 @@ struct EditMedicationView: View {
         
         let strengthToRemove = strengths[index]
         
-        // Find and mark for deletion if it's a different medication
-        if let medToRemove = viewModel.medications.first(where: { med in
+        // Check if this strength belongs to a different medication (for future deletion handling)
+        let hasSeparateMedication = viewModel.medications.contains { med in
             med.name == name &&
             med.strength == strengthToRemove.value &&
             med.strengthUnit == strengthToRemove.unit &&
             med.id != medication.id
-        }) {
-            // Note: Actually deleting here could cause issues with DoseConfigurations
-            // For now, just remove from the UI list
+        }
+        
+        if hasSeparateMedication {
             // TODO: Add confirmation dialog before deleting medications with dose configs
+            // For now, just remove from the UI list
         }
         
         strengths.remove(at: index)
@@ -295,29 +296,49 @@ struct EditMedicationView: View {
             medication.strengthUnit = firstStrength.unit
         }
         
-        // 2. For additional strengths, check if Medication already exists or create new one
+        // 2. Find existing DoseConfigurations for this medication to copy settings from
+        let existingDoseConfigs = medication.doseComponents.compactMap { $0.doseConfiguration }
+        let existingGroup = existingDoseConfigs.first?.group
+        let existingScheduleType = existingDoseConfigs.first?.scheduleType ?? .everyday
+        let existingStartDate = existingDoseConfigs.first?.startDate ?? Date()
+        let existingEndDate = existingDoseConfigs.first?.endDate
+        
+        // 3. For additional strengths, create Medication and optionally DoseConfiguration
         for i in 1..<strengths.count {
             let strength = strengths[i]
             
             // Check if a medication with this name and strength already exists
-            let existingMedications = viewModel.medications.filter { med in
+            let existingMedication = viewModel.medications.first { med in
                 med.name == name &&
                 med.strength == strength.value &&
                 med.strengthUnit == strength.unit
             }
             
-            if existingMedications.isEmpty {
+            if existingMedication == nil {
                 // Create new Medication for this strength
-                _ = viewModel.addMedication(
+                let newMed = viewModel.addMedication(
                     name: name,
                     form: form,
                     strength: strength.value,
                     strengthUnit: strength.unit
                 )
+                
+                // If original medication has dose configurations, create one for the new strength too
+                if let group = existingGroup {
+                    let displayName = "\(Int(strength.value))\(strength.unit)"
+                    _ = viewModel.addDoseConfiguration(
+                        displayName: displayName,
+                        components: [(medication: newMed, quantity: 1)],
+                        group: group,
+                        scheduleType: existingScheduleType,
+                        startDate: existingStartDate,
+                        endDate: existingEndDate
+                    )
+                }
             }
         }
         
-        // 3. Save and reload
+        // 4. Save and reload
         try? modelContext.save()
         viewModel.loadData()
         dismiss()

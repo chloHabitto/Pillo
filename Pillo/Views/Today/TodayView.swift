@@ -151,6 +151,13 @@ struct GroupCard: View {
                     .font(.headline)
             }
             
+            // DEBUG: Show count of dose options
+            #if DEBUG
+            Text("DEBUG: \(group.doseOptions.count) dose options")
+                .font(.caption2)
+                .foregroundStyle(Color.orange)
+            #endif
+            
             if group.doseOptions.count > 1 {
                 // Multiple options: show compact chips
                 CompactDoseSelector(
@@ -162,7 +169,7 @@ struct GroupCard: View {
                     }
                 )
             } else if let singleOption = group.doseOptions.first {
-                // Single option: just show the dose
+                // Single option: show the dose with low stock warning if applicable
                 HStack {
                     Text(singleOption.doseConfig.displayName)
                         .font(.subheadline)
@@ -176,6 +183,11 @@ struct GroupCard: View {
                             .font(.caption)
                     }
                 }
+            } else {
+                // No dose options - medication exists but not configured for dosing
+                Text("Not scheduled")
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
             }
             
             // Checkbox on the right
