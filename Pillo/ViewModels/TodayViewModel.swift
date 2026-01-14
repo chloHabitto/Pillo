@@ -170,5 +170,12 @@ class TodayViewModel {
     var isToday: Bool {
         Calendar.current.isDateInToday(selectedDate)
     }
+    
+    // Undo an intake log
+    func undoIntake(log: IntakeLog) {
+        errorMessage = nil
+        intakeManager.undoIntake(log: log)
+        loadPlan()
+    }
 }
 

@@ -51,6 +51,7 @@ class IntakeManager {
         var failedDeduction: (component: DoseComponent, error: StockError)?
         
         for component in components {
+            // Extract medication early to avoid accessing invalidated objects
             guard let medication = component.medication else {
                 continue
             }
@@ -63,21 +64,12 @@ class IntakeManager {
                 )
                 
                 switch result {
-                case .success(let primaryDeduction):
-                    // Link the primary deduction to the intake log
-                    primaryDeduction.intakeLog = intakeLog
-                    allDeductions.append(primaryDeduction)
-                    
-                    // Find any other deductions for this medication that were just created
-                    // (in case quantity was split across multiple sources)
-                    let unlinkedDeductions = stockManager.getUnlinkedDeductions(for: medication)
-                    
-                    // Link any other deductions that are part of this component
-                    for deduction in unlinkedDeductions {
-                        if deduction.id != primaryDeduction.id {
-                            deduction.intakeLog = intakeLog
-                            allDeductions.append(deduction)
-                        }
+                case .success(let deductions):
+                    // Link all deductions to the intake log
+                    // (may be multiple if quantity was split across multiple sources)
+                    for deduction in deductions {
+                        deduction.intakeLog = intakeLog
+                        allDeductions.append(deduction)
                     }
                     
                 case .failure(let error):

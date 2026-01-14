@@ -80,6 +80,7 @@ class DailyPlanManager {
                     return doseConfig.components.contains { $0.medication != nil }
                 }
                 let completedDose = completedIntake?.doseConfiguration
+                let completedIntakeLog = completedIntake
                 
                 // Build dose options
                 var doseOptions: [DoseOption] = []
@@ -155,7 +156,8 @@ class DailyPlanManager {
                 let groupPlan = GroupPlan(
                     group: group,
                     doseOptions: doseOptions,
-                    completedDose: completedDose
+                    completedDose: completedDose,
+                    completedIntakeLog: completedIntakeLog
                 )
                 
                 groupPlans.append(groupPlan)
@@ -328,6 +330,7 @@ struct GroupPlan: Identifiable {
     var group: MedicationGroup
     var doseOptions: [DoseOption]
     var completedDose: DoseConfiguration?
+    var completedIntakeLog: IntakeLog?
     
     var isSatisfied: Bool {
         switch group.selectionRule {

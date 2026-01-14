@@ -36,7 +36,6 @@ struct TodayView: View {
 
 struct TodayContentView: View {
     @Bindable var viewModel: TodayViewModel
-    @State private var showingConfirmation = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -76,7 +75,7 @@ struct TodayContentView: View {
         .overlay(alignment: .bottom) {
             if !viewModel.selectedDoses.isEmpty {
                 Button {
-                    showingConfirmation = true
+                    viewModel.logSelectedIntakes(deductStock: true)
                 } label: {
                     Text("Log Selected as Taken")
                         .font(.headline)
@@ -89,17 +88,6 @@ struct TodayContentView: View {
                 .padding()
                 .background(.ultraThinMaterial)
             }
-        }
-        .confirmationDialog("Confirm Intake", isPresented: $showingConfirmation) {
-            Button("Log & Deduct Stock") {
-                viewModel.logSelectedIntakes(deductStock: true)
-            }
-            Button("Log Without Deducting") {
-                viewModel.logSelectedIntakes(deductStock: false)
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("How would you like to log this intake?")
         }
         .refreshable {
             viewModel.loadPlan()
@@ -142,6 +130,7 @@ struct TimeFrameSection: View {
 struct GroupCard: View {
     let group: GroupPlan
     @Bindable var viewModel: TodayViewModel
+    @State private var showingUndoConfirmation = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -189,12 +178,26 @@ struct GroupCard: View {
         .overlay(alignment: .topTrailing) {
             // Checkbox on the top right
             if let completed = group.completedDose {
-                // Already logged
-                Label(completed.displayName, systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(Color.green)
-                    .font(.caption)
-                    .padding(.top, 8)
-                    .padding(.trailing, 8)
+                // Already logged - show undo button
+                HStack(spacing: 6) {
+                    Label(completed.displayName, systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(Color.green)
+                        .font(.caption)
+                    
+                    Button {
+                        showingUndoConfirmation = true
+                    } label: {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.caption)
+                            .foregroundStyle(Color.orange)
+                            .padding(4)
+                            .background(Color.orange.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 8)
+                .padding(.trailing, 8)
             } else {
                 // Checkbox to log
                 Button {
@@ -213,6 +216,16 @@ struct GroupCard: View {
                 .padding(.top, 8)
                 .padding(.trailing, 8)
             }
+        }
+        .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
+            Button("Undo", role: .destructive) {
+                if let intakeLog = group.completedIntakeLog {
+                    viewModel.undoIntake(log: intakeLog)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will restore the stock and remove the intake log. Are you sure?")
         }
     }
 }

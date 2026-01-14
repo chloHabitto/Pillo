@@ -34,15 +34,18 @@ class StockManager {
     
     // Deduct stock (returns success/failure)
     // Note: May create multiple StockDeduction records if quantity spans multiple sources
-    // Returns the first deduction; all deductions are inserted into context
+    // Returns all deductions created; all deductions are inserted into context
     func deductStock(
         medication: Medication,
         quantity: Int,
         preferredSource: StockSource? = nil
-    ) -> Result<StockDeduction, StockError> {
+    ) -> Result<[StockDeduction], StockError> {
+        // Extract medication ID early to avoid accessing invalidated objects
+        let medicationId = medication.id
+        
         // If preferred source is provided and valid, use it
         if let preferred = preferredSource,
-           preferred.medication?.id == medication.id,
+           preferred.medication?.id == medicationId,
            preferred.countingEnabled,
            let currentQty = preferred.currentQuantity,
            currentQty >= quantity {
@@ -57,11 +60,13 @@ class StockManager {
             )
             modelContext.insert(deduction)
             
-            return .success(deduction)
+            return .success([deduction])
         }
         
         // Get all countable sources for this medication
-        let countableSources = medication.stockSources
+        // Access stockSources immediately to avoid invalidation issues
+        let stockSources = medication.stockSources
+        let countableSources = stockSources
             .filter { source in
                 source.countingEnabled &&
                 source.currentQuantity != nil &&
@@ -76,7 +81,7 @@ class StockManager {
                 medication: medication
             )
             modelContext.insert(deduction)
-            return .success(deduction)
+            return .success([deduction])
         }
         
         // Sort sources by priority:
@@ -146,9 +151,9 @@ class StockManager {
             return .failure(.insufficientStock)
         }
         
-        // Success - return the first deduction
+        // Success - return all deductions
         // All deductions are already inserted into context and will be linked in IntakeManager
-        return .success(deductions.first!)
+        return .success(deductions)
     }
     
     // Restore stock (for undo)
@@ -182,17 +187,36 @@ class StockManager {
     
     // Get all deductions for a medication that don't have an intake log yet
     // Useful for finding deductions created during a transaction
-    func getUnlinkedDeductions(for medication: Medication) -> [StockDeduction] {
-        // Fetch all deductions and filter in memory
-        // SwiftData #Predicate has limitations with optional relationship comparisons
-        let descriptor = FetchDescriptor<StockDeduction>()
+    func getUnlinkedDeductions(for medicationId: UUID) -> [StockDeduction] {
+        // Use a predicate to filter by medication ID if possible
+        // Since we can't easily filter by relationship in SwiftData predicates,
+        // we'll fetch recent deductions and filter in memory
+        // Limit to recent deductions to avoid performance issues
+        var descriptor = FetchDescriptor<StockDeduction>(
+            sortBy: [SortDescriptor(\.id, order: .reverse)]
+        )
+        descriptor.fetchLimit = 100 // Limit to recent 100 deductions
         
-        guard let allDeductions = try? modelContext.fetch(descriptor) else {
+        guard let recentDeductions = try? modelContext.fetch(descriptor) else {
             return []
         }
         
-        return allDeductions.filter { deduction in
-            deduction.medication?.id == medication.id && deduction.intakeLog == nil
+        return recentDeductions.filter { deduction in
+            // Check if intake log is nil first (safer check)
+            guard deduction.intakeLog == nil else {
+                return false
+            }
+            
+            // Try to access medication ID - if medication is invalidated, this will fail
+            // but we can't catch it, so we rely on SwiftData's behavior
+            // The key is to access it immediately and not hold the reference
+            guard let medication = deduction.medication else {
+                return false
+            }
+            // Access ID immediately - if medication is invalidated, this will crash
+            // but that's better than silently failing. The real fix is to ensure
+            // we call this method before any context operations that might invalidate
+            return medication.id == medicationId
         }
     }
     
