@@ -188,53 +188,33 @@ struct GroupCard: View {
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(alignment: .topTrailing) {
-            // Checkbox on the top right
-            if let completed = group.completedDose {
-                // Already logged - show prominent completed indicator with undo button
-                HStack(spacing: 8) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color.white)
-                            .font(.subheadline)
-                        Text("Taken: \(completed.displayName)")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.white)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.green)
-                    .clipShape(Capsule())
-                    
-                    Button {
-                        showingUndoConfirmation = true
-                    } label: {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.subheadline)
-                            .foregroundStyle(Color.orange)
-                            .padding(8)
-                            .background(Color.orange.opacity(0.15))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
+            // Undo button on the top right (only shown when completed)
+            if group.completedDose != nil {
+                Button {
+                    showingUndoConfirmation = true
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.orange)
+                        .padding(8)
+                        .background(Color.orange.opacity(0.15))
+                        .clipShape(Circle())
                 }
+                .buttonStyle(.plain)
                 .padding(.top, 8)
                 .padding(.trailing, 8)
-            } else {
-                // Checkbox to log
+            } else if group.doseOptions.count == 1 {
+                // For single dose option, show checkbox to log
                 Button {
-                    // Log the selected dose (or first option if single)
-                    if let selectedDose = viewModel.selectedDoses[group.group.id] {
-                        viewModel.logSingleIntake(dose: selectedDose, deductStock: true)
-                    } else if group.doseOptions.count == 1, let singleDose = group.doseOptions.first {
+                    // Log the single dose
+                    if let singleDose = group.doseOptions.first {
                         viewModel.logSingleIntake(dose: singleDose.doseConfig, deductStock: true)
                     }
                 } label: {
-                    Image(systemName: viewModel.selectedDoses[group.group.id] != nil ? "checkmark.square.fill" : "square")
+                    Image(systemName: "checkmark.square")
                         .font(.title2)
-                        .foregroundStyle(viewModel.selectedDoses[group.group.id] != nil ? Color.accentColor : Color.secondary)
+                        .foregroundStyle(Color.secondary)
                 }
-                .disabled(viewModel.selectedDoses[group.group.id] == nil && group.doseOptions.count > 1)
                 .padding(.top, 8)
                 .padding(.trailing, 8)
             }
