@@ -44,7 +44,9 @@ struct PillBoxContentView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.medications) { medication in
-                        MedicationRow(medication: medication, viewModel: viewModel)
+                        NavigationLink(destination: MedicationDetailView(medication: medication, viewModel: viewModel)) {
+                            MedicationRow(medication: medication, viewModel: viewModel)
+                        }
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
