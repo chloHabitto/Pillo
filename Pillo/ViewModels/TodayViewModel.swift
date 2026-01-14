@@ -45,6 +45,58 @@ class TodayViewModel {
         selectedDoses = updated
     }
     
+    // Toggle selection for a dose (select if not selected, deselect if selected)
+    func toggleDoseSelection(_ dose: DoseConfiguration, for group: MedicationGroup) {
+        var updated = selectedDoses
+        if updated[group.id]?.id == dose.id {
+            // Already selected, deselect it
+            updated.removeValue(forKey: group.id)
+        } else {
+            // Not selected, select it
+            updated[group.id] = dose
+        }
+        selectedDoses = updated
+    }
+    
+    // Deselect a group
+    func deselectGroup(_ group: MedicationGroup) {
+        var updated = selectedDoses
+        updated.removeValue(forKey: group.id)
+        selectedDoses = updated
+    }
+    
+    // Deselect all groups
+    func deselectAll() {
+        selectedDoses = [:]
+    }
+    
+    // Select the first available dose for a group (used when tapping card with multiple options)
+    func selectFirstAvailableDose(for group: MedicationGroup) {
+        // Find the group plan
+        let groupPlan = dailyPlan.timeFrames
+            .flatMap { $0.groups }
+            .first { $0.group.id == group.id }
+        
+        guard let groupPlan = groupPlan else { return }
+        
+        // If already has a selection, toggle it off
+        if let currentSelection = selectedDoses[group.id] {
+            // Check if the current selection is still valid (exists in dose options)
+            if groupPlan.doseOptions.contains(where: { $0.doseConfig.id == currentSelection.id }) {
+                deselectGroup(group)
+                return
+            } else {
+                // Current selection is invalid, remove it
+                deselectGroup(group)
+            }
+        }
+        
+        // Select the first available dose option
+        if let firstOption = groupPlan.doseOptions.first {
+            selectDose(firstOption.doseConfig, for: group)
+        }
+    }
+    
     // Check if a dose is the selected one for its group
     func isSelected(_ dose: DoseConfiguration, in group: MedicationGroup) -> Bool {
         selectedDoses[group.id]?.id == dose.id

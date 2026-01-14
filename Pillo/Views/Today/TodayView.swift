@@ -151,7 +151,8 @@ struct GroupCard: View {
                     selectedId: viewModel.selectedDoses[group.group.id]?.id,
                     completedId: group.completedDose?.id,
                     onSelect: { dose in
-                        viewModel.selectDose(dose, for: group.group)
+                        // Toggle selection when tapping a chip
+                        viewModel.toggleDoseSelection(dose, for: group.group)
                     }
                 )
             } else if let singleOption = group.doseOptions.first {
@@ -204,10 +205,14 @@ struct GroupCard: View {
         )
         .contentShape(Rectangle()) // Make entire area tappable
         .onTapGesture {
-            // For single dose options, make the entire card tappable
+            // Make all cards tappable to toggle selection
             if group.doseOptions.count == 1,
                let singleOption = group.doseOptions.first {
-                viewModel.selectDose(singleOption.doseConfig, for: group.group)
+                // Single dose: toggle selection
+                viewModel.toggleDoseSelection(singleOption.doseConfig, for: group.group)
+            } else if group.doseOptions.count > 1 {
+                // Multiple doses: select first available or toggle off if already selected
+                viewModel.selectFirstAvailableDose(for: group.group)
             }
         }
         .overlay(alignment: .topTrailing) {
