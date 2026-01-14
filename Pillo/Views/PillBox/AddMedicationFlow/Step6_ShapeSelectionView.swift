@@ -166,6 +166,9 @@ struct ShapeSelectionView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(isSelected ? Color("PillColor-LightGray") : Color("PillColor-LightGray"))
+                Image("Shape-capsule_shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
@@ -189,6 +192,9 @@ struct ShapeSelectionView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.rightColor)
+                Image("Shape-capsule_shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
