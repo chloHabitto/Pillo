@@ -10,6 +10,7 @@ import SwiftUI
 struct MedicationStrengthView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var isStrengthFieldFocused: Bool
     
     private let units = ["mg", "mcg", "g", "mL", "%"]
     
@@ -38,6 +39,7 @@ struct MedicationStrengthView: View {
                         .font(.system(size: 16))
                         .foregroundStyle(Color.primary)
                         .keyboardType(.decimalPad)
+                        .focused($isStrengthFieldFocused)
                         .padding()
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -84,24 +86,6 @@ struct MedicationStrengthView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
-                
-                // Add strength button
-                Button {
-                    state.addStrength()
-                } label: {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Add Strength")
-                    }
-                    .font(.headline)
-                    .foregroundStyle(.cyan)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.cyan.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .disabled(state.currentStrengthValue.isEmpty)
-                .padding(.horizontal)
                 
                 // Added strengths
                 if !state.strengths.isEmpty {
@@ -173,34 +157,57 @@ struct MedicationStrengthView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            HStack(spacing: 12) {
+            if isStrengthFieldFocused {
+                // Add Strength button when TextField is focused
                 Button {
-                    state.nextStep()
+                    state.addStrength()
+                    // Keep focus after adding so user can add more strengths
                 } label: {
-                    Text("Next")
-                        .font(.headline)
-                        .foregroundStyle(state.canProceedFromStep(3) ? Color.white : Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(state.canProceedFromStep(3) ? Color.cyan : Color(.tertiarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add Strength")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(state.currentStrengthValue.isEmpty ? Color.secondary : Color.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(state.currentStrengthValue.isEmpty ? Color(.tertiarySystemFill) : Color.cyan)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .disabled(!state.canProceedFromStep(3))
-                
-                Button {
-                    state.nextStep()
-                } label: {
-                    Text("Skip")
-                        .font(.headline)
-                        .foregroundStyle(Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                .disabled(state.currentStrengthValue.isEmpty)
+                .padding()
+                .background(Color(.systemBackground))
+            } else {
+                // Existing Next/Skip buttons when TextField is not focused
+                HStack(spacing: 12) {
+                    Button {
+                        state.nextStep()
+                    } label: {
+                        Text("Next")
+                            .font(.headline)
+                            .foregroundStyle(state.canProceedFromStep(3) ? Color.white : Color.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(state.canProceedFromStep(3) ? Color.cyan : Color(.tertiarySystemFill))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(!state.canProceedFromStep(3))
+                    
+                    Button {
+                        state.nextStep()
+                    } label: {
+                        Text("Skip")
+                            .font(.headline)
+                            .foregroundStyle(Color.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
+                .padding()
+                .background(Color(.systemBackground))
             }
-            .padding()
-            .background(Color(.systemBackground))
         }
     }
     
