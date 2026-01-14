@@ -196,6 +196,18 @@ struct MedicationStrengthView: View {
                     Button {
                         state.nextStep()
                     } label: {
+                        Text("Skip")
+                            .font(.headline)
+                            .foregroundStyle(Color.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    
+                    Button {
+                        state.nextStep()
+                    } label: {
                         Text("Next")
                             .font(.headline)
                             .foregroundStyle(state.canProceedFromStep(3) ? Color.white : Color.secondary)
@@ -205,18 +217,6 @@ struct MedicationStrengthView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .disabled(!state.canProceedFromStep(3))
-                    
-                    Button {
-                        state.nextStep()
-                    } label: {
-                        Text("Skip")
-                            .font(.headline)
-                            .foregroundStyle(Color.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
                 }
                 .padding()
                 .background(Color(.systemBackground))

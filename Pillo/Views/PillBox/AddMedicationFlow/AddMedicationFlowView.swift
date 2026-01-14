@@ -160,17 +160,34 @@ struct AddMedicationFlowView: View {
         }
         
         // For each TimeFrame, find or create group and create dose configurations
+        // Each medication should have its own group per timeFrame to avoid mixing medications
         for (timeFrame, times) in timeFrameTimes {
-            // Find or create MedicationGroup for this TimeFrame
+            // Find or create MedicationGroup for this medication and TimeFrame
+            // Check if any existing group for this timeFrame already contains this medication
+            let medicationName = state.medicationName
             let group: MedicationGroup
-            if let existingGroup = viewModel.groups.first(where: { $0.timeFrame == timeFrame }) {
+            
+            // Look for an existing group that:
+            // 1. Has the same timeFrame
+            // 2. Contains dose configurations with the same medication name
+            let existingGroup = viewModel.groups.first(where: { group in
+                guard group.timeFrame == timeFrame else { return false }
+                // Check if any dose config in this group contains the same medication
+                return group.doseConfigurations.contains { doseConfig in
+                    doseConfig.components.contains { component in
+                        component.medication?.name == medicationName
+                    }
+                }
+            })
+            
+            if let existingGroup = existingGroup {
                 group = existingGroup
                 timeFrameGroups[timeFrame] = existingGroup
             } else {
-                // Create new group for this TimeFrame
+                // Create new group for this medication and TimeFrame
                 // Use the earliest time as the reminder time
                 let earliestTime = times.min() ?? times.first ?? Date()
-                let groupName = "\(timeFrame.rawValue.capitalized) Medications"
+                let groupName = medicationName
                 group = viewModel.addGroup(
                     name: groupName,
                     selectionRule: .exactlyOne,
