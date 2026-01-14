@@ -146,7 +146,7 @@ struct ShapeSelectionView: View {
                     .frame(width: 70, height: 70)
                 
                 shapeIcon(shape, isSelected: state.selectedShape == shape)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 60, height: 60)
                 
                 if state.selectedShape == shape {
                     // Outer ring for selected state
@@ -170,15 +170,18 @@ struct ShapeSelectionView: View {
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
                     .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
                 Image("Shape-capsule_right")
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
                     .foregroundStyle(isSelected ? Color("PillColor-LightGray") : Color("PillColor-LightGray"))
                 Image("Shape-capsule_shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
             }
         } else if shape == .round {
             ZStack {
@@ -186,20 +189,24 @@ struct ShapeSelectionView: View {
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
                     .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
                 Image("Shape-tablet-round_shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
                 if state.showRoundTabletLine {
                     Image("Shape-tablet-round_line")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
                 }
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .frame(width: 60, height: 60)
                 .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
         }
     }
