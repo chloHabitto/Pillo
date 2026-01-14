@@ -27,10 +27,15 @@ struct EditMedicationView: View {
         self.viewModel = viewModel
         _name = State(initialValue: medication.name)
         _form = State(initialValue: medication.form)
-        // Initialize strengths from the medication
-        // Note: Currently one Medication = one strength, so start with that
-        _strengths = State(initialValue: [(value: medication.strength, unit: medication.strengthUnit)])
         _stockSources = State(initialValue: medication.stockSources)
+        
+        // Load ALL strengths for medications with the same name
+        let relatedMedications = viewModel.medications.filter { $0.name == medication.name }
+        let allStrengths = relatedMedications.map { (value: $0.strength, unit: $0.strengthUnit) }
+        _strengths = State(initialValue: allStrengths.isEmpty ? [(value: medication.strength, unit: medication.strengthUnit)] : allStrengths)
+        
+        _newStrengthValue = State(initialValue: "")
+        _newStrengthUnit = State(initialValue: "mg")
     }
     
     var body: some View {
@@ -262,24 +267,57 @@ struct EditMedicationView: View {
     
     private func removeStrength(at index: Int) {
         guard strengths.count > 1 else { return } // Keep at least one
+        
+        let strengthToRemove = strengths[index]
+        
+        // Find and mark for deletion if it's a different medication
+        if let medToRemove = viewModel.medications.first(where: { med in
+            med.name == name &&
+            med.strength == strengthToRemove.value &&
+            med.strengthUnit == strengthToRemove.unit &&
+            med.id != medication.id
+        }) {
+            // Note: Actually deleting here could cause issues with DoseConfigurations
+            // For now, just remove from the UI list
+            // TODO: Add confirmation dialog before deleting medications with dose configs
+        }
+        
         strengths.remove(at: index)
     }
     
     private func saveChanges() {
-        // Update medication properties
+        // 1. Update the original medication with the first strength
         medication.name = name
         medication.form = form
         
-        // Use first strength for primary medication
         if let firstStrength = strengths.first {
             medication.strength = firstStrength.value
             medication.strengthUnit = firstStrength.unit
         }
         
-        // TODO: Handle additional strengths by creating new Medication objects
-        // This would require updating DoseConfigurations as well
+        // 2. For additional strengths, check if Medication already exists or create new one
+        for i in 1..<strengths.count {
+            let strength = strengths[i]
+            
+            // Check if a medication with this name and strength already exists
+            let existingMedications = viewModel.medications.filter { med in
+                med.name == name &&
+                med.strength == strength.value &&
+                med.strengthUnit == strength.unit
+            }
+            
+            if existingMedications.isEmpty {
+                // Create new Medication for this strength
+                _ = viewModel.addMedication(
+                    name: name,
+                    form: form,
+                    strength: strength.value,
+                    strengthUnit: strength.unit
+                )
+            }
+        }
         
-        // Save to model context
+        // 3. Save and reload
         try? modelContext.save()
         viewModel.loadData()
         dismiss()
