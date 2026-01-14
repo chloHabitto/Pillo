@@ -10,8 +10,6 @@ import SwiftUI
 struct DosingTypeView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
-    @State private var showingAddDoseSheet = false
-    @State private var editingDoseOptionIndex: Int?
     
     var body: some View {
         ScrollView {
@@ -21,6 +19,12 @@ struct DosingTypeView: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(Color.primary)
                     .padding(.top, 20)
+                    .padding(.horizontal)
+                
+                // Description
+                Text("Select how you take your medication")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.secondary)
                     .padding(.horizontal)
                 
                 // Segmented control
@@ -35,8 +39,19 @@ struct DosingTypeView: View {
                     // Reset when switching types
                     if state.dosingType == .fixed {
                         state.doseOptions.removeAll()
+                        // Initialize with first strength if available
+                        if !state.strengths.isEmpty && state.fixedDoseComponents.isEmpty {
+                            state.updateFixedDoseComponent(strengthIndex: 0, quantity: 1)
+                        }
                     } else {
                         state.fixedDoseComponents.removeAll()
+                        // Pre-populate flexible options from strengths
+                        if state.doseOptions.isEmpty && !state.strengths.isEmpty {
+                            for (index, _) in state.strengths.enumerated() {
+                                let option = DoseOptionInput(components: [(strengthIndex: index, quantity: 1)])
+                                state.addDoseOption(option)
+                            }
+                        }
                     }
                 }
                 
@@ -83,24 +98,21 @@ struct DosingTypeView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingAddDoseSheet) {
-            AddDoseSheet(
-                state: state,
-                editingOption: editingDoseOptionIndex != nil ? state.doseOptions[editingDoseOptionIndex!] : nil,
-                onSave: { option in
-                    if let index = editingDoseOptionIndex {
-                        state.doseOptions[index] = option
-                    } else {
+        .onAppear {
+            // Initialize based on current dosing type only if not already set
+            if state.dosingType == .fixed {
+                if !state.strengths.isEmpty && state.fixedDoseComponents.isEmpty {
+                    state.updateFixedDoseComponent(strengthIndex: 0, quantity: 1)
+                }
+            } else {
+                // Pre-populate flexible options from strengths if empty
+                if state.doseOptions.isEmpty && !state.strengths.isEmpty {
+                    for (index, _) in state.strengths.enumerated() {
+                        let option = DoseOptionInput(components: [(strengthIndex: index, quantity: 1)])
                         state.addDoseOption(option)
                     }
-                    editingDoseOptionIndex = nil
-                    showingAddDoseSheet = false
-                },
-                onCancel: {
-                    editingDoseOptionIndex = nil
-                    showingAddDoseSheet = false
                 }
-            )
+            }
         }
         .safeAreaInset(edge: .bottom) {
             Button {
@@ -122,41 +134,76 @@ struct DosingTypeView: View {
     
     private var fixedDosingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Dose builder for each strength
+            Text("Select which strength(s) you take regularly")
+                .font(.subheadline)
+                .foregroundStyle(Color.secondary)
+                .padding(.horizontal)
+            
+            // List of strengths with selection
             ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
-                HStack {
-                    Text("\(Int(strength.value))\(strength.unit)")
-                        .font(.headline)
-                        .foregroundStyle(Color.primary)
-                        .frame(width: 80, alignment: .leading)
-                    
-                    Spacer()
-                    
-                    Stepper("", value: Binding(
-                        get: { state.getFixedDoseQuantity(for: index) },
-                        set: { state.updateFixedDoseComponent(strengthIndex: index, quantity: $0) }
-                    ), in: 0...10)
-                    .labelsHidden()
-                    
-                    Text("\(state.getFixedDoseQuantity(for: index))")
-                        .font(.headline)
-                        .foregroundStyle(Color.primary)
-                        .frame(width: 30)
+                let isSelected = state.getFixedDoseQuantity(for: index) > 0
+                let quantity = state.getFixedDoseQuantity(for: index)
+                
+                Button {
+                    if isSelected {
+                        // If already selected, increase quantity (cycle: 1 -> 2 -> 0)
+                        if quantity >= 2 {
+                            state.updateFixedDoseComponent(strengthIndex: index, quantity: 0)
+                        } else {
+                            state.updateFixedDoseComponent(strengthIndex: index, quantity: quantity + 1)
+                        }
+                    } else {
+                        // Select with quantity 1
+                        state.updateFixedDoseComponent(strengthIndex: index, quantity: 1)
+                    }
+                } label: {
+                    HStack {
+                        // Checkbox/Selection indicator
+                        ZStack {
+                            Circle()
+                                .fill(isSelected ? Color.cyan : Color.clear)
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Circle()
+                                        .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
+                                )
+                            
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(Color.white)
+                            }
+                        }
+                        
+                        // Strength label
+                        Text("\(Int(strength.value))\(strength.unit)")
+                            .font(.headline)
+                            .foregroundStyle(Color.primary)
+                        
+                        Spacer()
+                        
+                        // Quantity indicator
+                        if isSelected && quantity > 1 {
+                            Text("×\(quantity)")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal)
             
-            // Total
+            // Total summary
             if !state.fixedDoseComponents.isEmpty {
                 Divider()
-                    .background(Color.white.opacity(0.1))
                     .padding(.horizontal)
                 
                 HStack {
-                    Text("Total:")
+                    Text("Your fixed dose:")
                         .font(.headline)
                         .foregroundStyle(Color.primary)
                     
@@ -177,181 +224,94 @@ struct DosingTypeView: View {
     
     private var flexibleDosingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Dose Options")
-                .font(.headline)
-                .foregroundStyle(Color.primary)
+            Text("Select which strengths you can choose from")
+                .font(.subheadline)
+                .foregroundStyle(Color.secondary)
                 .padding(.horizontal)
             
-            if state.doseOptions.isEmpty {
-                Text("Add dose options to choose from each day")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.secondary)
+            // List of strengths with toggle selection
+            ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
+                let isSelected = state.doseOptions.contains { option in
+                    option.components.contains { $0.strengthIndex == index && $0.quantity > 0 }
+                }
+                
+                Button {
+                    if isSelected {
+                        // Remove this strength from options
+                        state.doseOptions.removeAll { option in
+                            option.components.count == 1 && 
+                            option.components.first?.strengthIndex == index
+                        }
+                    } else {
+                        // Add this strength as an option
+                        let option = DoseOptionInput(components: [(strengthIndex: index, quantity: 1)])
+                        state.addDoseOption(option)
+                    }
+                } label: {
+                    HStack {
+                        // Toggle indicator
+                        ZStack {
+                            Circle()
+                                .fill(isSelected ? Color.cyan : Color.clear)
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Circle()
+                                        .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
+                                )
+                            
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(Color.white)
+                            }
+                        }
+                        
+                        // Strength label
+                        Text("\(Int(strength.value))\(strength.unit)")
+                            .font(.headline)
+                            .foregroundStyle(Color.primary)
+                        
+                        Spacer()
+                        
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(Color.cyan)
+                        }
+                    }
+                    .padding()
+                    .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.horizontal)
+            
+            // Summary
+            if !state.doseOptions.isEmpty {
+                Divider()
                     .padding(.horizontal)
-            } else {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
-                    ForEach(Array(state.doseOptions.enumerated()), id: \.element.id) { index, option in
-                        HStack(spacing: 4) {
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("You can choose from:")
+                        .font(.headline)
+                        .foregroundStyle(Color.primary)
+                    
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
+                        ForEach(state.doseOptions, id: \.id) { option in
                             Text(option.displayName(strengths: state.strengths))
                                 .font(.subheadline)
                                 .foregroundStyle(Color.primary)
-                            
-                            Button {
-                                editingDoseOptionIndex = index
-                                showingAddDoseSheet = true
-                            } label: {
-                                Image(systemName: "pencil.circle.fill")
-                                    .foregroundStyle(Color.secondary)
-                                    .font(.caption)
-                            }
-                            
-                            Button {
-                                state.removeDoseOption(at: index)
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(Color.secondary)
-                            }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.cyan.opacity(0.2))
+                                .clipShape(Capsule())
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.cyan.opacity(0.2))
-                        .clipShape(Capsule())
                     }
                 }
-                .padding(.horizontal)
-            }
-            
-            Button {
-                editingDoseOptionIndex = nil
-                showingAddDoseSheet = true
-            } label: {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Add Dose Option")
-                }
-                .font(.headline)
-                .foregroundStyle(.cyan)
-                .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.cyan.opacity(0.1))
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
-struct AddDoseSheet: View {
-    @Bindable var state: AddMedicationFlowState
-    let editingOption: DoseOptionInput?
-    let onSave: (DoseOptionInput) -> Void
-    let onCancel: () -> Void
-    
-    @State private var tempComponents: [(strengthIndex: Int, quantity: Int)] = []
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    Text(editingOption == nil ? "Add Dose Option" : "Edit Dose Option")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(Color.primary)
-                        .padding(.top, 20)
-                    
-                    // Dose builder for each strength
-                    ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
-                        HStack {
-                            Text("\(Int(strength.value))\(strength.unit)")
-                                .font(.headline)
-                                .foregroundStyle(Color.primary)
-                                .frame(width: 80, alignment: .leading)
-                            
-                            Spacer()
-                            
-                            Stepper("", value: Binding(
-                                get: { tempComponents.first(where: { $0.strengthIndex == index })?.quantity ?? 0 },
-                                set: { newValue in
-                                    if let existingIndex = tempComponents.firstIndex(where: { $0.strengthIndex == index }) {
-                                        if newValue > 0 {
-                                            tempComponents[existingIndex] = (strengthIndex: index, quantity: newValue)
-                                        } else {
-                                            tempComponents.remove(at: existingIndex)
-                                        }
-                                    } else if newValue > 0 {
-                                        tempComponents.append((strengthIndex: index, quantity: newValue))
-                                    }
-                                }
-                            ), in: 0...10)
-                            .labelsHidden()
-                            
-                            Text("\(tempComponents.first(where: { $0.strengthIndex == index })?.quantity ?? 0)")
-                                .font(.headline)
-                                .foregroundStyle(Color.primary)
-                                .frame(width: 30)
-                        }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .padding(.horizontal)
-                    
-                    // Total
-                    if !tempComponents.isEmpty {
-                        Divider()
-                            .background(Color(.separator))
-                            .padding(.horizontal)
-                        
-                        HStack {
-                            Text("Total:")
-                                .font(.headline)
-                                .foregroundStyle(Color.primary)
-                            
-                            Spacer()
-                            
-                            let total = tempComponents.reduce(0) { total, comp in
-                                guard comp.strengthIndex < state.strengths.count else { return total }
-                                return total + (state.strengths[comp.strengthIndex].value * Double(comp.quantity))
-                            }
-                            let unit = state.strengths.first?.unit ?? "mg"
-                            
-                            Text("\(Int(total))\(unit)")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.cyan)
-                        }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
-                    }
-                }
-            }
-            .background(Color(.systemBackground))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        onCancel()
-                    }
-                    .foregroundStyle(Color.primary)
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        let existingId = editingOption?.id ?? UUID()
-                        let option = DoseOptionInput(id: existingId, components: tempComponents.filter { $0.quantity > 0 })
-                        onSave(option)
-                    }
-                    .foregroundStyle(.cyan)
-                    .disabled(tempComponents.isEmpty || !tempComponents.contains { $0.quantity > 0 })
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-        .onAppear {
-            if let editing = editingOption {
-                tempComponents = editing.components
-            } else {
-                tempComponents = []
+                .padding(.horizontal)
             }
         }
     }
