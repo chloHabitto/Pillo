@@ -39,32 +39,39 @@ struct PillBoxContentView: View {
         List {
             // Medications Section
             Section("My Medications") {
-                if viewModel.medications.isEmpty {
+                if viewModel.groupedMedications.isEmpty {
                     Text("No medications added yet")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                 } else {
-                    ForEach(viewModel.medications) { medication in
-                        NavigationLink(destination: MedicationDetailView(medication: medication, viewModel: viewModel)) {
-                            MedicationRow(medication: medication, viewModel: viewModel)
+                    ForEach(viewModel.groupedMedications) { group in
+                        NavigationLink(destination: MedicationGroupDetailView(
+                            medicationGroup: group,
+                            viewModel: viewModel
+                        )) {
+                            MedicationGroupRow(group: group, viewModel: viewModel)
                         }
                     }
                     .onDelete { indexSet in
+                        // Delete all medications in the group
                         for index in indexSet {
-                            viewModel.deleteMedication(viewModel.medications[index])
+                            let group = viewModel.groupedMedications[index]
+                            for medication in group.medications {
+                                viewModel.deleteMedication(medication)
+                            }
                         }
                     }
                 }
             }
             
             // Low Stock Warnings
-            let lowStockMeds = viewModel.getLowStockMedications()
-            if !lowStockMeds.isEmpty {
+            let lowStockGroups = viewModel.groupedMedications.filter { $0.hasLowStock }
+            if !lowStockGroups.isEmpty {
                 Section {
-                    ForEach(lowStockMeds) { medication in
+                    ForEach(lowStockGroups) { group in
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
-                            Text("\(medication.name) is running low")
+                                .foregroundStyle(Color.orange)
+                            Text("\(group.name) is running low")
                         }
                     }
                 } header: {
@@ -101,7 +108,7 @@ struct MedicationRow: View {
                     .font(.headline)
                 Text("\(Int(medication.strength))\(medication.strengthUnit)")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
             }
             
             // Schedule information
@@ -110,10 +117,10 @@ struct MedicationRow: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                     Text(schedule)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                 }
             }
             
@@ -125,16 +132,64 @@ struct MedicationRow: View {
                 if stock > 0 || unknownSources > 0 {
                     Text("\(stock) pills")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                     
                     if unknownSources > 0 {
                         Text("•")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.secondary)
                         Text("+ \(unknownSources) unknown")
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color.orange)
                     }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct MedicationGroupRow: View {
+    let group: MedicationGroup_Display
+    let viewModel: PillBoxViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // Medication name
+            Text(group.name)
+                .font(.headline)
+            
+            // Strengths as chips
+            HStack(spacing: 6) {
+                ForEach(group.strengths, id: \.self) { strength in
+                    Text(strength)
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.cyan.opacity(0.15))
+                        .clipShape(Capsule())
+                }
+            }
+            
+            // Schedule and stock info
+            HStack {
+                // Form
+                Text(group.form.rawValue.capitalized)
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+                
+                if group.totalStock > 0 {
+                    Text("•")
+                        .foregroundStyle(Color.secondary)
+                    Text("\(group.totalStock) pills total")
+                        .font(.caption)
+                        .foregroundStyle(Color.secondary)
+                }
+                
+                if group.hasLowStock {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(Color.orange)
                 }
             }
         }

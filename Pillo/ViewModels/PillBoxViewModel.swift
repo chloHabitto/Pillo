@@ -9,6 +9,40 @@ import Foundation
 import SwiftData
 import Observation
 
+struct MedicationGroup_Display: Identifiable {
+    var id: String { name }
+    let name: String
+    let form: MedicationForm
+    var medications: [Medication] // All strength variants
+    
+    var strengths: [String] {
+        medications
+            .sorted { $0.strength < $1.strength }
+            .map { "\(Int($0.strength))\($0.strengthUnit)" }
+    }
+    
+    var strengthsDisplay: String {
+        strengths.joined(separator: ", ")
+    }
+    
+    var totalStock: Int {
+        medications.reduce(0) { total, med in
+            total + med.stockSources
+                .filter { $0.countingEnabled }
+                .reduce(0) { $0 + ($1.currentQuantity ?? 0) }
+        }
+    }
+    
+    var hasLowStock: Bool {
+        medications.contains { med in
+            med.stockSources.contains { source in
+                source.countingEnabled &&
+                (source.currentQuantity ?? 0) <= source.lowStockThreshold
+            }
+        }
+    }
+}
+
 @Observable
 class PillBoxViewModel {
     private var modelContext: ModelContext
@@ -114,6 +148,19 @@ class PillBoxViewModel {
     
     func getLowStockMedications() -> [Medication] {
         stockManager.getLowStockMedications()
+    }
+    
+    // MARK: - Grouped Medications
+    
+    var groupedMedications: [MedicationGroup_Display] {
+        let grouped = Dictionary(grouping: medications) { $0.name }
+        return grouped.map { name, meds in
+            MedicationGroup_Display(
+                name: name,
+                form: meds.first?.form ?? .tablet,
+                medications: meds.sorted { $0.strength < $1.strength }
+            )
+        }.sorted { $0.name < $1.name }
     }
     
     // MARK: - Group Management
