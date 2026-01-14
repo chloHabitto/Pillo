@@ -31,9 +31,23 @@ struct ShapeSelectionView: View {
                     .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
-                // Show Line toggle (only for round tablet)
+                // Show Line toggle (for round, oval, and oblong tablets)
                 if state.selectedShape == .round {
                     Toggle("Show Line", isOn: $state.showRoundTabletLine)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                } else if state.selectedShape == .oval {
+                    Toggle("Show Line", isOn: $state.showOvalTabletLine)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                } else if state.selectedShape == .oblong {
+                    Toggle("Show Line", isOn: $state.showOblongTabletLine)
                         .padding(.horizontal)
                         .padding(.vertical, 8)
                         .background(Color(.secondarySystemBackground))
@@ -202,6 +216,44 @@ struct ShapeSelectionView: View {
                         .frame(width: 60, height: 60)
                 }
             }
+        } else if shape == .oval {
+            ZStack {
+                Image("Shape-tablet-oval")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-tablet-oval-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                if state.showOvalTabletLine {
+                    Image("Shape-tablet-oval-line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
+                }
+            }
+        } else if shape == .oblong {
+            ZStack {
+                Image("Shape-oblong")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-oblong-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                if state.showOblongTabletLine {
+                    Image("Shape-oblong-line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
+                }
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -241,6 +293,38 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                 if state.showRoundTabletLine {
                     Image("Shape-tablet-round_line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+        } else if shape == .oval {
+            ZStack {
+                Image("Shape-tablet-oval")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-tablet-oval-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showOvalTabletLine {
+                    Image("Shape-tablet-oval-line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+        } else if shape == .oblong {
+            ZStack {
+                Image("Shape-oblong")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-oblong-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showOblongTabletLine {
+                    Image("Shape-oblong-line")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }

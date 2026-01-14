@@ -191,6 +191,38 @@ struct ReviewDetailsView: View {
                         .aspectRatio(contentMode: .fit)
                 }
             }
+        } else if state.selectedShape == .oval {
+            ZStack {
+                Image("Shape-tablet-oval")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-tablet-oval-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showOvalTabletLine {
+                    Image("Shape-tablet-oval-line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+        } else if state.selectedShape == .oblong {
+            ZStack {
+                Image("Shape-oblong")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-oblong-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showOblongTabletLine {
+                    Image("Shape-oblong-line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
         } else {
             Image(systemName: state.selectedShape.sfSymbolPlaceholder)
                 .resizable()
