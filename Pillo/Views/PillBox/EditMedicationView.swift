@@ -16,8 +16,9 @@ struct EditMedicationView: View {
     
     @State private var name: String
     @State private var form: MedicationForm
-    @State private var strength: String
-    @State private var strengthUnit: String
+    @State private var strengths: [(value: Double, unit: String)] = []
+    @State private var newStrengthValue: String = ""
+    @State private var newStrengthUnit: String = "mg"
     @State private var stockSources: [StockSource]
     @State private var showingAddStockSource = false
     
@@ -26,8 +27,9 @@ struct EditMedicationView: View {
         self.viewModel = viewModel
         _name = State(initialValue: medication.name)
         _form = State(initialValue: medication.form)
-        _strength = State(initialValue: medication.strength == Double(Int(medication.strength)) ? String(Int(medication.strength)) : String(medication.strength))
-        _strengthUnit = State(initialValue: medication.strengthUnit)
+        // Initialize strengths from the medication
+        // Note: Currently one Medication = one strength, so start with that
+        _strengths = State(initialValue: [(value: medication.strength, unit: medication.strengthUnit)])
         _stockSources = State(initialValue: medication.stockSources)
     }
     
@@ -56,8 +58,8 @@ struct EditMedicationView: View {
                     Button("Save") {
                         saveChanges()
                     }
-                    .foregroundStyle(.cyan)
-                    .disabled(name.isEmpty || strength.isEmpty)
+                    .foregroundStyle(Color.cyan)
+                    .disabled(name.isEmpty || strengths.isEmpty)
                 }
             }
             .sheet(isPresented: $showingAddStockSource) {
@@ -74,28 +76,32 @@ struct EditMedicationView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Basic Information")
                 .font(.headline)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.primary)
             
             // Name
             VStack(alignment: .leading, spacing: 8) {
                 Text("Medication Name")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
                 TextField("Enter name", text: $name)
                     .textFieldStyle(.plain)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.secondarySystemBackground))
+                            .fill(Color(.tertiarySystemBackground))
                     )
-                    .foregroundStyle(.primary)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+                    .foregroundStyle(Color.primary)
             }
             
             // Form
             VStack(alignment: .leading, spacing: 8) {
                 Text("Form")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
                 Picker("Form", selection: $form) {
                     ForEach(MedicationForm.allCases, id: \.self) { formOption in
                         Text(formOption.rawValue.capitalized).tag(formOption)
@@ -105,46 +111,16 @@ struct EditMedicationView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(.secondarySystemBackground))
+                        .fill(Color(.tertiarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
                 )
             }
             
-            // Strength
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Strength")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    TextField("Enter strength", text: $strength)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.plain)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(.secondarySystemBackground))
-                        )
-                        .foregroundStyle(.primary)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Unit")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Picker("Unit", selection: $strengthUnit) {
-                        Text("mg").tag("mg")
-                        Text("mcg").tag("mcg")
-                        Text("g").tag("g")
-                        Text("ml").tag("ml")
-                        Text("%").tag("%")
-                    }
-                    .pickerStyle(.menu)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.secondarySystemBackground))
-                    )
-                }
-            }
+            // Strengths
+            strengthsSection
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -161,13 +137,13 @@ struct EditMedicationView: View {
             HStack {
                 Text("Stock Sources")
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                 Spacer()
                 Button {
                     showingAddStockSource = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundStyle(.cyan)
+                        .foregroundStyle(Color.cyan)
                         .font(.title3)
                 }
             }
@@ -175,7 +151,7 @@ struct EditMedicationView: View {
             if stockSources.isEmpty {
                 Text("No stock sources added")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
             } else {
                 ForEach(stockSources) { source in
                     EditStockSourceRow(source: source, viewModel: viewModel) {
@@ -192,20 +168,116 @@ struct EditMedicationView: View {
         )
     }
     
+    // MARK: - Strengths Section
+    
+    private var strengthsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Strengths")
+                .font(.headline)
+                .foregroundStyle(Color.primary)
+            
+            // List of existing strengths as chips
+            if !strengths.isEmpty {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
+                    ForEach(Array(strengths.enumerated()), id: \.offset) { index, strength in
+                        HStack(spacing: 4) {
+                            Text("\(Int(strength.value))\(strength.unit)")
+                                .font(.subheadline)
+                            
+                            Button {
+                                removeStrength(at: index)
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.cyan.opacity(0.2))
+                        .clipShape(Capsule())
+                    }
+                }
+            }
+            
+            // Add new strength row
+            HStack(spacing: 12) {
+                TextField("Strength", text: $newStrengthValue)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(.plain)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(.tertiarySystemBackground))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+                
+                Picker("Unit", selection: $newStrengthUnit) {
+                    Text("mg").tag("mg")
+                    Text("mcg").tag("mcg")
+                    Text("g").tag("g")
+                    Text("ml").tag("ml")
+                    Text("%").tag("%")
+                }
+                .pickerStyle(.menu)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.tertiarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
+                )
+                
+                Button {
+                    addStrength()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(Color.cyan)
+                }
+                .disabled(newStrengthValue.isEmpty)
+            }
+        }
+    }
+    
     // MARK: - Methods
     
     private func loadStockSources() {
         stockSources = medication.stockSources
     }
     
+    private func addStrength() {
+        guard let value = Double(newStrengthValue), value > 0 else { return }
+        let newStrength = (value: value, unit: newStrengthUnit)
+        if !strengths.contains(where: { $0.value == newStrength.value && $0.unit == newStrength.unit }) {
+            strengths.append(newStrength)
+            newStrengthValue = ""
+        }
+    }
+    
+    private func removeStrength(at index: Int) {
+        guard strengths.count > 1 else { return } // Keep at least one
+        strengths.remove(at: index)
+    }
+    
     private func saveChanges() {
         // Update medication properties
         medication.name = name
         medication.form = form
-        if let strengthValue = Double(strength) {
-            medication.strength = strengthValue
+        
+        // Use first strength for primary medication
+        if let firstStrength = strengths.first {
+            medication.strength = firstStrength.value
+            medication.strengthUnit = firstStrength.unit
         }
-        medication.strengthUnit = strengthUnit
+        
+        // TODO: Handle additional strengths by creating new Medication objects
+        // This would require updating DoseConfigurations as well
         
         // Save to model context
         try? modelContext.save()
@@ -247,7 +319,7 @@ struct EditStockSourceRow: View {
                     .textFieldStyle(.plain)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                     .onChange(of: label) { oldValue, newValue in
                         source.label = newValue
                         saveChanges()
@@ -259,7 +331,7 @@ struct EditStockSourceRow: View {
                     showingDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color.red)
                 }
             }
             
@@ -278,7 +350,7 @@ struct EditStockSourceRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Current Quantity")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                     TextField("Enter quantity", text: $currentQuantity)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.plain)
@@ -287,7 +359,7 @@ struct EditStockSourceRow: View {
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color(.tertiarySystemBackground))
                         )
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.primary)
                         .onChange(of: currentQuantity) { oldValue, newValue in
                             if let qty = Int(newValue) {
                                 source.currentQuantity = qty
@@ -300,7 +372,7 @@ struct EditStockSourceRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Low Stock Threshold")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                     TextField("Enter threshold", text: $lowStockThreshold)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.plain)
@@ -309,7 +381,7 @@ struct EditStockSourceRow: View {
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color(.tertiarySystemBackground))
                         )
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.primary)
                         .onChange(of: lowStockThreshold) { oldValue, newValue in
                             if let threshold = Int(newValue) {
                                 source.lowStockThreshold = threshold
@@ -373,15 +445,19 @@ struct AddStockSourceView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Label")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.secondary)
                         TextField("e.g., Bottle 1, Refill", text: $label)
                             .textFieldStyle(.plain)
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color(.secondarySystemBackground))
+                                    .fill(Color(.tertiarySystemBackground))
                             )
-                            .foregroundStyle(.primary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                            )
+                            .foregroundStyle(Color.primary)
                     }
                     
                     // Counting Toggle
@@ -392,32 +468,40 @@ struct AddStockSourceView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Current Quantity")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.secondary)
                             TextField("Enter quantity", text: $quantity)
                                 .keyboardType(.numberPad)
                                 .textFieldStyle(.plain)
                                 .padding()
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(.secondarySystemBackground))
+                                        .fill(Color(.tertiarySystemBackground))
                                 )
-                                .foregroundStyle(.primary)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color(.systemGray4), lineWidth: 1)
+                                )
+                                .foregroundStyle(Color.primary)
                         }
                         
                         // Low Stock Threshold
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Low Stock Threshold")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.secondary)
                             TextField("Enter threshold", text: $lowStockThreshold)
                                 .keyboardType(.numberPad)
                                 .textFieldStyle(.plain)
                                 .padding()
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(.secondarySystemBackground))
+                                        .fill(Color(.tertiarySystemBackground))
                                 )
-                                .foregroundStyle(.primary)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color(.systemGray4), lineWidth: 1)
+                                )
+                                .foregroundStyle(Color.primary)
                         }
                     }
                     
@@ -446,7 +530,7 @@ struct AddStockSourceView: View {
                     Button("Add") {
                         addStockSource()
                     }
-                    .foregroundStyle(.cyan)
+                    .foregroundStyle(Color.cyan)
                     .disabled(label.isEmpty)
                 }
             }
