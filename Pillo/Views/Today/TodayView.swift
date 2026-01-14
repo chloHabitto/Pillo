@@ -83,7 +83,7 @@ struct TodayContentView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding()
@@ -127,7 +127,7 @@ struct TimeFrameSection: View {
                 
                 if timeFrame.isComplete {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color.green)
                 }
             }
             
@@ -145,25 +145,106 @@ struct GroupCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Group name
-            Text(group.group.name)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            // Show medication name (extract from first option's first component)
+            if let firstMed = group.doseOptions.first?.components.first?.medication {
+                Text(firstMed.name)
+                    .font(.headline)
+            }
             
-            // Dose options
-            ForEach(group.doseOptions) { option in
-                DoseOptionRow(
-                    option: option,
-                    isSelected: viewModel.isSelected(option.doseConfig, in: group.group),
-                    isCompleted: option.isCompleted
-                ) {
-                    viewModel.selectDose(option.doseConfig, for: group.group)
+            if group.doseOptions.count > 1 {
+                // Multiple options: show compact chips
+                CompactDoseSelector(
+                    options: group.doseOptions,
+                    selectedId: viewModel.selectedDoses[group.group.id]?.id,
+                    isCompleted: group.completedDose != nil,
+                    onSelect: { dose in
+                        viewModel.selectDose(dose, for: group.group)
+                    }
+                )
+            } else if let singleOption = group.doseOptions.first {
+                // Single option: just show the dose
+                HStack {
+                    Text(singleOption.doseConfig.displayName)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.secondary)
+                    
+                    Spacer()
+                    
+                    if singleOption.hasLowStock {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(Color.orange)
+                            .font(.caption)
+                    }
+                }
+            }
+            
+            // Checkbox on the right
+            HStack {
+                Spacer()
+                
+                if let completed = group.completedDose {
+                    // Already logged
+                    Label(completed.displayName, systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(Color.green)
+                        .font(.caption)
+                } else {
+                    // Checkbox to log
+                    Button {
+                        // Log the selected dose (or first option if single)
+                        if let selectedDose = viewModel.selectedDoses[group.group.id] {
+                            viewModel.logSingleIntake(dose: selectedDose, deductStock: true)
+                        } else if group.doseOptions.count == 1, let singleDose = group.doseOptions.first {
+                            viewModel.logSingleIntake(dose: singleDose.doseConfig, deductStock: true)
+                        }
+                    } label: {
+                        Image(systemName: viewModel.selectedDoses[group.group.id] != nil ? "checkmark.square.fill" : "square")
+                            .font(.title2)
+                            .foregroundStyle(viewModel.selectedDoses[group.group.id] != nil ? Color.accentColor : Color.secondary)
+                    }
+                    .disabled(viewModel.selectedDoses[group.group.id] == nil && group.doseOptions.count > 1)
                 }
             }
         }
         .padding()
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+struct CompactDoseSelector: View {
+    let options: [DoseOption]
+    let selectedId: UUID?
+    let isCompleted: Bool
+    let onSelect: (DoseConfiguration) -> Void
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(options) { option in
+                Button {
+                    onSelect(option.doseConfig)
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(option.doseConfig.displayName)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                        
+                        if option.hasLowStock {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 8))
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(selectedId == option.doseConfig.id ? Color.accentColor : Color(.systemGray5))
+                    )
+                    .foregroundStyle(selectedId == option.doseConfig.id ? Color.white : Color.primary)
+                }
+                .disabled(isCompleted || option.isCompleted)
+            }
+            Spacer()
+        }
     }
 }
 
@@ -178,19 +259,19 @@ struct DoseOptionRow: View {
             HStack {
                 // Radio button
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : (isSelected ? "circle.inset.filled" : "circle"))
-                    .foregroundStyle(isCompleted ? .green : (isSelected ? .accentColor : .secondary))
+                    .foregroundStyle(isCompleted ? Color.green : (isSelected ? Color.accentColor : Color.secondary))
                 
                 // Dose info
                 VStack(alignment: .leading) {
                     Text(option.doseConfig.displayName)
                         .font(.body)
-                        .foregroundStyle(isCompleted ? .secondary : .primary)
+                        .foregroundStyle(isCompleted ? Color.secondary : Color.primary)
                     
                     // Component breakdown
                     if option.components.count > 1 {
                         Text(option.components.map { "\($0.medication.name) \(Int($0.medication.strength))\($0.medication.strengthUnit) ×\($0.quantityNeeded)" }.joined(separator: " + "))
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.secondary)
                     }
                 }
                 
@@ -199,7 +280,7 @@ struct DoseOptionRow: View {
                 // Low stock warning
                 if option.hasLowStock {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.orange)
                         .font(.caption)
                 }
             }

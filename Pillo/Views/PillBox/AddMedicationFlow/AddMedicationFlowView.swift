@@ -25,10 +25,12 @@ struct AddMedicationFlowView: View {
                 case 3:
                     MedicationStrengthView(state: flowState)
                 case 4:
-                    ScheduleView(state: flowState)
+                    DosingTypeView(state: flowState)
                 case 5:
-                    MedicationAppearanceView(state: flowState)
+                    ScheduleView(state: flowState)
                 case 6:
+                    MedicationAppearanceView(state: flowState)
+                case 7:
                     ReviewDetailsView(state: flowState) { state in
                         saveMedication(from: state)
                     }
@@ -46,17 +48,21 @@ struct AddMedicationFlowView: View {
     
     private func saveMedication(from state: AddMedicationFlowState) {
         guard let form = state.selectedForm,
-              let firstStrength = state.strengths.first else {
+              !state.strengths.isEmpty else {
             return
         }
         
-        // Create medication with first strength (you may want to create multiple medications for multiple strengths)
-        let medication = viewModel.addMedication(
-            name: state.medicationName,
-            form: form,
-            strength: firstStrength.value,
-            strengthUnit: firstStrength.unit
-        )
+        // Create medications for each strength
+        var medicationsForStrengths: [Medication] = []
+        for strength in state.strengths {
+            let med = viewModel.addMedication(
+                name: state.medicationName,
+                form: form,
+                strength: strength.value,
+                strengthUnit: strength.unit
+            )
+            medicationsForStrengths.append(med)
+        }
         
         // Map ScheduleOption to ScheduleType
         let scheduleType: ScheduleType = {
@@ -122,24 +128,60 @@ struct AddMedicationFlowView: View {
                 timeFrameGroups[timeFrame] = group
             }
             
-            // Create one DoseConfiguration for this TimeFrame (not per time)
-            // The times are used to determine the TimeFrame and set reminder time on the group
-            let displayName = state.displayName.isEmpty ? state.medicationName : state.displayName
-            _ = viewModel.addDoseConfiguration(
-                displayName: displayName,
-                components: [(medication: medication, quantity: 1)],
-                group: group,
-                scheduleType: scheduleType,
-                startDate: state.startDate,
-                endDate: state.endDate
-            )
+            // Create dose configurations based on dosing type
+            if state.dosingType == .flexible {
+                // Create multiple DoseConfigurations for flexible dosing
+                for doseOption in state.doseOptions {
+                    let components: [(medication: Medication, quantity: Int)] = doseOption.components.compactMap { comp in
+                        guard comp.strengthIndex < medicationsForStrengths.count, comp.quantity > 0 else { return nil }
+                        return (medication: medicationsForStrengths[comp.strengthIndex], quantity: comp.quantity)
+                    }
+                    
+                    guard !components.isEmpty else { continue }
+                    
+                    let displayName = doseOption.displayName(strengths: state.strengths)
+                    
+                    _ = viewModel.addDoseConfiguration(
+                        displayName: displayName,
+                        components: components,
+                        group: group,
+                        scheduleType: scheduleType,
+                        startDate: state.startDate,
+                        endDate: state.endDate
+                    )
+                }
+            } else {
+                // Fixed: Create single DoseConfiguration
+                let components: [(medication: Medication, quantity: Int)] = state.fixedDoseComponents.compactMap { comp in
+                    guard comp.strengthIndex < medicationsForStrengths.count, comp.quantity > 0 else { return nil }
+                    return (medication: medicationsForStrengths[comp.strengthIndex], quantity: comp.quantity)
+                }
+                
+                guard !components.isEmpty else { continue }
+                
+                let total = state.getFixedDoseTotal()
+                let unit = state.strengths.first?.unit ?? "mg"
+                let displayName = state.displayName.isEmpty ? "\(Int(total))\(unit)" : state.displayName
+                
+                _ = viewModel.addDoseConfiguration(
+                    displayName: displayName,
+                    components: components,
+                    group: group,
+                    scheduleType: scheduleType,
+                    startDate: state.startDate,
+                    endDate: state.endDate
+                )
+            }
         }
         
         // Reload data to ensure everything is up to date
         viewModel.loadData()
         
         // DEBUG: Print medication and group information
-        print("DEBUG: Created medication: \(medication.name)")
+        print("DEBUG: Created \(medicationsForStrengths.count) medications")
+        for med in medicationsForStrengths {
+            print("DEBUG: Medication: \(med.name) \(Int(med.strength))\(med.strengthUnit)")
+        }
         print("DEBUG: viewModel.groups count: \(viewModel.groups.count)")
         for group in viewModel.groups {
             print("DEBUG: Group '\(group.name)' has \(group.doseConfigurations.count) dose configs")

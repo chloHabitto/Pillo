@@ -22,11 +22,39 @@ enum ScheduleOption: String, CaseIterable {
     case asNeeded = "As Needed"
 }
 
+enum DosingType: String, CaseIterable {
+    case fixed = "Fixed"
+    case flexible = "Flexible"
+}
+
+struct DoseOptionInput: Identifiable {
+    var id: UUID
+    var components: [(strengthIndex: Int, quantity: Int)] // Index into strengths array
+    
+    init(id: UUID = UUID(), components: [(strengthIndex: Int, quantity: Int)]) {
+        self.id = id
+        self.components = components
+    }
+    
+    func totalDose(strengths: [(value: Double, unit: String)]) -> Double {
+        components.reduce(0) { total, comp in
+            guard comp.strengthIndex < strengths.count else { return total }
+            return total + (strengths[comp.strengthIndex].value * Double(comp.quantity))
+        }
+    }
+    
+    func displayName(strengths: [(value: Double, unit: String)]) -> String {
+        let total = totalDose(strengths: strengths)
+        let unit = strengths.first?.unit ?? "mg"
+        return "\(Int(total))\(unit)"
+    }
+}
+
 @Observable
 class AddMedicationFlowState {
     // Step tracking
     var currentStep: Int = 1
-    let totalSteps: Int = 6
+    let totalSteps: Int = 7
     
     // Step 1: Medication Name
     var medicationName: String = ""
@@ -38,6 +66,11 @@ class AddMedicationFlowState {
     var strengths: [(value: Double, unit: String)] = []
     var currentStrengthValue: String = ""
     var currentStrengthUnit: String = "mg"
+    
+    // Step 3.5: Dosing Type
+    var dosingType: DosingType = .fixed
+    var doseOptions: [DoseOptionInput] = []
+    var fixedDoseComponents: [(strengthIndex: Int, quantity: Int)] = [] // For fixed dosing
     
     // Step 4: Schedule
     var scheduleOption: ScheduleOption = .everyDay
@@ -80,10 +113,17 @@ class AddMedicationFlowState {
         case 3:
             return !strengths.isEmpty
         case 4:
-            return !times.isEmpty
+            // Step 3.5: Dosing Type (shown as step 4 in UI, but internally step 3.5)
+            if dosingType == .fixed {
+                return !fixedDoseComponents.isEmpty && fixedDoseComponents.contains { $0.quantity > 0 }
+            } else {
+                return !doseOptions.isEmpty
+            }
         case 5:
-            return true // Appearance is optional
+            return !times.isEmpty
         case 6:
+            return true // Appearance is optional
+        case 7:
             return true
         default:
             return false
@@ -120,6 +160,39 @@ class AddMedicationFlowState {
     func removeTime(at index: Int) {
         guard index < times.count else { return }
         times.remove(at: index)
+    }
+    
+    // Dosing type helpers
+    func addDoseOption(_ option: DoseOptionInput) {
+        doseOptions.append(option)
+    }
+    
+    func removeDoseOption(at index: Int) {
+        guard index < doseOptions.count else { return }
+        doseOptions.remove(at: index)
+    }
+    
+    func updateFixedDoseComponent(strengthIndex: Int, quantity: Int) {
+        if let index = fixedDoseComponents.firstIndex(where: { $0.strengthIndex == strengthIndex }) {
+            if quantity > 0 {
+                fixedDoseComponents[index] = (strengthIndex: strengthIndex, quantity: quantity)
+            } else {
+                fixedDoseComponents.remove(at: index)
+            }
+        } else if quantity > 0 {
+            fixedDoseComponents.append((strengthIndex: strengthIndex, quantity: quantity))
+        }
+    }
+    
+    func getFixedDoseQuantity(for strengthIndex: Int) -> Int {
+        fixedDoseComponents.first(where: { $0.strengthIndex == strengthIndex })?.quantity ?? 0
+    }
+    
+    func getFixedDoseTotal() -> Double {
+        fixedDoseComponents.reduce(0) { total, comp in
+            guard comp.strengthIndex < strengths.count else { return total }
+            return total + (strengths[comp.strengthIndex].value * Double(comp.quantity))
+        }
     }
 }
 

@@ -105,6 +105,27 @@ class TodayViewModel {
         return summary
     }
     
+    // Log a single dose
+    func logSingleIntake(dose: DoseConfiguration, deductStock: Bool = true) {
+        errorMessage = nil
+        
+        // Skip if already completed
+        guard !isDoseCompleted(dose) else { return }
+        
+        let result = intakeManager.logIntake(
+            doseConfig: dose,
+            deductStock: deductStock,
+            date: selectedDate
+        )
+        
+        switch result {
+        case .success:
+            loadPlan()
+        case .failure(let error):
+            errorMessage = "Failed to log intake: \(error)"
+        }
+    }
+    
     // Log all selected doses
     func logSelectedIntakes(deductStock: Bool = true) {
         errorMessage = nil

@@ -239,10 +239,10 @@ struct ScheduleView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(4) ? Color.cyan : Color.gray.opacity(0.3))
+                    .background(state.canProceedFromStep(5) ? Color.cyan : Color.gray.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .disabled(!state.canProceedFromStep(4))
+            .disabled(!state.canProceedFromStep(5))
             .padding()
             .background(Color(red: 0.11, green: 0.11, blue: 0.12))
         }
