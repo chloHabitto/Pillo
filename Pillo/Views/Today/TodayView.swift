@@ -75,13 +75,17 @@ struct TodayContentView: View {
         .overlay(alignment: .bottom) {
             if !viewModel.selectedDoses.isEmpty {
                 Button {
-                    viewModel.logSelectedIntakes(deductStock: true)
+                    if viewModel.areAllSelectedDosesCompleted {
+                        viewModel.unlogSelectedIntakes()
+                    } else {
+                        viewModel.logSelectedIntakes(deductStock: true)
+                    }
                 } label: {
-                    Text("Log Selected as Taken")
+                    Text(viewModel.areAllSelectedDosesCompleted ? "Unlog Selected" : "Log Selected as Taken")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.accentColor)
+                        .background(viewModel.areAllSelectedDosesCompleted ? Color.orange : Color.accentColor)
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
@@ -269,7 +273,8 @@ struct CompactDoseSelector: View {
                     )
                     .foregroundStyle(foregroundColor(for: option.doseConfig.id))
                 }
-                .disabled(completedId != nil || option.isCompleted)
+                // Allow selecting completed doses so they can be unlogged
+                .disabled(false)
             }
             Spacer()
         }

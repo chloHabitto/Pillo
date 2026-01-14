@@ -32,22 +32,13 @@ class TodayViewModel {
     func loadPlan() {
         isLoading = true
         dailyPlan = dailyPlanManager.getPlan(for: selectedDate)
-        
-        // Pre-populate selectedDoses with any already-completed doses
-        for timeFrame in dailyPlan.timeFrames {
-            for group in timeFrame.groups {
-                if let completedDose = group.completedDose {
-                    selectedDoses[group.group.id] = completedDose
-                }
-            }
-        }
+        // Don't pre-populate selections - let users explicitly select doses
         isLoading = false
     }
     
     // Select a dose option for a group (radio button behavior)
     func selectDose(_ dose: DoseConfiguration, for group: MedicationGroup) {
-        // If already completed, don't allow change
-        guard !isDoseCompleted(dose) else { return }
+        // Allow selecting any dose, including completed ones (so they can be unlogged)
         selectedDoses[group.id] = dose
     }
     
@@ -80,6 +71,48 @@ class TodayViewModel {
             }
         }
         return !selectedDoses.isEmpty
+    }
+    
+    // Check if all selected doses are already completed
+    var areAllSelectedDosesCompleted: Bool {
+        guard !selectedDoses.isEmpty else { return false }
+        
+        for (groupId, selectedDose) in selectedDoses {
+            // Find the group plan for this group
+            let groupPlan = dailyPlan.timeFrames
+                .flatMap { $0.groups }
+                .first { $0.group.id == groupId }
+            
+            // Check if the selected dose matches the completed dose
+            if let completedDose = groupPlan?.completedDose {
+                if completedDose.id != selectedDose.id {
+                    return false  // Selected dose doesn't match completed dose
+                }
+            } else {
+                return false  // No completed dose for this group
+            }
+        }
+        
+        return true
+    }
+    
+    // Get the intake logs for selected completed doses
+    func getSelectedIntakeLogs() -> [IntakeLog] {
+        var logs: [IntakeLog] = []
+        
+        for (groupId, selectedDose) in selectedDoses {
+            let groupPlan = dailyPlan.timeFrames
+                .flatMap { $0.groups }
+                .first { $0.group.id == groupId }
+            
+            if let completedIntakeLog = groupPlan?.completedIntakeLog,
+               let completedDose = groupPlan?.completedDose,
+               completedDose.id == selectedDose.id {
+                logs.append(completedIntakeLog)
+            }
+        }
+        
+        return logs
     }
     
     // Get summary of what will be logged (for confirmation)
@@ -151,7 +184,8 @@ class TodayViewModel {
         
         // Reload to reflect changes
         loadPlan()
-        selectedDoses.removeAll()
+        // Keep selections so user can immediately unlog if needed
+        // The selected doses are now completed, so button will show "Unlog Selected"
     }
     
     // Change selected date
@@ -176,6 +210,20 @@ class TodayViewModel {
         errorMessage = nil
         intakeManager.undoIntake(log: log)
         loadPlan()
+    }
+    
+    // Unlog all selected completed doses
+    func unlogSelectedIntakes() {
+        errorMessage = nil
+        let logs = getSelectedIntakeLogs()
+        
+        for log in logs {
+            intakeManager.undoIntake(log: log)
+        }
+        
+        // Reload to reflect changes
+        loadPlan()
+        selectedDoses.removeAll()
     }
 }
 
