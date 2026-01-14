@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct PilloApp: App {
+    @State private var appSettings = AppSettings()
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Medication.self,
@@ -44,6 +46,8 @@ struct PilloApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(appSettings.colorScheme)
+                .environment(appSettings)
         }
         .modelContainer(sharedModelContainer)
     }

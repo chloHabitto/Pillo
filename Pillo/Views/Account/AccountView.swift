@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AccountView: View {
+    @Environment(AppSettings.self) private var appSettings
+    
     var body: some View {
         NavigationStack {
             List {
@@ -17,8 +19,18 @@ struct AccountView: View {
                 }
                 
                 Section("App Settings") {
-                    Text("App settings coming soon")
-                        .foregroundStyle(.secondary)
+                    Picker("Appearance", selection: Binding(
+                        get: { appSettings.appearanceMode },
+                        set: { newValue in
+                            appSettings.appearanceMode = newValue
+                        }
+                    )) {
+                        ForEach(AppearanceMode.allCases) { mode in
+                            Label(mode.displayName, systemImage: mode.icon)
+                                .tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 }
                 
                 Section("Notifications") {
@@ -45,5 +57,6 @@ struct AccountView: View {
 
 #Preview {
     AccountView()
+        .environment(AppSettings())
 }
 
