@@ -162,6 +162,22 @@ struct ColorSelectionView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
+        } else if state.selectedShape == .round {
+            ZStack {
+                Image("Shape-tablet-round")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-tablet-round_shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showRoundTabletLine {
+                    Image("Shape-tablet-round_line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
         } else {
             Image(systemName: state.selectedShape.sfSymbolPlaceholder)
                 .resizable()

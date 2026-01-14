@@ -31,6 +31,16 @@ struct ShapeSelectionView: View {
                     .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
+                // Show Line toggle (only for round tablet)
+                if state.selectedShape == .round {
+                    Toggle("Show Line", isOn: $state.showRoundTabletLine)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                }
+                
                 // Common shapes grid
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 16) {
                     ForEach(PillShape.commonShapes, id: \.self) { shape in
@@ -170,6 +180,22 @@ struct ShapeSelectionView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
+        } else if shape == .round {
+            ZStack {
+                Image("Shape-tablet-round")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-tablet-round_shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showRoundTabletLine {
+                    Image("Shape-tablet-round_line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -195,6 +221,22 @@ struct ShapeSelectionView: View {
                 Image("Shape-capsule_shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .round {
+            ZStack {
+                Image("Shape-tablet-round")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-tablet-round_shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                if state.showRoundTabletLine {
+                    Image("Shape-tablet-round_line")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
             }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
