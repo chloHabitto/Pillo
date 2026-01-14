@@ -158,23 +158,36 @@ struct MedicationStrengthView: View {
         }
         .safeAreaInset(edge: .bottom) {
             if isStrengthFieldFocused {
-                // Add Strength button when TextField is focused
-                Button {
-                    state.addStrength()
-                    // Keep focus after adding so user can add more strengths
-                } label: {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Add Strength")
+                // Add Strength and Done buttons when TextField is focused
+                HStack(spacing: 12) {
+                    Button {
+                        state.addStrength()
+                        // Keep focus after adding so user can add more strengths
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add Strength")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(state.currentStrengthValue.isEmpty ? Color.secondary : Color.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(state.currentStrengthValue.isEmpty ? Color(.tertiarySystemFill) : Color.cyan)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .font(.headline)
-                    .foregroundStyle(state.currentStrengthValue.isEmpty ? Color.secondary : Color.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(state.currentStrengthValue.isEmpty ? Color(.tertiarySystemFill) : Color.cyan)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .disabled(state.currentStrengthValue.isEmpty)
+                    
+                    Button {
+                        isStrengthFieldFocused = false
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .font(.headline)
+                            .foregroundStyle(Color.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.cyan)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
-                .disabled(state.currentStrengthValue.isEmpty)
                 .padding()
                 .background(Color(.systemBackground))
             } else {
