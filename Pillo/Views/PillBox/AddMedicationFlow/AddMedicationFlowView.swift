@@ -29,8 +29,10 @@ struct AddMedicationFlowView: View {
                 case 5:
                     ScheduleView(state: flowState)
                 case 6:
-                    MedicationAppearanceView(state: flowState)
+                    ShapeSelectionView(state: flowState)
                 case 7:
+                    ColorSelectionView(state: flowState)
+                case 8:
                     ReviewDetailsView(state: flowState) { state in
                         saveMedication(from: state)
                     }

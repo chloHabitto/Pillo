@@ -1,5 +1,5 @@
 //
-//  Step6_ReviewDetailsView.swift
+//  Step8_ReviewDetailsView.swift
 //  Pillo
 //
 //  Created by Chloe Lee on 2025-12-10.
@@ -160,19 +160,23 @@ struct ReviewDetailsView: View {
     @ViewBuilder
     private var pillPreview: some View {
         if state.selectedShape == .capsule {
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [state.leftColor, state.rightColor],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(width: 60, height: 30)
+            HStack(spacing: 0) {
+                Image("Shape-capsule_left")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-capsule_right")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)
+            }
         } else {
-            Circle()
-                .fill(state.leftColor)
-                .frame(width: 50, height: 50)
+            Image(systemName: state.selectedShape.sfSymbolPlaceholder)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundStyle(state.leftColor)
         }
     }
 }

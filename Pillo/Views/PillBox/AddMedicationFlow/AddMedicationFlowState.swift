@@ -11,7 +11,52 @@ import UIKit
 import Observation
 
 enum PillShape: String, CaseIterable {
-    case capsule, round, oval, oblong, diamond, square, triangle, pentagon, hexagon, heart, peanut, bottle, pillBottle, measuringCup, tube
+    // Common shapes (row 1 & 2)
+    case capsule, round, oval, oblong
+    case bottle, pillBottle, measuringCup, tube
+    
+    // More shapes
+    case diamond, square, triangle, pentagon
+    case hexagon, heart, rectangle, halfCircle
+    case trapezoid, blisterPack, bowtie, disc, cylinder
+    
+    var sfSymbolPlaceholder: String {
+        switch self {
+        case .capsule: return "" // Uses actual images
+        case .round: return "circle.fill"
+        case .oval: return "oval.fill"
+        case .oblong: return "capsule.fill"
+        case .bottle: return "waterbottle.fill"
+        case .pillBottle: return "pills.fill"
+        case .measuringCup: return "cup.and.saucer.fill"
+        case .tube: return "cylinder.fill"
+        case .diamond: return "diamond.fill"
+        case .square: return "square.fill"
+        case .triangle: return "triangle.fill"
+        case .pentagon: return "pentagon.fill"
+        case .hexagon: return "hexagon.fill"
+        case .heart: return "heart.fill"
+        case .rectangle: return "rectangle.fill"
+        case .halfCircle: return "semicircle.fill"
+        case .trapezoid: return "trapezoid.and.line.vertical.fill"
+        case .blisterPack: return "rectangle.split.2x2.fill"
+        case .bowtie: return "bowtie.fill"
+        case .disc: return "circle.fill"
+        case .cylinder: return "cylinder.fill"
+        }
+    }
+    
+    var isTwoTone: Bool {
+        self == .capsule
+    }
+    
+    static var commonShapes: [PillShape] {
+        [.capsule, .round, .oval, .oblong, .bottle, .pillBottle, .measuringCup, .tube]
+    }
+    
+    static var moreShapes: [PillShape] {
+        [.diamond, .square, .triangle, .pentagon, .hexagon, .heart, .rectangle, .halfCircle, .trapezoid, .blisterPack, .bowtie, .disc, .cylinder]
+    }
 }
 
 enum ScheduleOption: String, CaseIterable {
@@ -120,7 +165,7 @@ struct DoseOptionInput: Identifiable {
 class AddMedicationFlowState {
     // Step tracking
     var currentStep: Int = 1
-    let totalSteps: Int = 7
+    let totalSteps: Int = 8
     
     // Step 1: Medication Name
     var medicationName: String = ""
@@ -148,14 +193,16 @@ class AddMedicationFlowState {
     var specificDaysOfWeek: Set<Int> = [] // 1 = Sunday, 2 = Monday, etc.
     var daysInterval: Int = 1 // For "Every Few Days"
     
-    // Step 5: Appearance
+    // Step 6: Shape Selection
     var selectedShape: PillShape = .capsule
+    
+    // Step 7: Color Selection
     var leftColor: Color = .white
     var rightColor: Color = .white
     var backgroundColor: Color = .blue
     var selectedPhoto: UIImage? = nil
     
-    // Step 6: Review
+    // Step 8: Review
     var displayName: String = ""
     var notes: String = ""
     
@@ -194,9 +241,11 @@ class AddMedicationFlowState {
                 return !timeFrames.isEmpty
             }
         case 6:
-            return true // Appearance is optional
+            return true // Shape selection has default
         case 7:
-            return true
+            return true // Color selection has defaults
+        case 8:
+            return true // Review
         default:
             return false
         }

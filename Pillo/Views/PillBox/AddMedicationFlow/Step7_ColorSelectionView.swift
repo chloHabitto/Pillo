@@ -1,0 +1,187 @@
+//
+//  Step7_ColorSelectionView.swift
+//  Pillo
+//
+//  Created by Chloe Lee on 2025-12-10.
+//
+
+import SwiftUI
+
+struct ColorSelectionView: View {
+    @Bindable var state: AddMedicationFlowState
+    @Environment(\.dismiss) private var dismiss
+    
+    private let pillColors: [Color] = [
+        .white,
+        Color(white: 0.85), // light gray
+        Color(red: 1.0, green: 0.95, blue: 0.8), // cream
+        Color(red: 1.0, green: 0.8, blue: 0.6), // peach
+        Color(red: 0.9, green: 1.0, blue: 0.5), // yellow-green
+        Color(red: 0.5, green: 1.0, blue: 0.8), // mint
+        Color(red: 0.5, green: 0.8, blue: 1.0), // sky blue
+        Color(red: 0.4, green: 0.5, blue: 1.0), // blue
+        Color(red: 0.7, green: 0.5, blue: 1.0), // lavender
+        Color(red: 1.0, green: 0.7, blue: 0.8), // pink
+        Color(red: 1.0, green: 0.4, blue: 0.4), // red
+        Color(red: 1.0, green: 0.6, blue: 0.2), // orange
+    ]
+    
+    private let backgroundColors: [Color] = [
+        Color(red: 0.0, green: 0.5, blue: 0.6), // teal
+        Color(white: 0.4), // dark gray
+        Color(red: 0.7, green: 0.6, blue: 0.0), // olive/gold
+        Color(red: 1.0, green: 0.4, blue: 0.3), // coral
+        Color(red: 0.6, green: 0.8, blue: 0.4), // sage
+        Color(red: 0.4, green: 0.8, blue: 0.7), // aqua
+        Color(red: 0.2, green: 0.5, blue: 0.6), // dark teal
+        Color(red: 0.7, green: 0.4, blue: 0.7), // purple
+        Color(red: 0.6, green: 0.5, blue: 0.7), // muted purple
+        Color(red: 1.0, green: 0.5, blue: 0.6), // salmon
+        Color(red: 0.9, green: 0.3, blue: 0.3), // darker red
+        Color(red: 0.8, green: 0.5, blue: 0.2), // brown/copper
+    ]
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // Preview
+                ZStack {
+                    Circle()
+                        .fill(state.backgroundColor)
+                        .frame(width: 120, height: 120)
+                    
+                    pillPreview
+                        .frame(width: 80, height: 80)
+                }
+                .padding(.top, 20)
+                
+                // Header
+                Text("Choose Colors")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(Color.primary)
+                    .padding(.horizontal)
+                
+                if state.selectedShape.isTwoTone {
+                    // Capsule: two-tone selection
+                    VStack(alignment: .leading, spacing: 12) {
+                        colorSection(title: "Left Side", selectedColor: $state.leftColor, colors: pillColors)
+                        colorSection(title: "Right Side", selectedColor: $state.rightColor, colors: pillColors)
+                        colorSection(title: "Background", selectedColor: $state.backgroundColor, colors: backgroundColors)
+                    }
+                } else {
+                    // Single color for other shapes
+                    VStack(alignment: .leading, spacing: 12) {
+                        colorSection(title: "Color", selectedColor: $state.leftColor, colors: pillColors)
+                        colorSection(title: "Background", selectedColor: $state.backgroundColor, colors: backgroundColors)
+                    }
+                }
+                
+                Spacer(minLength: 100)
+            }
+        }
+        .background(Color(.systemBackground))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    state.previousStep()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundStyle(Color.primary)
+                }
+            }
+            
+            ToolbarItem(placement: .principal) {
+                VStack {
+                    Text(state.medicationName)
+                        .font(.headline)
+                        .foregroundStyle(Color.primary)
+                    if let form = state.selectedForm, let strength = state.strengths.first {
+                        Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color.secondary)
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                state.nextStep()
+            } label: {
+                Text("Next")
+                    .font(.headline)
+                    .foregroundStyle(Color.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.cyan)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding()
+            .background(Color(.systemBackground))
+        }
+    }
+    
+    @ViewBuilder
+    private var pillPreview: some View {
+        if state.selectedShape == .capsule {
+            HStack(spacing: 0) {
+                Image("Shape-capsule_left")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-capsule_right")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)
+            }
+        } else {
+            Image(systemName: state.selectedShape.sfSymbolPlaceholder)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundStyle(state.leftColor)
+        }
+    }
+    
+    private func colorSection(title: String, selectedColor: Binding<Color>, colors: [Color]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(Color.secondary)
+                .padding(.horizontal)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                ForEach(colors, id: \.self) { color in
+                    Button {
+                        selectedColor.wrappedValue = color
+                    } label: {
+                        Circle()
+                            .fill(color)
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white, lineWidth: selectedColor.wrappedValue == color ? 3 : 0)
+                            )
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        ColorSelectionView(state: AddMedicationFlowState())
+    }
+}
