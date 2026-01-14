@@ -67,9 +67,17 @@ class DailyPlanManager {
                     return true
                 }
                 
+                print("DEBUG: Group '\(group.name)' has \(doseConfigs.count) valid dose configs (out of \(group.doseConfigurations.count) total)")
+                
                 // Find which dose was completed (if any)
+                // Only count intakes that reference valid dose configurations (not orphaned)
                 let completedIntake = intakes.first { intake in
-                    intake.doseConfiguration?.group?.id == group.id
+                    guard let doseConfig = intake.doseConfiguration,
+                          doseConfig.group?.id == group.id else {
+                        return false
+                    }
+                    // Check if the dose configuration has valid components (medications not deleted)
+                    return doseConfig.components.contains { $0.medication != nil }
                 }
                 let completedDose = completedIntake?.doseConfiguration
                 
@@ -77,6 +85,7 @@ class DailyPlanManager {
                 var doseOptions: [DoseOption] = []
                 
                 for doseConfig in doseConfigs {
+                    print("DEBUG: Processing doseConfig '\(doseConfig.displayName)' with \(doseConfig.components.count) components")
                     // Check if this dose was taken
                     let isCompleted = doseConfig.id == completedDose?.id
                     
@@ -108,6 +117,12 @@ class DailyPlanManager {
                         components.append(componentInfo)
                     }
                     
+                    // Skip dose configurations with no valid components (orphaned after medication deletion)
+                    guard !components.isEmpty else {
+                        print("DEBUG: Skipping doseConfig '\(doseConfig.displayName)' - no valid components")
+                        continue
+                    }
+                    
                     let doseOption = DoseOption(
                         doseConfig: doseConfig,
                         components: components,
@@ -117,6 +132,12 @@ class DailyPlanManager {
                     doseOptions.append(doseOption)
                 }
                 
+                // Skip groups with no valid dose options (all medications deleted)
+                guard !doseOptions.isEmpty else {
+                    print("DEBUG: Skipping group '\(group.name)' - no valid dose options")
+                    continue
+                }
+                
                 let groupPlan = GroupPlan(
                     group: group,
                     doseOptions: doseOptions,
@@ -124,6 +145,11 @@ class DailyPlanManager {
                 )
                 
                 groupPlans.append(groupPlan)
+            }
+            
+            // Only add time frame if it has valid groups
+            guard !groupPlans.isEmpty else {
+                continue
             }
             
             // Get reminder time from first group in time frame, or use default
@@ -160,8 +186,15 @@ class DailyPlanManager {
         let allGroups = fetchAllGroups()
         let intakes = intakeManager.getIntakes(for: date)
         
-        // Group intakes by group ID
-        let intakesByGroup = Dictionary(grouping: intakes) { intake in
+        // Filter out intakes that reference orphaned dose configurations (medications deleted)
+        let validIntakes = intakes.filter { intake in
+            guard let doseConfig = intake.doseConfiguration else { return false }
+            // Only count intakes with valid components (medications not deleted)
+            return doseConfig.components.contains { $0.medication != nil }
+        }
+        
+        // Group valid intakes by group ID
+        let intakesByGroup = Dictionary(grouping: validIntakes) { intake in
             intake.doseConfiguration?.group?.id
         }
         

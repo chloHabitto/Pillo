@@ -151,13 +151,6 @@ struct GroupCard: View {
                     .font(.headline)
             }
             
-            // DEBUG: Show count of dose options
-            #if DEBUG
-            Text("DEBUG: \(group.doseOptions.count) dose options")
-                .font(.caption2)
-                .foregroundStyle(Color.orange)
-            #endif
-            
             if group.doseOptions.count > 1 {
                 // Multiple options: show compact chips
                 CompactDoseSelector(
