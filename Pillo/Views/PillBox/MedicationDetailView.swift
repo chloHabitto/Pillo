@@ -35,7 +35,6 @@ struct MedicationDetailView: View {
             }
             .padding()
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
         .navigationTitle(medication.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -73,18 +72,18 @@ struct MedicationDetailView: View {
             // Medication Name
             Text(medication.name)
                 .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
             
             // Form and Strength
             Text("\(medication.form.rawValue.capitalized), \(Int(medication.strength))\(medication.strengthUnit)")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -103,7 +102,7 @@ struct MedicationDetailView: View {
                     .foregroundStyle(.cyan)
                 Text("Schedule")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             
             let scheduleInfo = viewModel.getScheduleInfo(for: medication)
@@ -111,14 +110,14 @@ struct MedicationDetailView: View {
             if scheduleInfo.timeFrames.isEmpty && scheduleInfo.times.isEmpty {
                 Text("No schedule set")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             } else {
                 // Time Frames
                 if !scheduleInfo.timeFrames.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Time Frames")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(.secondary)
                         
                         HStack(spacing: 8) {
                             ForEach(scheduleInfo.timeFrames, id: \.self) { timeFrame in
@@ -141,7 +140,7 @@ struct MedicationDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Reminder Times")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(.secondary)
                         
                         ForEach(scheduleInfo.times, id: \.self) { time in
                             HStack {
@@ -150,7 +149,7 @@ struct MedicationDetailView: View {
                                     .foregroundStyle(.cyan)
                                 Text(formatTime(time))
                                     .font(.subheadline)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(.primary)
                             }
                         }
                     }
@@ -161,7 +160,7 @@ struct MedicationDetailView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -174,13 +173,13 @@ struct MedicationDetailView: View {
                     .foregroundStyle(.cyan)
                 Text("Stock")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             
             if medication.stockSources.isEmpty {
                 Text("No stock sources added")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             } else {
                 // Total Countable Stock
                 let totalStock = viewModel.getCurrentStock(for: medication)
@@ -188,11 +187,11 @@ struct MedicationDetailView: View {
                     HStack {
                         Text("Total Stock:")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(.secondary)
                         Text("\(totalStock) pills")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                     }
                     .padding(.bottom, 8)
                 }
@@ -207,7 +206,7 @@ struct MedicationDetailView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -217,7 +216,7 @@ struct MedicationDetailView: View {
                 Text(source.label)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 
                 Spacer()
                 
@@ -236,15 +235,15 @@ struct MedicationDetailView: View {
                 HStack {
                     Text("Quantity:")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     Text("\(currentQty) pills")
                         .font(.caption)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
             } else {
                 Text("Counting not enabled")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             }
             
             // Low Stock Threshold
@@ -252,10 +251,10 @@ struct MedicationDetailView: View {
                 HStack {
                     Text("Low Stock Threshold:")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     Text("\(source.lowStockThreshold) pills")
                         .font(.caption)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
             }
             
@@ -264,17 +263,17 @@ struct MedicationDetailView: View {
                 HStack {
                     Text("Expiry Date:")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     Text(formatDate(expiryDate))
                         .font(.caption)
-                        .foregroundStyle(expiryDate < Date() ? .red : .white)
+                        .foregroundStyle(expiryDate < Date() ? .red : .primary)
                 }
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                .fill(Color(.tertiarySystemBackground))
         )
     }
     
@@ -287,7 +286,7 @@ struct MedicationDetailView: View {
                     .foregroundStyle(.cyan)
                 Text("Dose Configurations")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             
             // Get unique dose configurations (a medication can appear multiple times in the same config)
@@ -304,7 +303,7 @@ struct MedicationDetailView: View {
             if doseConfigs.isEmpty {
                 Text("Not used in any dose configurations")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             } else {
                 ForEach(doseConfigs) { config in
                     doseConfigurationRow(config)
@@ -315,7 +314,7 @@ struct MedicationDetailView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -324,25 +323,25 @@ struct MedicationDetailView: View {
             Text(config.displayName)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
             
             if let group = config.group {
                 Text(group.name)
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             }
             
             // Find the quantity for this medication in this dose config
             if let component = config.components.first(where: { $0.medication?.id == medication.id }) {
                 Text("Quantity: \(component.quantity)")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                .fill(Color(.tertiarySystemBackground))
         )
     }
     
@@ -362,7 +361,7 @@ struct MedicationDetailView: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.red.opacity(0.3))
+                    .fill(Color.red.opacity(0.2))
             )
         }
         .padding(.bottom, 20)

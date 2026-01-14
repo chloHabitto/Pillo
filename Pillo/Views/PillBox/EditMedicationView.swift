@@ -43,7 +43,6 @@ struct EditMedicationView: View {
                 }
                 .padding()
             }
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
             .navigationTitle("Edit Medication")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -51,7 +50,6 @@ struct EditMedicationView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundStyle(.white)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -76,28 +74,28 @@ struct EditMedicationView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Basic Information")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
             
             // Name
             VStack(alignment: .leading, spacing: 8) {
                 Text("Medication Name")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
                 TextField("Enter name", text: $name)
                     .textFieldStyle(.plain)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .fill(Color(.secondarySystemBackground))
                     )
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             
             // Form
             VStack(alignment: .leading, spacing: 8) {
                 Text("Form")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
                 Picker("Form", selection: $form) {
                     ForEach(MedicationForm.allCases, id: \.self) { formOption in
                         Text(formOption.rawValue.capitalized).tag(formOption)
@@ -107,9 +105,8 @@ struct EditMedicationView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                        .fill(Color(.secondarySystemBackground))
                 )
-                .foregroundStyle(.white)
             }
             
             // Strength
@@ -117,22 +114,22 @@ struct EditMedicationView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Strength")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     TextField("Enter strength", text: $strength)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.plain)
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                                .fill(Color(.secondarySystemBackground))
                         )
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Unit")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     Picker("Unit", selection: $strengthUnit) {
                         Text("mg").tag("mg")
                         Text("mcg").tag("mcg")
@@ -144,9 +141,8 @@ struct EditMedicationView: View {
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                            .fill(Color(.secondarySystemBackground))
                     )
-                    .foregroundStyle(.white)
                 }
             }
         }
@@ -154,7 +150,7 @@ struct EditMedicationView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -165,7 +161,7 @@ struct EditMedicationView: View {
             HStack {
                 Text("Stock Sources")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 Spacer()
                 Button {
                     showingAddStockSource = true
@@ -179,7 +175,7 @@ struct EditMedicationView: View {
             if stockSources.isEmpty {
                 Text("No stock sources added")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.secondary)
             } else {
                 ForEach(stockSources) { source in
                     EditStockSourceRow(source: source, viewModel: viewModel) {
@@ -192,7 +188,7 @@ struct EditMedicationView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                .fill(Color(.secondarySystemBackground))
         )
     }
     
@@ -251,7 +247,7 @@ struct EditStockSourceRow: View {
                     .textFieldStyle(.plain)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .onChange(of: label) { oldValue, newValue in
                         source.label = newValue
                         saveChanges()
@@ -269,7 +265,6 @@ struct EditStockSourceRow: View {
             
             // Counting Toggle
             Toggle("Enable Counting", isOn: $countingEnabled)
-                .foregroundStyle(.white)
                 .onChange(of: countingEnabled) { oldValue, newValue in
                     source.countingEnabled = newValue
                     if newValue && source.currentQuantity == nil {
@@ -283,16 +278,16 @@ struct EditStockSourceRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Current Quantity")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     TextField("Enter quantity", text: $currentQuantity)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.plain)
                         .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                                .fill(Color(.tertiarySystemBackground))
                         )
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .onChange(of: currentQuantity) { oldValue, newValue in
                             if let qty = Int(newValue) {
                                 source.currentQuantity = qty
@@ -305,16 +300,16 @@ struct EditStockSourceRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Low Stock Threshold")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.secondary)
                     TextField("Enter threshold", text: $lowStockThreshold)
                         .keyboardType(.numberPad)
                         .textFieldStyle(.plain)
                         .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                                .fill(Color(.tertiarySystemBackground))
                         )
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .onChange(of: lowStockThreshold) { oldValue, newValue in
                             if let threshold = Int(newValue) {
                                 source.lowStockThreshold = threshold
@@ -329,7 +324,6 @@ struct EditStockSourceRow: View {
                 get: { expiryDate ?? Date() },
                 set: { expiryDate = $0; source.expiryDate = $0; saveChanges() }
             ), displayedComponents: .date)
-                .foregroundStyle(.white)
                 .onChange(of: expiryDate) { oldValue, newValue in
                     source.expiryDate = newValue
                     saveChanges()
@@ -338,7 +332,7 @@ struct EditStockSourceRow: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.11, green: 0.11, blue: 0.12))
+                .fill(Color(.tertiarySystemBackground))
         )
         .alert("Delete Stock Source", isPresented: $showingDeleteAlert) {
             Button("Cancel", role: .cancel) { }
@@ -379,70 +373,66 @@ struct AddStockSourceView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Label")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(.secondary)
                         TextField("e.g., Bottle 1, Refill", text: $label)
                             .textFieldStyle(.plain)
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                                    .fill(Color(.secondarySystemBackground))
                             )
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                     }
                     
                     // Counting Toggle
                     Toggle("Enable Counting", isOn: $countingEnabled)
-                        .foregroundStyle(.white)
                     
                     if countingEnabled {
                         // Quantity
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Current Quantity")
                                 .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.7))
+                                .foregroundStyle(.secondary)
                             TextField("Enter quantity", text: $quantity)
                                 .keyboardType(.numberPad)
                                 .textFieldStyle(.plain)
                                 .padding()
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                                        .fill(Color(.secondarySystemBackground))
                                 )
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.primary)
                         }
                         
                         // Low Stock Threshold
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Low Stock Threshold")
                                 .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.7))
+                                .foregroundStyle(.secondary)
                             TextField("Enter threshold", text: $lowStockThreshold)
                                 .keyboardType(.numberPad)
                                 .textFieldStyle(.plain)
                                 .padding()
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(red: 0.17, green: 0.17, blue: 0.18))
+                                        .fill(Color(.secondarySystemBackground))
                                 )
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.primary)
                         }
                     }
                     
                     // Expiry Date
                     Toggle("Set Expiry Date", isOn: $hasExpiryDate)
-                        .foregroundStyle(.white)
                     
                     if hasExpiryDate {
                         DatePicker("Expiry Date", selection: Binding(
                             get: { expiryDate ?? Date() },
                             set: { expiryDate = $0 }
                         ), displayedComponents: .date)
-                            .foregroundStyle(.white)
                     }
                 }
                 .padding()
             }
-            .background(Color(red: 0.11, green: 0.11, blue: 0.12))
             .navigationTitle("Add Stock Source")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -450,7 +440,6 @@ struct AddStockSourceView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundStyle(.white)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
