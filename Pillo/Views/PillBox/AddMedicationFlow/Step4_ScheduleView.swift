@@ -210,14 +210,7 @@ struct ScheduleView: View {
                                             state.addTimeFrame(timeFrame)
                                         }
                                     } label: {
-                                        HStack {
-                                            Text(frameType.rawValue)
-                                            if frameType != .custom {
-                                                Text(frameType.displayRange)
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                        }
+                                        Text(frameType.menuDisplayTitle)
                                     }
                                 }
                             } label: {

@@ -82,6 +82,15 @@ enum TimeFrameType: String, CaseIterable {
         case .custom: return "Custom Range"
         }
     }
+    
+    var menuDisplayTitle: String {
+        switch self {
+        case .custom:
+            return "Custom"
+        default:
+            return "\(rawValue) (\(displayRange))"
+        }
+    }
 }
 
 struct DoseOptionInput: Identifiable {
