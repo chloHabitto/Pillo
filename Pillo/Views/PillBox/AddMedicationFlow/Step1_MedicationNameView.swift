@@ -67,58 +67,10 @@ struct MedicationNameView: View {
     }
     
     private var pillIconsIllustration: some View {
-        ZStack {
-            // Blue capsule
-            Capsule()
-                .fill(Color.blue)
-                .frame(width: 60, height: 30)
-                .offset(x: -30, y: 0)
-            
-            // Light blue hexagon
-            HexagonShape()
-                .fill(Color.cyan)
-                .frame(width: 40, height: 40)
-                .offset(x: 0, y: -10)
-            
-            // Pink circle
-            Circle()
-                .fill(Color.pink)
-                .frame(width: 35, height: 35)
-                .offset(x: 25, y: 5)
-            
-            // Yellow circles
-            Circle()
-                .fill(Color.yellow)
-                .frame(width: 20, height: 20)
-                .offset(x: -15, y: 20)
-            
-            Circle()
-                .fill(Color.yellow.opacity(0.7))
-                .frame(width: 15, height: 15)
-                .offset(x: 20, y: 25)
-        }
-        .frame(width: 120, height: 80)
-    }
-}
-
-struct HexagonShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
-        
-        for i in 0..<6 {
-            let angle = Double(i) * .pi / 3 - .pi / 2
-            let x = center.x + radius * cos(angle)
-            let y = center.y + radius * sin(angle)
-            if i == 0 {
-                path.move(to: CGPoint(x: x, y: y))
-            } else {
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-        }
-        path.closeSubpath()
-        return path
+        Image("pills")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 120, height: 80)
     }
 }
 
