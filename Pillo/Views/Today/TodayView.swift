@@ -70,6 +70,13 @@ struct TodayContentView: View {
                     Spacer(minLength: 80)
                 }
                 .padding(.horizontal)
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Deselect all when tapping empty space
+                    // Child views' tap gestures take priority, so this only fires when tapping empty space (not on cards)
+                    viewModel.deselectAll()
+                }
             }
         }
         .overlay(alignment: .bottom) {
@@ -144,8 +151,8 @@ struct GroupCard: View {
                     .font(.headline)
             }
             
-            if group.doseOptions.count > 1 {
-                // Multiple options: show compact chips
+            if !group.doseOptions.isEmpty {
+                // Show all doses (single or multiple) as pill buttons for consistency
                 CompactDoseSelector(
                     options: group.doseOptions,
                     selectedId: viewModel.selectedDoses[group.group.id]?.id,
@@ -155,40 +162,6 @@ struct GroupCard: View {
                         viewModel.toggleDoseSelection(dose, for: group.group)
                     }
                 )
-            } else if let singleOption = group.doseOptions.first {
-                // Single option: show the dose with low stock warning if applicable
-                HStack {
-                    if group.completedDose != nil {
-                        HStack(spacing: 6) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.green)
-                                .font(.subheadline)
-                            Text(singleOption.doseConfig.displayName)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(Color.green)
-                        }
-                    } else {
-                        Text(singleOption.doseConfig.displayName)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    if singleOption.hasLowStock {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(Color.orange)
-                            .font(.caption)
-                    }
-                    
-                    // Show selection indicator
-                    if viewModel.selectedDoses[group.group.id]?.id == singleOption.doseConfig.id {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color.accentColor)
-                            .font(.subheadline)
-                    }
-                }
             } else {
                 // No dose options - medication exists but not configured for dosing
                 Text("Not scheduled")
