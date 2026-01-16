@@ -35,9 +35,10 @@ struct ReviewDetailsView: View {
                             .clipShape(Circle())
                     } else {
                         pillPreview
+                            .frame(width: 80, height: 80)
                     }
                 }
-                .padding()
+                .padding(.top, 20)
                 
                 // Medication info
                 VStack(spacing: 4) {
