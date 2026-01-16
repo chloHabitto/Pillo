@@ -238,6 +238,50 @@ struct ColorSelectionView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
+        } else if state.selectedShape == .roundSquare {
+            ZStack {
+                Image("Shape-RoundSquare")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-RoundSquare-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .hexagon {
+            ZStack {
+                Image("Shape-Hexagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Hexagon-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .diamond {
+            ZStack {
+                Image("Shape-Diamond")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Diamond-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .pentagon {
+            ZStack {
+                Image("Shape-Pentagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Pentagon-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
         } else if state.selectedShape == .bottle {
             ZStack {
                 Image("Shape-bottle01-body")

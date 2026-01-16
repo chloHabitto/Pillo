@@ -280,6 +280,58 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
             }
+        } else if shape == .roundSquare {
+            ZStack {
+                Image("Shape-RoundSquare")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-RoundSquare-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
+        } else if shape == .hexagon {
+            ZStack {
+                Image("Shape-Hexagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-Hexagon-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
+        } else if shape == .diamond {
+            ZStack {
+                Image("Shape-Diamond")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-Diamond-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
+        } else if shape == .pentagon {
+            ZStack {
+                Image("Shape-Pentagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(isSelected ? Color("PillColor-White") : Color("PillColor-White"))
+                Image("Shape-Pentagon-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
         } else if shape == .bottle {
             ZStack {
                 Image("Shape-bottle01-body")
@@ -335,13 +387,13 @@ struct ShapeSelectionView: View {
             }
         } else if shape == .cream01 {
             ZStack {
-                // Bottom layer: Body (light grey)
+                // Bottom layer: Body (white)
                 Image("Shape-Cream01-body")
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
-                    .foregroundStyle(Color("PillColor-LightGray"))
+                    .foregroundStyle(Color("PillColor-White"))
                 // Cap (white)
                 Image("Shape-Cream01-cap")
                     .renderingMode(.template)
@@ -449,6 +501,50 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-square-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .roundSquare {
+            ZStack {
+                Image("Shape-RoundSquare")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-RoundSquare-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .hexagon {
+            ZStack {
+                Image("Shape-Hexagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Hexagon-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .diamond {
+            ZStack {
+                Image("Shape-Diamond")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Diamond-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .pentagon {
+            ZStack {
+                Image("Shape-Pentagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Pentagon-Shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
