@@ -98,8 +98,10 @@ struct MedicationStrengthView: View {
                                 .clipShape(Capsule())
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
                 Spacer(minLength: 100)
