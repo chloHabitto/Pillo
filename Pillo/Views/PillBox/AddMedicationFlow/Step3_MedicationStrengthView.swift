@@ -143,9 +143,15 @@ struct MedicationStrengthView: View {
                         .font(.headline)
                         .foregroundStyle(Color.primary)
                     if let form = state.selectedForm {
-                        Text(form.rawValue.capitalized)
-                            .font(.caption)
-                            .foregroundStyle(Color.secondary)
+                        if form == .other, let customName = state.customFormName, !customName.isEmpty {
+                            Text(customName.capitalized)
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                        } else {
+                            Text(form.rawValue.capitalized)
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                        }
                     }
                 }
             }

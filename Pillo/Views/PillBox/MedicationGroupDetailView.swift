@@ -75,7 +75,7 @@ struct MedicationGroupDetailView: View {
             Text(medicationGroup.name)
                 .font(.system(size: 28, weight: .bold))
             
-            Text(medicationGroup.form.rawValue.capitalized)
+            Text(medicationGroup.medications.first?.formDisplayName ?? medicationGroup.form.rawValue.capitalized)
                 .font(.subheadline)
                 .foregroundStyle(Color.secondary)
         }

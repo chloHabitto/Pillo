@@ -174,7 +174,7 @@ struct MedicationGroupRow: View {
             // Schedule and stock info
             HStack {
                 // Form
-                Text(group.form.rawValue.capitalized)
+                Text(group.medications.first?.formDisplayName ?? group.form.rawValue.capitalized)
                     .font(.caption)
                     .foregroundStyle(Color.secondary)
                 
@@ -237,7 +237,7 @@ struct AddMedicationView: View {
                 TextField("Medication Name", text: $name)
                 
                 Picker("Form", selection: $form) {
-                    ForEach(MedicationForm.allCases, id: \.self) { form in
+                    ForEach(MedicationForm.allCases.filter { $0 != .other }, id: \.self) { form in
                         Text(form.rawValue.capitalized).tag(form)
                     }
                 }

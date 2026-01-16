@@ -86,13 +86,15 @@ class PillBoxViewModel {
         name: String,
         form: MedicationForm,
         strength: Double,
-        strengthUnit: String
+        strengthUnit: String,
+        customFormName: String? = nil
     ) -> Medication {
         let medication = Medication(
             name: name,
             form: form,
             strength: strength,
-            strengthUnit: strengthUnit
+            strengthUnit: strengthUnit,
+            customFormName: customFormName
         )
         modelContext.insert(medication)
         try? modelContext.save()

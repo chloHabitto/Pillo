@@ -16,6 +16,7 @@ struct EditMedicationView: View {
     
     @State private var name: String
     @State private var form: MedicationForm
+    @State private var customFormName: String?
     @State private var strengths: [(value: Double, unit: String)] = []
     @State private var newStrengthValue: String = ""
     @State private var newStrengthUnit: String = "mg"
@@ -27,6 +28,7 @@ struct EditMedicationView: View {
         self.viewModel = viewModel
         _name = State(initialValue: medication.name)
         _form = State(initialValue: medication.form)
+        _customFormName = State(initialValue: medication.customFormName)
         _stockSources = State(initialValue: medication.stockSources)
         
         // Load ALL strengths for medications with the same name
@@ -108,7 +110,7 @@ struct EditMedicationView: View {
                     .font(.subheadline)
                     .foregroundStyle(Color.secondary)
                 Picker("Form", selection: $form) {
-                    ForEach(MedicationForm.allCases, id: \.self) { formOption in
+                    ForEach(MedicationForm.allCases.filter { $0 != .other }, id: \.self) { formOption in
                         Text(formOption.rawValue.capitalized).tag(formOption)
                     }
                 }
@@ -290,6 +292,7 @@ struct EditMedicationView: View {
         // 1. Update the original medication with the first strength
         medication.name = name
         medication.form = form
+        medication.customFormName = form == .other ? customFormName : nil
         
         if let firstStrength = strengths.first {
             medication.strength = firstStrength.value
@@ -320,7 +323,8 @@ struct EditMedicationView: View {
                     name: name,
                     form: form,
                     strength: strength.value,
-                    strengthUnit: strength.unit
+                    strengthUnit: strength.unit,
+                    customFormName: form == .other ? customFormName : nil
                 )
                 
                 // If original medication has dose configurations, create one for the new strength too

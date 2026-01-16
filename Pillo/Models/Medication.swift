@@ -11,7 +11,7 @@ import SwiftData
 enum MedicationForm: String, Codable, CaseIterable {
     case capsule, tablet, liquid, topical, cream, drops,
          foam, gel, inhaler, injection, lotion, patch,
-         powder, spray, suppository
+         powder, spray, suppository, other
 }
 
 @Model
@@ -21,6 +21,7 @@ final class Medication {
     var form: MedicationForm
     var strength: Double
     var strengthUnit: String
+    var customFormName: String?
     var createdAt: Date
     
     @Relationship(deleteRule: .cascade)
@@ -35,6 +36,7 @@ final class Medication {
         form: MedicationForm,
         strength: Double,
         strengthUnit: String,
+        customFormName: String? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -42,7 +44,15 @@ final class Medication {
         self.form = form
         self.strength = strength
         self.strengthUnit = strengthUnit
+        self.customFormName = customFormName
         self.createdAt = createdAt
+    }
+    
+    var formDisplayName: String {
+        if form == .other, let customName = customFormName, !customName.isEmpty {
+            return customName.capitalized
+        }
+        return form.rawValue.capitalized
     }
 }
 

@@ -172,7 +172,7 @@ struct SelectMedicationSheet: View {
                                     Text(medication.name)
                                         .font(.body)
                                         .foregroundStyle(.primary)
-                                    Text("\(Int(medication.strength))\(medication.strengthUnit) • \(medication.form.rawValue.capitalized)")
+                                    Text("\(Int(medication.strength))\(medication.strengthUnit) • \(medication.formDisplayName)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }

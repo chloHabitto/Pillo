@@ -175,6 +175,7 @@ class AddMedicationFlowState {
     
     // Step 2: Medication Type
     var selectedForm: MedicationForm?
+    var customFormName: String? = nil
     
     // Step 3: Medication Strength
     var strengths: [(value: Double, unit: String)] = []

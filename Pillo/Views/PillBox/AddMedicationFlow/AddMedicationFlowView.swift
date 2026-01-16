@@ -61,7 +61,8 @@ struct AddMedicationFlowView: View {
                 name: state.medicationName,
                 form: form,
                 strength: strength.value,
-                strengthUnit: strength.unit
+                strengthUnit: strength.unit,
+                customFormName: form == .other ? state.customFormName : nil
             )
             medicationsForStrengths.append(med)
         }

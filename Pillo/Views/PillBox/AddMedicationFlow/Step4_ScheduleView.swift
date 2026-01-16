@@ -15,6 +15,14 @@ struct ScheduleView: View {
     @State private var showingCustomTimeFramePicker = false
     @State private var editingTimeFrameIndex: Int? = nil
     
+    private var formDisplayName: String {
+        guard let form = state.selectedForm else { return "" }
+        if form == .other, let customName = state.customFormName, !customName.isEmpty {
+            return customName.capitalized
+        }
+        return form.rawValue.capitalized
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -302,8 +310,8 @@ struct ScheduleView: View {
                     Text(state.medicationName)
                         .font(.headline)
                         .foregroundStyle(Color.primary)
-                    if let form = state.selectedForm, let strength = state.strengths.first {
-                        Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
+                    if state.selectedForm != nil, let strength = state.strengths.first {
+                        Text("\(formDisplayName), \(Int(strength.value))\(strength.unit)")
                             .font(.caption)
                             .foregroundStyle(Color.secondary)
                     }

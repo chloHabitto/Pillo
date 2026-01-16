@@ -12,6 +12,14 @@ struct ReviewDetailsView: View {
     @Environment(\.dismiss) private var dismiss
     let onSave: (AddMedicationFlowState) -> Void
     
+    private var formDisplayName: String {
+        guard let form = state.selectedForm else { return "" }
+        if form == .other, let customName = state.customFormName, !customName.isEmpty {
+            return customName.capitalized
+        }
+        return form.rawValue.capitalized
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -46,8 +54,8 @@ struct ReviewDetailsView: View {
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(Color.primary)
                     
-                    if let form = state.selectedForm, let strength = state.strengths.first {
-                        Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
+                    if state.selectedForm != nil, let strength = state.strengths.first {
+                        Text("\(formDisplayName), \(Int(strength.value))\(strength.unit)")
                             .font(.subheadline)
                             .foregroundStyle(Color.secondary)
                     }

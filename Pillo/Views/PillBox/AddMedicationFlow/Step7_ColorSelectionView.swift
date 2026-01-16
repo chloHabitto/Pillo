@@ -11,6 +11,14 @@ struct ColorSelectionView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
     
+    private var formDisplayName: String {
+        guard let form = state.selectedForm else { return "" }
+        if form == .other, let customName = state.customFormName, !customName.isEmpty {
+            return customName.capitalized
+        }
+        return form.rawValue.capitalized
+    }
+    
     private let pillColors: [Color] = [
         Color("PillColor-White"),
         Color("PillColor-LightGray"),
@@ -102,8 +110,8 @@ struct ColorSelectionView: View {
                     Text(state.medicationName)
                         .font(.headline)
                         .foregroundStyle(Color.primary)
-                    if let form = state.selectedForm, let strength = state.strengths.first {
-                        Text("\(form.rawValue.capitalized), \(Int(strength.value))\(strength.unit)")
+                    if state.selectedForm != nil, let strength = state.strengths.first {
+                        Text("\(formDisplayName), \(Int(strength.value))\(strength.unit)")
                             .font(.caption)
                             .foregroundStyle(Color.secondary)
                     }

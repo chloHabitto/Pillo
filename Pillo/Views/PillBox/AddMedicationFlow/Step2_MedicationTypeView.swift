@@ -17,7 +17,9 @@ struct MedicationTypeView: View {
     }
     
     private var moreForms: [MedicationForm] {
-        MedicationForm.allCases.filter { ![MedicationForm.capsule, .tablet, .liquid, .topical].contains($0) }
+        MedicationForm.allCases.filter { 
+            ![MedicationForm.capsule, .tablet, .liquid, .topical, .other].contains($0) 
+        }
     }
     
     private var filteredCommonForms: [MedicationForm] {
@@ -71,16 +73,39 @@ struct MedicationTypeView: View {
                 
                 // Show "No forms found" if search is active and both arrays are empty
                 if !searchText.isEmpty && filteredCommonForms.isEmpty && filteredMoreForms.isEmpty {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 16) {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 48))
+                            .font(.system(size: 40))
                             .foregroundStyle(Color.secondary)
+                        
                         Text("No forms found")
-                            .font(.body)
+                            .font(.headline)
+                            .foregroundStyle(Color.secondary)
+                        
+                        Button {
+                            state.selectedForm = .other
+                            state.customFormName = searchText.trimmingCharacters(in: .whitespaces)
+                            // Auto-advance to next step
+                            state.nextStep()
+                        } label: {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Add \"\(searchText)\"")
+                            }
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.cyan)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        
+                        Text("as a custom medication form")
+                            .font(.caption)
                             .foregroundStyle(Color.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 60)
+                    .padding(.vertical, 40)
                 } else {
                     // Common Forms
                     if !filteredCommonForms.isEmpty {

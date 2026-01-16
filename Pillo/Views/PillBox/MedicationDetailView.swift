@@ -75,7 +75,7 @@ struct MedicationDetailView: View {
                 .foregroundStyle(.primary)
             
             // Form and Strength
-            Text("\(medication.form.rawValue.capitalized), \(Int(medication.strength))\(medication.strengthUnit)")
+            Text("\(medication.formDisplayName), \(Int(medication.strength))\(medication.strengthUnit)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
