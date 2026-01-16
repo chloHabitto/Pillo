@@ -11,6 +11,7 @@ struct MedicationTypeView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
     @State private var searchText: String = ""
+    @FocusState private var isSearchFocused: Bool
     
     private var commonForms: [MedicationForm] {
         [.capsule, .tablet, .liquid, .topical]
@@ -39,37 +40,52 @@ struct MedicationTypeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Colorful pill icons illustration
-                pillIconsIllustration
-                    .padding(.top, 0)
-                
-                // Title
-                Text("Choose the Medication Type")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(Color.primary)
-                    .padding(.horizontal)
+                if !isSearchFocused {
+                    // Colorful pill icons illustration
+                    pillIconsIllustration
+                        .padding(.top, 0)
+                    
+                    // Title
+                    Text("Choose the Medication Type")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(Color.primary)
+                        .padding(.horizontal)
+                }
                 
                 // Search bar
                 HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(Color.secondary)
-                    
-                    TextField("Search medication forms", text: $searchText)
-                        .textFieldStyle(.plain)
-                    
-                    if !searchText.isEmpty {
-                        Button {
-                            searchText = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(Color.secondary)
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(Color.secondary)
+                        
+                        TextField("Search medication forms", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .focused($isSearchFocused)
+                        
+                        if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(Color.secondary)
+                            }
                         }
                     }
+                    .padding(10)
+                    .background(Color(.tertiarySystemFill))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    if isSearchFocused {
+                        Button("Cancel") {
+                            searchText = ""
+                            isSearchFocused = false
+                        }
+                        .foregroundStyle(Color.cyan)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                    }
                 }
-                .padding(10)
-                .background(Color(.tertiarySystemFill))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
+                .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
                 
                 // Show "No forms found" if search is active and both arrays are empty
                 if !searchText.isEmpty && filteredCommonForms.isEmpty && filteredMoreForms.isEmpty {
@@ -148,6 +164,7 @@ struct MedicationTypeView: View {
                 
                 Spacer(minLength: 100)
             }
+            .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
         }
         .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
