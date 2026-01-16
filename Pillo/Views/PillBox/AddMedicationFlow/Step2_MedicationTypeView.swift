@@ -87,8 +87,43 @@ struct MedicationTypeView: View {
                 .padding(.horizontal)
                 .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
                 
+                // Custom Form section (shows when a custom form is added)
+                if state.selectedForm == .other, let customName = state.customFormName, !customName.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Custom Form")
+                            .font(.headline)
+                            .foregroundStyle(Color.secondary)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            Button {
+                                // Already selected, but allow re-selection
+                                state.selectedForm = .other
+                            } label: {
+                                HStack {
+                                    Text(customName.capitalized)
+                                        .font(.body)
+                                        .foregroundStyle(Color.primary)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Color.cyan)
+                                }
+                                .padding()
+                                .contentShape(Rectangle())
+                                .background(Color.cyan.opacity(0.1))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                    }
+                }
+                
                 // Show "No forms found" if search is active and both arrays are empty
-                if !searchText.isEmpty && filteredCommonForms.isEmpty && filteredMoreForms.isEmpty {
+                if !searchText.isEmpty && filteredCommonForms.isEmpty && filteredMoreForms.isEmpty && state.selectedForm != .other {
                     VStack(spacing: 16) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 40))
@@ -101,8 +136,8 @@ struct MedicationTypeView: View {
                         Button {
                             state.selectedForm = .other
                             state.customFormName = searchText.trimmingCharacters(in: .whitespaces)
-                            // Auto-advance to next step
-                            state.nextStep()
+                            searchText = ""
+                            isSearchFocused = false
                         } label: {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
@@ -224,6 +259,10 @@ struct MedicationTypeView: View {
     private func formRow(_ form: MedicationForm) -> some View {
         Button {
             state.selectedForm = form
+            // Clear custom form when selecting a predefined form
+            if form != .other {
+                state.customFormName = nil
+            }
         } label: {
             HStack {
                 Text(form.rawValue.capitalized)
