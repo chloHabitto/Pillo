@@ -184,28 +184,16 @@ struct DosingTypeView: View {
                         }
                     } label: {
                         HStack {
-                            // Radio button indicator
-                            ZStack {
-                                Circle()
-                                    .fill(isSelected ? Color.cyan : Color.clear)
-                                    .frame(width: 24, height: 24)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
-                                    )
-                                
-                                if isSelected {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundStyle(Color.white)
-                                }
-                            }
-                            
                             Text("\(Int(strength.value))\(strength.unit)")
                                 .font(.body)
                                 .foregroundStyle(Color.primary)
                             
                             Spacer()
+                            
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.cyan)
+                            }
                         }
                         .padding()
                         .contentShape(Rectangle())
@@ -216,7 +204,7 @@ struct DosingTypeView: View {
                     // Add divider between items (not after last item)
                     if index < state.strengths.count - 1 {
                         Divider()
-                            .padding(.leading, 56) // Align with text, after the circle indicator
+                            .padding(.leading)
                     }
                 }
             }
@@ -278,28 +266,16 @@ struct DosingTypeView: View {
                         }
                     } label: {
                         HStack {
-                            // Checkbox indicator
-                            ZStack {
-                                Circle()
-                                    .fill(isSelected ? Color.cyan : Color.clear)
-                                    .frame(width: 24, height: 24)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
-                                    )
-                                
-                                if isSelected {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundStyle(Color.white)
-                                }
-                            }
-                            
                             Text("\(Int(strength.value))\(strength.unit)")
                                 .font(.body)
                                 .foregroundStyle(Color.primary)
                             
                             Spacer()
+                            
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.cyan)
+                            }
                         }
                         .padding()
                         .contentShape(Rectangle())
@@ -310,7 +286,7 @@ struct DosingTypeView: View {
                     // Add divider between items (not after last item)
                     if index < state.strengths.count - 1 {
                         Divider()
-                            .padding(.leading, 56)
+                            .padding(.leading)
                     }
                 }
             }

@@ -11,6 +11,7 @@ struct ScheduleView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
     @State private var showingTimePicker = false
+    @State private var showingStartDatePicker = false
     @State private var showingEndDatePicker = false
     @State private var showingCustomTimeFramePicker = false
     @State private var editingTimeFrameIndex: Int? = nil
@@ -271,17 +272,25 @@ struct ScheduleView: View {
                     
                     // Grouped date items
                     VStack(spacing: 0) {
-                        // Start Date - inline DatePicker
-                        HStack {
-                            Text("START DATE")
-                                .font(.caption)
-                                .foregroundStyle(Color.secondary)
-                            Spacer()
-                            DatePicker("", selection: $state.startDate, displayedComponents: .date)
-                                .labelsHidden()
-                                .datePickerStyle(.compact)
+                        // Start Date - tappable button that opens sheet
+                        Button {
+                            showingStartDatePicker = true
+                        } label: {
+                            HStack {
+                                Text("START DATE")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                                Spacer()
+                                Text(state.startDate, style: .date)
+                                    .foregroundStyle(Color.primary)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                            }
+                            .padding()
+                            .contentShape(Rectangle())
                         }
-                        .padding()
+                        .buttonStyle(PlainButtonStyle())
                         
                         Divider()
                         
@@ -351,6 +360,14 @@ struct ScheduleView: View {
                         .foregroundStyle(Color.secondary)
                 }
             }
+        }
+        .sheet(isPresented: $showingStartDatePicker) {
+            StartDatePickerSheet(
+                startDate: $state.startDate,
+                isPresented: $showingStartDatePicker
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingEndDatePicker) {
             EndDatePickerSheet(
@@ -425,6 +442,61 @@ struct ScheduleView: View {
         let endString = formatter.string(from: end)
         
         return "\(startString) - \(endString)"
+    }
+}
+
+// Start Date Picker Sheet
+struct StartDatePickerSheet: View {
+    @Binding var startDate: Date
+    @Binding var isPresented: Bool
+    
+    @State private var selectedDate: Date
+    
+    init(startDate: Binding<Date>, isPresented: Binding<Bool>) {
+        self._startDate = startDate
+        self._isPresented = isPresented
+        _selectedDate = State(initialValue: startDate.wrappedValue)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Calendar picker - styled as a card
+                    VStack {
+                        DatePicker(
+                            "Select Start Date",
+                            selection: $selectedDate,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.graphical)
+                        .labelsHidden()
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .onChange(of: selectedDate) { _, newDate in
+                        startDate = newDate
+                        isPresented = false
+                    }
+                }
+                .padding(.top, 8)
+            }
+            .background(Color(.systemBackground))
+            .navigationTitle("Start Date")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+            }
+        }
     }
 }
 
