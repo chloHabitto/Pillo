@@ -299,6 +299,40 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
             }
+        } else if shape == .bottle02 {
+            ZStack {
+                // Bottom layer: Neck (light grey)
+                Image("Shape-bottle02-Neck")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-LightGray"))
+                // Neck shade
+                Image("Shape-bottle02-NeckShade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                // Cap (white)
+                Image("Shape-bottle02-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-White"))
+                // Body (light grey)
+                Image("Shape-bottle02-Body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-LightGray"))
+                // Top layer: Shade
+                Image("Shape-bottle02-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -402,13 +436,42 @@ struct ShapeSelectionView: View {
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundStyle(Color("PillColor-LightGray"))
+                    .foregroundStyle(state.rightColor)  // Bottle body color
                 Image("Shape-bottle01-cap")
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundStyle(Color("PillColor-White"))
+                    .foregroundStyle(state.leftColor)  // Cap color
                 Image("Shape-bottle01-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .bottle02 {
+            ZStack {
+                // Bottom layer: Neck (light grey)
+                Image("Shape-bottle02-Neck")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Neck color (uses rightColor for body/neck)
+                // Neck shade
+                Image("Shape-bottle02-NeckShade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                // Cap (white)
+                Image("Shape-bottle02-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                // Body (light grey)
+                Image("Shape-bottle02-Body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Body color
+                // Top layer: Shade
+                Image("Shape-bottle02-Shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }

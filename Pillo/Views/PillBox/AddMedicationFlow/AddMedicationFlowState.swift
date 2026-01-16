@@ -13,7 +13,7 @@ import Observation
 enum PillShape: String, CaseIterable {
     // Common shapes (row 1 & 2)
     case capsule, round, oval, oblong
-    case bottle, pillBottle, measuringCup, tube
+    case bottle, bottle02, pillBottle, measuringCup, tube
     
     // More shapes
     case diamond, square, triangle, pentagon
@@ -27,6 +27,7 @@ enum PillShape: String, CaseIterable {
         case .oval: return "oval.fill"
         case .oblong: return "capsule.fill"
         case .bottle: return "waterbottle.fill"
+        case .bottle02: return "waterbottle.fill"
         case .pillBottle: return "pills.fill"
         case .measuringCup: return "cup.and.saucer.fill"
         case .tube: return "cylinder.fill"
@@ -47,11 +48,11 @@ enum PillShape: String, CaseIterable {
     }
     
     var isTwoTone: Bool {
-        self == .capsule
+        self == .capsule || self == .bottle || self == .bottle02
     }
     
     static var commonShapes: [PillShape] {
-        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .measuringCup, .tube]
+        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .bottle02, .measuringCup, .tube]
     }
     
     static var moreShapes: [PillShape] {
@@ -374,10 +375,18 @@ class AddMedicationFlowState {
     func setDefaultColors(for shape: PillShape) {
         backgroundColor = Color("BackgroundColor-Aqua")
         
-        if shape.isTwoTone {
+        if shape == .capsule {
             // Capsule: left side white, right side light gray
             leftColor = Color("PillColor-White")
             rightColor = Color("PillColor-LightGray")
+        } else if shape == .bottle {
+            // Bottle: cap white, body light gray
+            leftColor = Color("PillColor-White")  // Cap color
+            rightColor = Color("PillColor-LightGray")  // Bottle body color
+        } else if shape == .bottle02 {
+            // Bottle02: cap white, body light gray
+            leftColor = Color("PillColor-White")  // Cap color
+            rightColor = Color("PillColor-LightGray")  // Bottle body color
         } else {
             // Single color shapes: white
             leftColor = Color("PillColor-White")
