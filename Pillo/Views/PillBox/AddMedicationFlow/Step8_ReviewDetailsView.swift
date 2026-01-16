@@ -173,6 +173,7 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.rightColor)
                 Image("Shape-capsule_shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
@@ -184,10 +185,12 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-tablet-round_shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 if state.showRoundTabletLine {
                     Image("Shape-tablet-round_line")
+                        .renderingMode(.original)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -200,10 +203,12 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-tablet-oval-shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 if state.showOvalTabletLine {
                     Image("Shape-tablet-oval-line")
+                        .renderingMode(.original)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -216,10 +221,12 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-oblong-shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 if state.showOblongTabletLine {
                     Image("Shape-oblong-line")
+                        .renderingMode(.original)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -232,6 +239,7 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-triangle-shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
@@ -243,6 +251,55 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-square-shade")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .roundSquare {
+            ZStack {
+                Image("Shape-RoundSquare")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-RoundSquare-Shade")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .hexagon {
+            ZStack {
+                Image("Shape-Hexagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Hexagon-Shade")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .diamond {
+            ZStack {
+                Image("Shape-Diamond")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Diamond-Shade")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .pentagon {
+            ZStack {
+                Image("Shape-Pentagon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-Pentagon-Shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
@@ -259,6 +316,7 @@ struct ReviewDetailsView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)  // Cap color
                 Image("Shape-bottle01-shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
@@ -272,6 +330,7 @@ struct ReviewDetailsView: View {
                     .foregroundStyle(state.rightColor)  // Neck color (uses rightColor for body/neck)
                 // Neck shade
                 Image("Shape-bottle02-NeckShade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 // Cap (white)
@@ -288,6 +347,27 @@ struct ReviewDetailsView: View {
                     .foregroundStyle(state.rightColor)  // Body color
                 // Top layer: Shade
                 Image("Shape-bottle02-Shade")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .cream01 {
+            ZStack {
+                // Bottom layer: Body (light grey)
+                Image("Shape-Cream01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Body color
+                // Cap (white)
+                Image("Shape-Cream01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                // Top layer: Shade
+                Image("Shape-Cream01-Shade")
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }

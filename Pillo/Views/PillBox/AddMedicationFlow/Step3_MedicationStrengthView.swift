@@ -12,7 +12,7 @@ struct MedicationStrengthView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isStrengthFieldFocused: Bool
     
-    private let units = ["mg", "mcg", "g", "mL", "%"]
+    private let units = ["mg", "mcg", "μg", "g", "mL", "%", "mm", "IU", "unit", "piece", "portion", "capsule", "pill", "suppository", "pessary", "vaginal tablet", "vaginal capsule", "vaginal suppository", "application", "ampoule", "packet", "drop", "patch", "injection", "spray", "puff"]
     
     var body: some View {
         ScrollView {

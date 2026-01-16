@@ -54,11 +54,11 @@ enum PillShape: String, CaseIterable {
     }
     
     static var commonShapes: [PillShape] {
-        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .bottle02, .cream01, .roundSquare, .measuringCup, .tube]
+        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .bottle02, .cream01, .roundSquare]
     }
     
     static var moreShapes: [PillShape] {
-        [.diamond, .pillBottle, .pentagon, .hexagon, .heart, .rectangle, .halfCircle, .trapezoid, .blisterPack, .bowtie, .disc, .cylinder]
+        [.diamond, .pentagon, .hexagon]
     }
 }
 
