@@ -78,7 +78,7 @@ struct MedicationStrengthView: View {
                             .foregroundStyle(Color.primary)
                             .padding(.horizontal)
                         
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
                             ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
                                 HStack(spacing: 4) {
                                     Text("\(Int(strength.value))\(strength.unit)")
