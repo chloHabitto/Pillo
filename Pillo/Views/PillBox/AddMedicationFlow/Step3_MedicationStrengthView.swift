@@ -30,23 +30,75 @@ struct MedicationStrengthView: View {
                     .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
-                // Strength input
+                // Strength input with inline unit picker
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Strength")
                         .font(.headline)
                         .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
-                    TextField("Add Strength", text: $state.currentStrengthValue)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.primary)
-                        .keyboardType(.decimalPad)
-                        .focused($isStrengthFieldFocused)
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
+                    HStack(spacing: 12) {
+                        // Strength value input
+                        TextField("0", text: $state.currentStrengthValue)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.primary)
+                            .keyboardType(.decimalPad)
+                            .focused($isStrengthFieldFocused)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(.tertiarySystemFill))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        
+                        // Unit picker (Menu style)
+                        Menu {
+                            // Common units section
+                            Section("Common") {
+                                ForEach(["mg", "mcg", "g", "mL", "%", "IU"], id: \.self) { unit in
+                                    Button {
+                                        state.currentStrengthUnit = unit
+                                    } label: {
+                                        HStack {
+                                            Text(unit)
+                                            if state.currentStrengthUnit == unit {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // More units section
+                            Section("More") {
+                                ForEach(["μg", "mm", "unit", "piece", "portion", "capsule", "pill", "drop", "patch", "spray", "puff", "injection", "application", "ampoule", "packet", "suppository", "pessary", "vaginal tablet", "vaginal capsule", "vaginal suppository"], id: \.self) { unit in
+                                    Button {
+                                        state.currentStrengthUnit = unit
+                                    } label: {
+                                        HStack {
+                                            Text(unit)
+                                            if state.currentStrengthUnit == unit {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(state.currentStrengthUnit)
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundStyle(Color.primary)
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(Color.secondary)
+                            }
+                            .padding()
+                            .frame(minWidth: 80)
+                            .background(Color(.tertiarySystemFill))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    .padding(.horizontal)
                 }
                 
                 // Added strengths
@@ -79,47 +131,6 @@ struct MedicationStrengthView: View {
                         }
                         .padding(.horizontal)
                     }
-                }
-                
-                // Unit selection
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Choose Unit")
-                        .font(.headline)
-                        .foregroundStyle(Color.primary)
-                        .padding(.horizontal)
-                    
-                    VStack(spacing: 0) {
-                        ForEach(units, id: \.self) { unit in
-                            Button {
-                                state.currentStrengthUnit = unit
-                            } label: {
-                                HStack {
-                                    Text(unit)
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                    
-                                    Spacer()
-                                    
-                                    if state.currentStrengthUnit == unit {
-                                        Image(systemName: "checkmark")
-                                            .foregroundStyle(Color.cyan)
-                                    }
-                                }
-                                .padding()
-                                .contentShape(Rectangle())
-                                .background(state.currentStrengthUnit == unit ? Color.cyan.opacity(0.1) : Color.clear)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            if unit != units.last {
-                                Divider()
-                                    .background(Color(.separator))
-                            }
-                        }
-                    }
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
                 }
                 
                 Spacer(minLength: 100)
