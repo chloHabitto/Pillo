@@ -175,20 +175,15 @@ struct DosingTypeView: View {
             // List of strengths with selection
             ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
                 let isSelected = state.getFixedDoseQuantity(for: index) > 0
-                let quantity = state.getFixedDoseQuantity(for: index)
                 
                 Button {
-                    if isSelected {
-                        // If already selected, increase quantity (cycle: 1 -> 2 -> 0)
-                        if quantity >= 2 {
-                            state.updateFixedDoseComponent(strengthIndex: index, quantity: 0)
-                        } else {
-                            state.updateFixedDoseComponent(strengthIndex: index, quantity: quantity + 1)
-                        }
-                    } else {
-                        // Select with quantity 1
+                    if !isSelected {
+                        // Clear all previous selections first
+                        state.fixedDoseComponents.removeAll()
+                        // Select this one with quantity 1
                         state.updateFixedDoseComponent(strengthIndex: index, quantity: 1)
                     }
+                    // If already selected, do nothing (tapping again has no effect)
                 } label: {
                     HStack {
                         // Checkbox/Selection indicator
@@ -214,13 +209,6 @@ struct DosingTypeView: View {
                             .foregroundStyle(Color.primary)
                         
                         Spacer()
-                        
-                        // Quantity indicator
-                        if isSelected && quantity > 1 {
-                            Text("×\(quantity)")
-                                .font(.subheadline)
-                                .foregroundStyle(Color.secondary)
-                        }
                     }
                     .padding()
                     .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
