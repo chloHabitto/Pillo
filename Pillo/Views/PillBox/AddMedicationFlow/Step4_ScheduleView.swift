@@ -11,7 +11,7 @@ struct ScheduleView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
     @State private var showingTimePicker = false
-    @State private var showingDatePicker = false
+    @State private var showingEndDatePicker = false
     @State private var showingCustomTimeFramePicker = false
     @State private var editingTimeFrameIndex: Int? = nil
     
@@ -249,43 +249,45 @@ struct ScheduleView: View {
                         .padding(.horizontal)
                     
                     VStack(spacing: 12) {
+                        // Start Date - inline DatePicker
                         HStack {
                             Text("START DATE")
                                 .font(.caption)
                                 .foregroundStyle(Color.secondary)
                             Spacer()
-                            Text(state.startDate, style: .date)
-                                .foregroundStyle(Color.primary)
+                            DatePicker("", selection: $state.startDate, displayedComponents: .date)
+                                .labelsHidden()
+                                .datePickerStyle(.compact)
                         }
                         .padding()
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         
-                        HStack {
-                            Text("END DATE")
-                                .font(.caption)
-                                .foregroundStyle(Color.secondary)
-                            Spacer()
-                            if let endDate = state.endDate {
-                                Text(endDate, style: .date)
-                                    .foregroundStyle(Color.primary)
-                            } else {
-                                Text("None")
+                        // End Date - tappable button that opens sheet
+                        Button {
+                            showingEndDatePicker = true
+                        } label: {
+                            HStack {
+                                Text("END DATE")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                                Spacer()
+                                if let endDate = state.endDate {
+                                    Text(endDate, style: .date)
+                                        .foregroundStyle(Color.primary)
+                                } else {
+                                    Text("None")
+                                        .foregroundStyle(Color.secondary)
+                                }
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
                                     .foregroundStyle(Color.secondary)
                             }
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        
-                        Button {
-                            showingDatePicker = true
-                        } label: {
-                            Text("Edit")
-                                .foregroundStyle(.cyan)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.horizontal)
                 }
@@ -327,26 +329,14 @@ struct ScheduleView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingDatePicker) {
-            NavigationStack {
-                Form {
-                    DatePicker("Start Date", selection: $state.startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: Binding(
-                        get: { state.endDate ?? Date() },
-                        set: { state.endDate = $0 }
-                    ), displayedComponents: .date)
-                }
-                .navigationTitle("Edit Duration")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") {
-                            showingDatePicker = false
-                        }
-                    }
-                }
-            }
-            .presentationDetents([.medium])
+        .sheet(isPresented: $showingEndDatePicker) {
+            EndDatePickerSheet(
+                endDate: $state.endDate,
+                startDate: state.startDate,
+                isPresented: $showingEndDatePicker
+            )
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: 12) {
@@ -412,6 +402,101 @@ struct ScheduleView: View {
         let endString = formatter.string(from: end)
         
         return "\(startString) - \(endString)"
+    }
+}
+
+// End Date Picker Sheet
+struct EndDatePickerSheet: View {
+    @Binding var endDate: Date?
+    let startDate: Date
+    @Binding var isPresented: Bool
+    
+    @State private var selectedDate: Date
+    
+    init(endDate: Binding<Date?>, startDate: Date, isPresented: Binding<Bool>) {
+        self._endDate = endDate
+        self.startDate = startDate
+        self._isPresented = isPresented
+        _selectedDate = State(initialValue: endDate.wrappedValue ?? Calendar.current.date(byAdding: .day, value: 30, to: startDate) ?? Date())
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // No End Date option - styled as a card
+                    Button {
+                        endDate = nil
+                        isPresented = false
+                    } label: {
+                        HStack {
+                            Text("No End Date")
+                                .font(.body)
+                                .foregroundStyle(Color.primary)
+                            Spacer()
+                            if endDate == nil {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.cyan)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                        .padding()
+                        .background(endDate == nil ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal)
+                    
+                    // Divider with "or" text
+                    HStack {
+                        Rectangle()
+                            .fill(Color(.separator))
+                            .frame(height: 1)
+                        Text("or select a date")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                        Rectangle()
+                            .fill(Color(.separator))
+                            .frame(height: 1)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Calendar picker - styled as a card
+                    VStack {
+                        DatePicker(
+                            "Select End Date",
+                            selection: $selectedDate,
+                            in: startDate...,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.graphical)
+                        .labelsHidden()
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .onChange(of: selectedDate) { _, newDate in
+                        endDate = newDate
+                        isPresented = false
+                    }
+                }
+                .padding(.top, 8)
+            }
+            .background(Color(.systemBackground))
+            .navigationTitle("End Date")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+            }
+        }
     }
 }
 
