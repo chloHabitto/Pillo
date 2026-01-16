@@ -269,7 +269,8 @@ struct ScheduleView: View {
                         .foregroundStyle(Color.primary)
                         .padding(.horizontal)
                     
-                    VStack(spacing: 12) {
+                    // Grouped date items
+                    VStack(spacing: 0) {
                         // Start Date - inline DatePicker
                         HStack {
                             Text("START DATE")
@@ -281,8 +282,8 @@ struct ScheduleView: View {
                                 .datePickerStyle(.compact)
                         }
                         .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        
+                        Divider()
                         
                         // End Date - tappable button that opens sheet
                         Button {
@@ -305,11 +306,12 @@ struct ScheduleView: View {
                                     .foregroundStyle(Color.secondary)
                             }
                             .padding()
-                            .background(Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 }
                 
