@@ -11,8 +11,7 @@ struct MedicationStrengthView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isStrengthFieldFocused: Bool
-    
-    private let units = ["mg", "mcg", "μg", "g", "mL", "%", "mm", "IU", "unit", "piece", "portion", "capsule", "pill", "suppository", "pessary", "vaginal tablet", "vaginal capsule", "vaginal suppository", "application", "ampoule", "packet", "drop", "patch", "injection", "spray", "puff"]
+    @State private var showingUnitPicker = false
     
     var body: some View {
         ScrollView {
@@ -50,39 +49,9 @@ struct MedicationStrengthView: View {
                             .background(Color(.tertiarySystemFill))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
-                        // Unit picker (Menu style)
-                        Menu {
-                            // Common units section
-                            Section("Common") {
-                                ForEach(["mg", "mcg", "g", "mL", "%", "IU"], id: \.self) { unit in
-                                    Button {
-                                        state.currentStrengthUnit = unit
-                                    } label: {
-                                        HStack {
-                                            Text(unit)
-                                            if state.currentStrengthUnit == unit {
-                                                Image(systemName: "checkmark")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // More units section
-                            Section("More") {
-                                ForEach(["μg", "mm", "unit", "piece", "portion", "capsule", "pill", "drop", "patch", "spray", "puff", "injection", "application", "ampoule", "packet", "suppository", "pessary", "vaginal tablet", "vaginal capsule", "vaginal suppository"], id: \.self) { unit in
-                                    Button {
-                                        state.currentStrengthUnit = unit
-                                    } label: {
-                                        HStack {
-                                            Text(unit)
-                                            if state.currentStrengthUnit == unit {
-                                                Image(systemName: "checkmark")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        // Unit picker button
+                        Button {
+                            showingUnitPicker = true
                         } label: {
                             HStack(spacing: 4) {
                                 Text(state.currentStrengthUnit)
@@ -242,8 +211,249 @@ struct MedicationStrengthView: View {
                 .background(Color(.systemBackground))
             }
         }
+        .sheet(isPresented: $showingUnitPicker) {
+            UnitPickerSheet(
+                selectedUnit: $state.currentStrengthUnit,
+                customUnit: $state.customStrengthUnit,
+                isPresented: $showingUnitPicker
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
     }
     
+}
+
+struct UnitPickerSheet: View {
+    @Binding var selectedUnit: String
+    @Binding var customUnit: String?
+    @Binding var isPresented: Bool
+    
+    @State private var searchText: String = ""
+    @FocusState private var isSearchFocused: Bool
+    
+    private let commonUnits = ["mg", "mcg", "g", "mL", "%", "IU"]
+    private let moreUnits = ["μg", "mm", "unit", "piece", "portion", "capsule", "pill", "drop", "patch", "spray", "puff", "injection", "application", "ampoule", "packet", "suppository", "pessary", "vaginal tablet", "vaginal capsule", "vaginal suppository"]
+    
+    private var allUnits: [String] {
+        commonUnits + moreUnits
+    }
+    
+    private var filteredCommonUnits: [String] {
+        if searchText.isEmpty {
+            return commonUnits
+        }
+        return commonUnits.filter { $0.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var filteredMoreUnits: [String] {
+        if searchText.isEmpty {
+            return moreUnits
+        }
+        return moreUnits.filter { $0.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var isCustomUnitActive: Bool {
+        if let custom = customUnit, !custom.isEmpty {
+            return selectedUnit == custom
+        }
+        return false
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Search bar
+                    HStack {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(Color.secondary)
+                            
+                            TextField("Search units", text: $searchText)
+                                .textFieldStyle(.plain)
+                                .focused($isSearchFocused)
+                            
+                            if !searchText.isEmpty {
+                                Button {
+                                    searchText = ""
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(Color.secondary)
+                                }
+                            }
+                        }
+                        .padding(10)
+                        .background(Color(.tertiarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        if isSearchFocused {
+                            Button("Cancel") {
+                                searchText = ""
+                                isSearchFocused = false
+                            }
+                            .foregroundStyle(Color.cyan)
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                        }
+                    }
+                    .padding(.horizontal)
+                    .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
+                    
+                    // Custom Unit section (if exists)
+                    if let custom = customUnit, !custom.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Custom Unit")
+                                .font(.headline)
+                                .foregroundStyle(Color.secondary)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 0) {
+                                unitRow(custom, isSelected: selectedUnit == custom)
+                            }
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
+                        }
+                    }
+                    
+                    // Empty state with Add button
+                    if !searchText.isEmpty && filteredCommonUnits.isEmpty && filteredMoreUnits.isEmpty {
+                        // Check if search doesn't match existing custom unit
+                        let matchesCustom = customUnit?.localizedCaseInsensitiveContains(searchText) == true
+                        
+                        if !matchesCustom {
+                            VStack(spacing: 16) {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(Color.secondary)
+                                
+                                Text("No units found")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.secondary)
+                                
+                                Button {
+                                    let trimmed = searchText.trimmingCharacters(in: .whitespaces)
+                                    customUnit = trimmed
+                                    selectedUnit = trimmed
+                                    searchText = ""
+                                    isSearchFocused = false
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "plus.circle.fill")
+                                        Text("Add \"\(searchText)\"")
+                                    }
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                                    .background(Color.cyan)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                
+                                Text("as a custom unit")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
+                        }
+                    } else {
+                        // Common Units
+                        if !filteredCommonUnits.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Common")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.secondary)
+                                    .padding(.horizontal)
+                                
+                                VStack(spacing: 0) {
+                                    ForEach(filteredCommonUnits, id: \.self) { unit in
+                                        unitRow(unit, isSelected: selectedUnit == unit && !isCustomUnitActive)
+                                        
+                                        if unit != filteredCommonUnits.last {
+                                            Divider()
+                                                .padding(.leading)
+                                        }
+                                    }
+                                }
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .padding(.horizontal)
+                            }
+                        }
+                        
+                        // More Units
+                        if !filteredMoreUnits.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("More")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.secondary)
+                                    .padding(.horizontal)
+                                
+                                VStack(spacing: 0) {
+                                    ForEach(filteredMoreUnits, id: \.self) { unit in
+                                        unitRow(unit, isSelected: selectedUnit == unit && !isCustomUnitActive)
+                                        
+                                        if unit != filteredMoreUnits.last {
+                                            Divider()
+                                                .padding(.leading)
+                                        }
+                                    }
+                                }
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                    
+                    Spacer(minLength: 40)
+                }
+                .padding(.top, 16)
+            }
+            .background(Color(.systemBackground))
+            .navigationTitle("Select Unit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func unitRow(_ unit: String, isSelected: Bool) -> some View {
+        Button {
+            selectedUnit = unit
+            // Clear custom unit if selecting a predefined unit
+            if commonUnits.contains(unit) || moreUnits.contains(unit) {
+                // Keep customUnit but just select the predefined one
+            }
+            isPresented = false
+        } label: {
+            HStack {
+                Text(unit)
+                    .font(.body)
+                    .foregroundStyle(Color.primary)
+                
+                Spacer()
+                
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(Color.cyan)
+                }
+            }
+            .padding()
+            .contentShape(Rectangle())
+            .background(isSelected ? Color.cyan.opacity(0.1) : Color.clear)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
 #Preview {

@@ -181,6 +181,7 @@ class AddMedicationFlowState {
     var strengths: [(value: Double, unit: String)] = []
     var currentStrengthValue: String = ""
     var currentStrengthUnit: String = "mg"
+    var customStrengthUnit: String? = nil
     
     // Step 3.5: Dosing Type
     var dosingType: DosingType = .fixed
