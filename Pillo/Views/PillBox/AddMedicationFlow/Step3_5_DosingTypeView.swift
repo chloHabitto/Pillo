@@ -172,57 +172,60 @@ struct DosingTypeView: View {
             }
             .padding(.horizontal)
             
-            // List of strengths with selection
-            ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
-                let isSelected = state.getFixedDoseQuantity(for: index) > 0
-                
-                Button {
-                    if !isSelected {
-                        // Clear all previous selections first
-                        state.fixedDoseComponents.removeAll()
-                        // Select this one with quantity 1
-                        state.updateFixedDoseComponent(strengthIndex: index, quantity: 1)
-                    }
-                    // If already selected, do nothing (tapping again has no effect)
-                } label: {
-                    HStack {
-                        // Checkbox/Selection indicator
-                        ZStack {
-                            Circle()
-                                .fill(isSelected ? Color.cyan : Color.clear)
-                                .frame(width: 24, height: 24)
-                                .overlay(
-                                    Circle()
-                                        .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
-                                )
-                            
-                            if isSelected {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundStyle(Color.white)
-                            }
+            // Grouped list of strengths
+            VStack(spacing: 0) {
+                ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
+                    let isSelected = state.getFixedDoseQuantity(for: index) > 0
+                    
+                    Button {
+                        if !isSelected {
+                            state.fixedDoseComponents.removeAll()
+                            state.updateFixedDoseComponent(strengthIndex: index, quantity: 1)
                         }
-                        
-                        // Strength label
-                        Text("\(Int(strength.value))\(strength.unit)")
-                            .font(.headline)
-                            .foregroundStyle(Color.primary)
-                        
-                        Spacer()
+                    } label: {
+                        HStack {
+                            // Radio button indicator
+                            ZStack {
+                                Circle()
+                                    .fill(isSelected ? Color.cyan : Color.clear)
+                                    .frame(width: 24, height: 24)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
+                                    )
+                                
+                                if isSelected {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(Color.white)
+                                }
+                            }
+                            
+                            Text("\(Int(strength.value))\(strength.unit)")
+                                .font(.body)
+                                .foregroundStyle(Color.primary)
+                            
+                            Spacer()
+                        }
+                        .padding()
+                        .contentShape(Rectangle())
+                        .background(isSelected ? Color.cyan.opacity(0.1) : Color.clear)
                     }
-                    .padding()
-                    .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Add divider between items (not after last item)
+                    if index < state.strengths.count - 1 {
+                        Divider()
+                            .padding(.leading, 56) // Align with text, after the circle indicator
+                    }
                 }
-                .buttonStyle(PlainButtonStyle())
             }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
             
-            // Total summary
+            // Total summary (keep as separate card)
             if !state.fixedDoseComponents.isEmpty {
-                Divider()
-                    .padding(.horizontal)
-                
                 HStack {
                     Text("Current dose:")
                         .font(.headline)
@@ -256,63 +259,67 @@ struct DosingTypeView: View {
             }
             .padding(.horizontal)
             
-            // List of strengths with toggle selection
-            ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
-                let isSelected = state.doseOptions.contains { option in
-                    option.components.contains { $0.strengthIndex == index && $0.quantity > 0 }
-                }
-                
-                Button {
-                    if isSelected {
-                        // Remove this strength from options
-                        state.doseOptions.removeAll { option in
-                            option.components.count == 1 && 
-                            option.components.first?.strengthIndex == index
-                        }
-                    } else {
-                        // Add this strength as an option
-                        let option = DoseOptionInput(components: [(strengthIndex: index, quantity: 1)])
-                        state.addDoseOption(option)
+            // Grouped list of strengths
+            VStack(spacing: 0) {
+                ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
+                    let isSelected = state.doseOptions.contains { option in
+                        option.components.contains { $0.strengthIndex == index && $0.quantity > 0 }
                     }
-                } label: {
-                    HStack {
-                        // Toggle indicator
-                        ZStack {
-                            Circle()
-                                .fill(isSelected ? Color.cyan : Color.clear)
-                                .frame(width: 24, height: 24)
-                                .overlay(
-                                    Circle()
-                                        .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
-                                )
-                            
-                            if isSelected {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundStyle(Color.white)
+                    
+                    Button {
+                        if isSelected {
+                            state.doseOptions.removeAll { option in
+                                option.components.count == 1 && 
+                                option.components.first?.strengthIndex == index
                             }
+                        } else {
+                            let option = DoseOptionInput(components: [(strengthIndex: index, quantity: 1)])
+                            state.addDoseOption(option)
                         }
-                        
-                        // Strength label
-                        Text("\(Int(strength.value))\(strength.unit)")
-                            .font(.headline)
-                            .foregroundStyle(Color.primary)
-                        
-                        Spacer()
+                    } label: {
+                        HStack {
+                            // Checkbox indicator
+                            ZStack {
+                                Circle()
+                                    .fill(isSelected ? Color.cyan : Color.clear)
+                                    .frame(width: 24, height: 24)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(isSelected ? Color.cyan : Color.secondary, lineWidth: 2)
+                                    )
+                                
+                                if isSelected {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(Color.white)
+                                }
+                            }
+                            
+                            Text("\(Int(strength.value))\(strength.unit)")
+                                .font(.body)
+                                .foregroundStyle(Color.primary)
+                            
+                            Spacer()
+                        }
+                        .padding()
+                        .contentShape(Rectangle())
+                        .background(isSelected ? Color.cyan.opacity(0.1) : Color.clear)
                     }
-                    .padding()
-                    .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Add divider between items (not after last item)
+                    if index < state.strengths.count - 1 {
+                        Divider()
+                            .padding(.leading, 56)
+                    }
                 }
-                .buttonStyle(PlainButtonStyle())
             }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
             
-            // Summary
+            // Selected options summary
             if !state.doseOptions.isEmpty {
-                Divider()
-                    .padding(.horizontal)
-                
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Options when logging:")
                         .font(.headline)
@@ -322,10 +329,10 @@ struct DosingTypeView: View {
                         ForEach(state.doseOptions, id: \.id) { option in
                             Text(option.displayName(strengths: state.strengths))
                                 .font(.subheadline)
-                                .foregroundStyle(Color.primary)
+                                .foregroundStyle(Color.cyan)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(Color.cyan.opacity(0.2))
+                                .background(Color.cyan.opacity(0.15))
                                 .clipShape(Capsule())
                         }
                     }

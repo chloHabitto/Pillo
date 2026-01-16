@@ -99,33 +99,45 @@ struct ScheduleView: View {
                     
                     if state.timeSelectionMode == .specificTime {
                         // Specific Time Mode
-                        VStack(spacing: 8) {
-                            ForEach(Array(state.times.enumerated()), id: \.offset) { index, time in
-                                HStack {
-                                    Button {
-                                        state.removeTime(at: index)
-                                    } label: {
-                                        Image(systemName: "minus.circle.fill")
-                                            .foregroundStyle(.red)
+                        VStack(spacing: 12) {
+                            // Grouped time items
+                            if !state.times.isEmpty {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(state.times.enumerated()), id: \.offset) { index, time in
+                                        HStack {
+                                            Button {
+                                                state.removeTime(at: index)
+                                            } label: {
+                                                Image(systemName: "minus.circle.fill")
+                                                    .foregroundStyle(.red)
+                                            }
+                                            
+                                            DatePicker("", selection: Binding(
+                                                get: { state.times[index] },
+                                                set: { state.times[index] = $0 }
+                                            ), displayedComponents: .hourAndMinute)
+                                            .labelsHidden()
+                                            
+                                            Spacer()
+                                            
+                                            Text("1 dose")
+                                                .font(.subheadline)
+                                                .foregroundStyle(Color.secondary)
+                                        }
+                                        .padding()
+                                        
+                                        // Add divider between items (not after last item)
+                                        if index < state.times.count - 1 {
+                                            Divider()
+                                                .padding(.leading, 56)
+                                        }
                                     }
-                                    
-                                    DatePicker("", selection: Binding(
-                                        get: { state.times[index] },
-                                        set: { state.times[index] = $0 }
-                                    ), displayedComponents: .hourAndMinute)
-                                    .labelsHidden()
-                                    
-                                    Text("1 capsule")
-                                        .font(.subheadline)
-                                        .foregroundStyle(Color.secondary)
-                                    
-                                    Spacer()
                                 }
-                                .padding()
                                 .background(Color(.secondarySystemBackground))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             
+                            // Add a Time button (separate card)
                             Button {
                                 state.addTime()
                             } label: {
@@ -145,66 +157,75 @@ struct ScheduleView: View {
                         .padding(.horizontal)
                     } else {
                         // Time Frame Mode
-                        VStack(spacing: 8) {
-                            ForEach(Array(state.timeFrames.enumerated()), id: \.element.id) { index, timeFrame in
-                                HStack {
-                                    Button {
-                                        state.removeTimeFrame(at: index)
-                                    } label: {
-                                        Image(systemName: "minus.circle.fill")
-                                            .foregroundStyle(.red)
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        if timeFrame.type == .custom {
-                                            if let startTime = timeFrame.startTime, let endTime = timeFrame.endTime {
-                                                Text(formatTimeRange(start: startTime, end: endTime))
-                                                    .font(.body)
-                                                    .foregroundStyle(Color.primary)
-                                            } else {
-                                                Text("Tap to set custom range")
-                                                    .font(.body)
-                                                    .foregroundStyle(Color.secondary)
+                        VStack(spacing: 12) {
+                            // Grouped time frame items
+                            if !state.timeFrames.isEmpty {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(state.timeFrames.enumerated()), id: \.element.id) { index, timeFrame in
+                                        HStack {
+                                            Button {
+                                                state.removeTimeFrame(at: index)
+                                            } label: {
+                                                Image(systemName: "minus.circle.fill")
+                                                    .foregroundStyle(.red)
                                             }
-                                        } else {
-                                            Text(timeFrame.type.rawValue)
-                                                .font(.body)
-                                                .foregroundStyle(Color.primary)
-                                            Text(timeFrame.type.displayRange)
-                                                .font(.caption)
-                                                .foregroundStyle(Color.secondary)
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                if timeFrame.type == .custom {
+                                                    if let startTime = timeFrame.startTime, let endTime = timeFrame.endTime {
+                                                        Text(formatTimeRange(start: startTime, end: endTime))
+                                                            .font(.body)
+                                                            .foregroundStyle(Color.primary)
+                                                    } else {
+                                                        Text("Tap to set custom range")
+                                                            .font(.body)
+                                                            .foregroundStyle(Color.secondary)
+                                                    }
+                                                } else {
+                                                    Text(timeFrame.type.rawValue)
+                                                        .font(.body)
+                                                        .foregroundStyle(Color.primary)
+                                                    Text(timeFrame.type.displayRange)
+                                                        .font(.caption)
+                                                        .foregroundStyle(Color.secondary)
+                                                }
+                                            }
+                                            
+                                            Spacer()
+                                            
+                                            if timeFrame.type == .custom {
+                                                Button {
+                                                    editingTimeFrameIndex = index
+                                                    showingCustomTimeFramePicker = true
+                                                } label: {
+                                                    Image(systemName: "pencil.circle.fill")
+                                                        .foregroundStyle(.cyan)
+                                                }
+                                            }
                                         }
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    if timeFrame.type == .custom {
-                                        Button {
-                                            editingTimeFrameIndex = index
-                                            showingCustomTimeFramePicker = true
-                                        } label: {
-                                            Image(systemName: "pencil.circle.fill")
-                                                .foregroundStyle(.cyan)
+                                        .padding()
+                                        
+                                        // Add divider between items (not after last item)
+                                        if index < state.timeFrames.count - 1 {
+                                            Divider()
+                                                .padding(.leading, 56)
                                         }
                                     }
                                 }
-                                .padding()
                                 .background(Color(.secondarySystemBackground))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             
-                            // Add Time Frame Button
+                            // Add a Time Frame button (separate card)
                             Menu {
                                 ForEach(TimeFrameType.allCases, id: \.self) { frameType in
                                     Button {
                                         if frameType == .custom {
-                                            // For custom, create with nil times and show picker
                                             let customFrame = TimeFrameSelection(type: .custom)
                                             state.addTimeFrame(customFrame)
                                             editingTimeFrameIndex = state.timeFrames.count - 1
                                             showingCustomTimeFramePicker = true
                                         } else {
-                                            // For predefined, use default times
                                             let calendar = Calendar.current
                                             let startHour = frameType.defaultStartHour
                                             let endHour = frameType.defaultEndHour
