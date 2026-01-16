@@ -224,6 +224,73 @@ struct ReviewDetailsView: View {
                         .aspectRatio(contentMode: .fit)
                 }
             }
+        } else if state.selectedShape == .triangle {
+            ZStack {
+                Image("Shape-triangle")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-triangle-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .square {
+            ZStack {
+                Image("Shape-square")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)
+                Image("Shape-square-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .bottle {
+            ZStack {
+                Image("Shape-bottle01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Bottle body color
+                Image("Shape-bottle01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                Image("Shape-bottle01-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .bottle02 {
+            ZStack {
+                // Bottom layer: Neck (light grey)
+                Image("Shape-bottle02-Neck")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Neck color (uses rightColor for body/neck)
+                // Neck shade
+                Image("Shape-bottle02-NeckShade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                // Cap (white)
+                Image("Shape-bottle02-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                // Body (light grey)
+                Image("Shape-bottle02-Body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Body color
+                // Top layer: Shade
+                Image("Shape-bottle02-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
         } else {
             Image(systemName: state.selectedShape.sfSymbolPlaceholder)
                 .resizable()
