@@ -280,6 +280,25 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
             }
+        } else if shape == .bottle {
+            ZStack {
+                Image("Shape-bottle01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-LightGray"))
+                Image("Shape-bottle01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-White"))
+                Image("Shape-bottle01-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -374,6 +393,22 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .foregroundStyle(state.leftColor)
                 Image("Shape-square-shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .bottle {
+            ZStack {
+                Image("Shape-bottle01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color("PillColor-LightGray"))
+                Image("Shape-bottle01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color("PillColor-White"))
+                Image("Shape-bottle01-shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
