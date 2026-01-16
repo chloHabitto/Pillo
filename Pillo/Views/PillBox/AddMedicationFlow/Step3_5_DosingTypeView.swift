@@ -23,13 +23,13 @@ struct DosingTypeView: View {
                     .padding(.top, 20)
                 
                 // Title
-                Text("How do you dose?")
+                Text("Set Your Dosing")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
                 // Description
-                Text("Select how you take your medication")
+                Text("Do you take the same dose every time, or does it vary?")
                     .font(.subheadline)
                     .foregroundStyle(Color.secondary)
                     .padding(.horizontal)
@@ -161,10 +161,16 @@ struct DosingTypeView: View {
     
     private var fixedDosingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Select which strength(s) you take regularly")
-                .font(.subheadline)
-                .foregroundStyle(Color.secondary)
-                .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Your Strengths")
+                    .font(.headline)
+                    .foregroundStyle(Color.primary)
+                
+                Text("Select the strength you take each time")
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+            }
+            .padding(.horizontal)
             
             // List of strengths with selection
             ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
@@ -230,7 +236,7 @@ struct DosingTypeView: View {
                     .padding(.horizontal)
                 
                 HStack {
-                    Text("Your fixed dose:")
+                    Text("Current dose:")
                         .font(.headline)
                         .foregroundStyle(Color.primary)
                     
@@ -251,10 +257,16 @@ struct DosingTypeView: View {
     
     private var flexibleDosingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Select which strengths you can choose from")
-                .font(.subheadline)
-                .foregroundStyle(Color.secondary)
-                .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Your Strengths")
+                    .font(.headline)
+                    .foregroundStyle(Color.primary)
+                
+                Text("Select all strengths you might take (you'll choose one when logging)")
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+            }
+            .padding(.horizontal)
             
             // List of strengths with toggle selection
             ForEach(Array(state.strengths.enumerated()), id: \.offset) { index, strength in
@@ -299,11 +311,6 @@ struct DosingTypeView: View {
                             .foregroundStyle(Color.primary)
                         
                         Spacer()
-                        
-                        if isSelected {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.cyan)
-                        }
                     }
                     .padding()
                     .background(isSelected ? Color.cyan.opacity(0.1) : Color(.secondarySystemBackground))
@@ -319,11 +326,11 @@ struct DosingTypeView: View {
                     .padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("You can choose from:")
+                    Text("Options when logging:")
                         .font(.headline)
                         .foregroundStyle(Color.primary)
                     
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
+                    FlowLayout(spacing: 8) {
                         ForEach(state.doseOptions, id: \.id) { option in
                             Text(option.displayName(strengths: state.strengths))
                                 .font(.subheadline)
@@ -334,6 +341,7 @@ struct DosingTypeView: View {
                                 .clipShape(Capsule())
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding()
                 .background(Color(.secondarySystemBackground))
