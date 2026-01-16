@@ -333,6 +333,28 @@ struct ShapeSelectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
             }
+        } else if shape == .cream01 {
+            ZStack {
+                // Bottom layer: Body (light grey)
+                Image("Shape-Cream01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-LightGray"))
+                // Cap (white)
+                Image("Shape-Cream01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundStyle(Color("PillColor-White"))
+                // Top layer: Shade
+                Image("Shape-Cream01-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+            }
         } else {
             Image(systemName: shape.sfSymbolPlaceholder)
                 .resizable()
@@ -472,6 +494,25 @@ struct ShapeSelectionView: View {
                     .foregroundStyle(state.rightColor)  // Body color
                 // Top layer: Shade
                 Image("Shape-bottle02-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if shape == .cream01 {
+            ZStack {
+                // Bottom layer: Body (light grey)
+                Image("Shape-Cream01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Body color
+                // Cap (white)
+                Image("Shape-Cream01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                // Top layer: Shade
+                Image("Shape-Cream01-Shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }

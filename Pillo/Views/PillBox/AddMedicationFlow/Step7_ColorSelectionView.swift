@@ -64,7 +64,7 @@ struct ColorSelectionView: View {
                 if state.selectedShape.isTwoTone {
                     // Two-tone selection (Capsule or Bottle)
                     VStack(alignment: .leading, spacing: 12) {
-                        if state.selectedShape == .bottle || state.selectedShape == .bottle02 {
+                        if state.selectedShape == .bottle || state.selectedShape == .bottle02 || state.selectedShape == .cream01 {
                             colorSection(title: "Cap Color", selectedColor: $state.leftColor, colors: pillColors)
                             colorSection(title: "Bottle Color", selectedColor: $state.rightColor, colors: pillColors)
                         } else {
@@ -280,6 +280,25 @@ struct ColorSelectionView: View {
                     .foregroundStyle(state.rightColor)  // Body color
                 // Top layer: Shade
                 Image("Shape-bottle02-Shade")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        } else if state.selectedShape == .cream01 {
+            ZStack {
+                // Bottom layer: Body (light grey)
+                Image("Shape-Cream01-body")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.rightColor)  // Body color
+                // Cap (white)
+                Image("Shape-Cream01-cap")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(state.leftColor)  // Cap color
+                // Top layer: Shade
+                Image("Shape-Cream01-Shade")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }

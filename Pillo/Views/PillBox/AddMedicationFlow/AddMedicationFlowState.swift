@@ -13,7 +13,7 @@ import Observation
 enum PillShape: String, CaseIterable {
     // Common shapes (row 1 & 2)
     case capsule, round, oval, oblong
-    case bottle, bottle02, pillBottle, measuringCup, tube
+    case bottle, bottle02, cream01, pillBottle, measuringCup, tube
     
     // More shapes
     case diamond, square, triangle, pentagon
@@ -28,6 +28,7 @@ enum PillShape: String, CaseIterable {
         case .oblong: return "capsule.fill"
         case .bottle: return "waterbottle.fill"
         case .bottle02: return "waterbottle.fill"
+        case .cream01: return "capsule.fill"
         case .pillBottle: return "pills.fill"
         case .measuringCup: return "cup.and.saucer.fill"
         case .tube: return "cylinder.fill"
@@ -48,11 +49,11 @@ enum PillShape: String, CaseIterable {
     }
     
     var isTwoTone: Bool {
-        self == .capsule || self == .bottle || self == .bottle02
+        self == .capsule || self == .bottle || self == .bottle02 || self == .cream01
     }
     
     static var commonShapes: [PillShape] {
-        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .bottle02, .measuringCup, .tube]
+        [.capsule, .round, .oval, .oblong, .triangle, .square, .bottle, .bottle02, .cream01, .measuringCup, .tube]
     }
     
     static var moreShapes: [PillShape] {
@@ -387,6 +388,10 @@ class AddMedicationFlowState {
             // Bottle02: cap white, body light gray
             leftColor = Color("PillColor-White")  // Cap color
             rightColor = Color("PillColor-LightGray")  // Bottle body color
+        } else if shape == .cream01 {
+            // Cream01: cap white, body light gray
+            leftColor = Color("PillColor-White")  // Cap color
+            rightColor = Color("PillColor-LightGray")  // Body color
         } else {
             // Single color shapes: white
             leftColor = Color("PillColor-White")
