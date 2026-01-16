@@ -10,6 +10,7 @@ import SwiftUI
 struct MedicationTypeView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
+    @State private var searchText: String = ""
     
     private var commonForms: [MedicationForm] {
         [.capsule, .tablet, .liquid, .topical]
@@ -17,6 +18,20 @@ struct MedicationTypeView: View {
     
     private var moreForms: [MedicationForm] {
         MedicationForm.allCases.filter { ![MedicationForm.capsule, .tablet, .liquid, .topical].contains($0) }
+    }
+    
+    private var filteredCommonForms: [MedicationForm] {
+        if searchText.isEmpty {
+            return commonForms
+        }
+        return commonForms.filter { $0.rawValue.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var filteredMoreForms: [MedicationForm] {
+        if searchText.isEmpty {
+            return moreForms
+        }
+        return moreForms.filter { $0.rawValue.localizedCaseInsensitiveContains(searchText) }
     }
     
     var body: some View {
@@ -32,38 +47,78 @@ struct MedicationTypeView: View {
                     .foregroundStyle(Color.primary)
                     .padding(.horizontal)
                 
-                // Common Forms
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Common Forms")
-                        .font(.headline)
+                // Search bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
                         .foregroundStyle(Color.secondary)
-                        .padding(.horizontal)
                     
-                    VStack(spacing: 0) {
-                        ForEach(commonForms, id: \.self) { form in
-                            formRow(form)
+                    TextField("Search medication forms", text: $searchText)
+                        .textFieldStyle(.plain)
+                    
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(Color.secondary)
                         }
                     }
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
                 }
+                .padding(10)
+                .background(Color(.tertiarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
                 
-                // More Forms
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("More Forms")
-                        .font(.headline)
-                        .foregroundStyle(Color.secondary)
-                        .padding(.horizontal)
-                    
-                    VStack(spacing: 0) {
-                        ForEach(moreForms, id: \.self) { form in
-                            formRow(form)
+                // Show "No forms found" if search is active and both arrays are empty
+                if !searchText.isEmpty && filteredCommonForms.isEmpty && filteredMoreForms.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color.secondary)
+                        Text("No forms found")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 60)
+                } else {
+                    // Common Forms
+                    if !filteredCommonForms.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Common Forms")
+                                .font(.headline)
+                                .foregroundStyle(Color.secondary)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 0) {
+                                ForEach(filteredCommonForms, id: \.self) { form in
+                                    formRow(form)
+                                }
+                            }
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
                         }
                     }
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
+                    
+                    // More Forms
+                    if !filteredMoreForms.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("More Forms")
+                                .font(.headline)
+                                .foregroundStyle(Color.secondary)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 0) {
+                                ForEach(filteredMoreForms, id: \.self) { form in
+                                    formRow(form)
+                                }
+                            }
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
+                        }
+                    }
                 }
                 
                 Spacer(minLength: 100)
