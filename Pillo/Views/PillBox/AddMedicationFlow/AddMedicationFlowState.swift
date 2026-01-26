@@ -273,6 +273,7 @@ class AddMedicationFlowState {
         let newStrength = (value: value, unit: currentStrengthUnit)
         if !strengths.contains(where: { $0.value == newStrength.value && $0.unit == newStrength.unit }) {
             strengths.append(newStrength)
+            strengths.sort { $0.value < $1.value }  // Sort lowest to highest
             currentStrengthValue = ""
         }
     }

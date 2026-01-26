@@ -26,7 +26,7 @@ struct PillIconView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: size, height: size)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
             } else if let shapeString = medication.appearanceShape,
                       let shape = PillShape(rawValue: shapeString) {
                 // Show custom appearance

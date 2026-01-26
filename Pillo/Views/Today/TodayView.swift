@@ -194,9 +194,9 @@ struct GroupCard: View {
         }
         .padding()
         .background(backgroundColor(for: group))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 20)
                 .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
         )
         .contentShape(Rectangle()) // Make entire area tappable
