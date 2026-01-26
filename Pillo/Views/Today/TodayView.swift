@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
@@ -286,6 +287,9 @@ struct CompactDoseSelector: View {
             HStack(spacing: 8) {
                 ForEach(options) { option in
                     Button {
+                        // Haptic feedback on tap
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                        impactFeedback.impactOccurred()
                         onSelect(option.doseConfig)
                     } label: {
                         HStack(spacing: 4) {
@@ -319,7 +323,10 @@ struct CompactDoseSelector: View {
                     .disabled(false)
                 }
             }
+            .padding(.horizontal, 4) // Breathing room at edges
+            .scrollTargetLayout()
         }
+        .scrollTargetBehavior(.viewAligned) // Snap to buttons
     }
     
     private func backgroundColor(for doseId: UUID) -> Color {
