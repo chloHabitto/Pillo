@@ -282,40 +282,43 @@ struct CompactDoseSelector: View {
     let onSelect: (DoseConfiguration) -> Void
     
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(options) { option in
-                Button {
-                    onSelect(option.doseConfig)
-                } label: {
-                    HStack(spacing: 4) {
-                        // Show checkmark if this dose is selected or completed
-                        if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(Color.white)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(options) { option in
+                    Button {
+                        onSelect(option.doseConfig)
+                    } label: {
+                        HStack(spacing: 4) {
+                            // Show checkmark if this dose is selected or completed
+                            if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Color.white)
+                            }
+                            
+                            Text(option.doseConfig.displayName)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                            
+                            if option.hasLowStock {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 10))
+                            }
                         }
-                        
-                        Text(option.doseConfig.displayName)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        
-                        if option.hasLowStock {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 10))
-                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(
+                            Capsule()
+                                .fill(backgroundColor(for: option.doseConfig.id))
+                        )
+                        .foregroundStyle(foregroundColor(for: option.doseConfig.id))
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(
-                        Capsule()
-                            .fill(backgroundColor(for: option.doseConfig.id))
-                    )
-                    .foregroundStyle(foregroundColor(for: option.doseConfig.id))
+                    // Allow selecting completed doses so they can be unlogged
+                    .disabled(false)
                 }
-                // Allow selecting completed doses so they can be unlogged
-                .disabled(false)
             }
-            Spacer()
         }
     }
     
