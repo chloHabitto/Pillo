@@ -173,17 +173,13 @@ class AddMedicationFlowState {
     // Step 1: Medication Name
     var medicationName: String = ""
     
-    // Step 2: Medication Type
-    var selectedForm: MedicationForm?
-    var customFormName: String? = nil
-    
-    // Step 3: Medication Strength
+    // Step 2: Medication Strength
     var strengths: [(value: Double, unit: String)] = []
     var currentStrengthValue: String = ""
     var currentStrengthUnit: String = "mg"
     var customStrengthUnit: String? = nil
     
-    // Step 3.5: Dosing Type
+    // Step 3: Dosing Type
     var dosingType: DosingType = .fixed
     var doseOptions: [DoseOptionInput] = []
     var fixedDoseComponents: [(strengthIndex: Int, quantity: Int)] = [] // For fixed dosing
@@ -197,6 +193,10 @@ class AddMedicationFlowState {
     var endDate: Date? = nil
     var specificDaysOfWeek: Set<Int> = [] // 1 = Sunday, 2 = Monday, etc.
     var daysInterval: Int = 1 // For "Every Few Days"
+    
+    // Step 5: Medication Type
+    var selectedForm: MedicationForm?
+    var customFormName: String? = nil
     
     // Step 6: Shape Selection
     var selectedShape: PillShape = .capsule {
@@ -239,31 +239,30 @@ class AddMedicationFlowState {
     
     func canProceedFromStep(_ step: Int) -> Bool {
         switch step {
-        case 1:
+        case 1: // Name
             return !medicationName.trimmingCharacters(in: .whitespaces).isEmpty
-        case 2:
-            return selectedForm != nil
-        case 3:
+        case 2: // Strength (was step 3)
             return !strengths.isEmpty
-        case 4:
-            // Step 3.5: Dosing Type (shown as step 4 in UI, but internally step 3.5)
+        case 3: // Dosing Type (was step 4)
             if dosingType == .fixed {
                 return !fixedDoseComponents.isEmpty && fixedDoseComponents.contains { $0.quantity > 0 }
             } else {
                 return !doseOptions.isEmpty
             }
-        case 5:
+        case 4: // Schedule (was step 5)
             if timeSelectionMode == .specificTime {
                 return !times.isEmpty
             } else {
                 return !timeFrames.isEmpty
             }
-        case 6:
-            return true // Shape selection has default
-        case 7:
-            return true // Color selection has defaults
-        case 8:
-            return true // Review
+        case 5: // Type (was step 2)
+            return selectedForm != nil
+        case 6: // Shape
+            return true
+        case 7: // Color
+            return true
+        case 8: // Review
+            return true
         default:
             return false
         }

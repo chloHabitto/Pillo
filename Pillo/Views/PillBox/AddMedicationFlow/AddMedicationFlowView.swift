@@ -21,13 +21,13 @@ struct AddMedicationFlowView: View {
                 case 1:
                     MedicationNameView(state: flowState)
                 case 2:
-                    MedicationTypeView(state: flowState)
-                case 3:
                     MedicationStrengthView(state: flowState)
-                case 4:
+                case 3:
                     DosingTypeView(state: flowState)
-                case 5:
+                case 4:
                     ScheduleView(state: flowState)
+                case 5:
+                    MedicationTypeView(state: flowState)
                 case 6:
                     ShapeSelectionView(state: flowState)
                 case 7:
