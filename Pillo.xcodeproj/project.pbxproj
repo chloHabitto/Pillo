@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		89F384C12F2762CB00D196EF /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 89F384C02F2762CB00D196EF /* FirebaseAnalytics */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		89881B182EE9E4E600AA9A82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +33,30 @@
 		89881B212EE9E4E600AA9A82 /* PilloUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PilloUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		89F384BD2F27625800D196EF /* Exceptions for "Pillo" folder in "PilloTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = 89881B162EE9E4E600AA9A82 /* PilloTests */;
+		};
+		89F384BE2F27625800D196EF /* Exceptions for "Pillo" folder in "PilloUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = 89881B202EE9E4E600AA9A82 /* PilloUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		89881B0C2EE9E4E400AA9A82 /* Pillo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				89F384BD2F27625800D196EF /* Exceptions for "Pillo" folder in "PilloTests" target */,
+				89F384BE2F27625800D196EF /* Exceptions for "Pillo" folder in "PilloUITests" target */,
+			);
 			path = Pillo;
 			sourceTree = "<group>";
 		};
@@ -52,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				89F384C12F2762CB00D196EF /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +138,7 @@
 			);
 			name = Pillo;
 			packageProductDependencies = (
+				89F384C02F2762CB00D196EF /* FirebaseAnalytics */,
 			);
 			productName = Pillo;
 			productReference = 89881B0A2EE9E4E400AA9A82 /* Pillo.app */;
@@ -195,6 +222,9 @@
 			);
 			mainGroup = 89881B012EE9E4E400AA9A82;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 89881B0B2EE9E4E400AA9A82 /* Products */;
 			projectDirPath = "";
@@ -615,6 +645,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		89F384C02F2762CB00D196EF /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 89881B022EE9E4E400AA9A82 /* Project object */;
 }
