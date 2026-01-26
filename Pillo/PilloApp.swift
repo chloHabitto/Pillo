@@ -9,20 +9,18 @@ import SwiftUI
 import SwiftData
 import FirebaseCore
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
-        return true
-    }
-}
-
 @main
 struct PilloApp: App {
-    // register app delegate for Firebase setup
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var appSettings = AppSettings()
-    @State private var authManager = AuthManager()
+    @State private var authManager: AuthManager
+    
+    init() {
+        // Configure Firebase FIRST, before AuthManager is created
+        FirebaseApp.configure()
+        
+        // Now safe to create AuthManager
+        _authManager = State(initialValue: AuthManager())
+    }
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([

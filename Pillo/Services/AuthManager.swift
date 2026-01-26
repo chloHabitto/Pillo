@@ -26,11 +26,12 @@ class AuthManager: NSObject {
     }
     
     private var currentNonce: String?
+    private var authStateHandle: AuthStateDidChangeListenerHandle?
     
     override init() {
         super.init()
         // Listen for auth state changes
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.currentUser = user
         }
     }
