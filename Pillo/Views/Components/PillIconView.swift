@@ -32,7 +32,7 @@ struct PillIconView: View {
                 // Show custom appearance
                 ZStack {
                     if let bgColorName = medication.appearanceBackgroundColor {
-                        Circle()
+                        RoundedRectangle(cornerRadius: 20)
                             .fill(Color(bgColorName))
                             .frame(width: size, height: size)
                     }
@@ -41,9 +41,9 @@ struct PillIconView: View {
                         .frame(width: size * 0.7, height: size * 0.7)
                 }
             } else {
-                // Default: circle with pill icon
+                // Default: rounded rectangle with pill icon
                 ZStack {
-                    Circle()
+                    RoundedRectangle(cornerRadius: 20)
                         .fill(Color(.systemGray5))
                         .frame(width: size, height: size)
                     

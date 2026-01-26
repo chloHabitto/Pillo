@@ -155,7 +155,7 @@ struct GroupCard: View {
             } else {
                 // Default icon while loading
                 ZStack {
-                    Circle()
+                    RoundedRectangle(cornerRadius: 20)
                         .fill(Color(.systemGray5))
                         .frame(width: 50, height: 50)
                     
