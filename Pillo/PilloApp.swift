@@ -13,6 +13,7 @@ import FirebaseCore
 struct PilloApp: App {
     @State private var appSettings = AppSettings()
     @State private var authManager: AuthManager
+    @State private var syncManager = SyncManager()
     
     init() {
         // Configure Firebase FIRST, before AuthManager is created
@@ -64,8 +65,12 @@ struct PilloApp: App {
                         .preferredColorScheme(.dark)
                 }
             }
+            .onAppear {
+                syncManager.setAuthManager(authManager)
+            }
             .environment(appSettings)
             .environment(authManager)
+            .environment(syncManager)
         }
         .modelContainer(sharedModelContainer)
     }

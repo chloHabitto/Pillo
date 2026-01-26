@@ -47,15 +47,17 @@ struct MedicationGroup_Display: Identifiable {
 class PillBoxViewModel {
     private var modelContext: ModelContext
     private var stockManager: StockManager
+    private var syncManager: SyncManager?
     
     var medications: [Medication] = []
     var groups: [MedicationGroup] = []
     var isLoading: Bool = false
     var errorMessage: String?
     
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, syncManager: SyncManager? = nil) {
         self.modelContext = modelContext
         self.stockManager = StockManager(modelContext: modelContext)
+        self.syncManager = syncManager
         loadData()
     }
     
@@ -87,25 +89,44 @@ class PillBoxViewModel {
         form: MedicationForm,
         strength: Double,
         strengthUnit: String,
-        customFormName: String? = nil
+        customFormName: String? = nil,
+        appearanceShape: String? = nil,
+        appearanceLeftColor: String? = nil,
+        appearanceRightColor: String? = nil,
+        appearanceBackgroundColor: String? = nil,
+        appearanceShowRoundTabletLine: Bool = false,
+        appearanceShowOvalTabletLine: Bool = false,
+        appearanceShowOblongTabletLine: Bool = false,
+        appearancePhotoData: Data? = nil
     ) -> Medication {
         let medication = Medication(
             name: name,
             form: form,
             strength: strength,
             strengthUnit: strengthUnit,
-            customFormName: customFormName
+            customFormName: customFormName,
+            appearanceShape: appearanceShape,
+            appearanceLeftColor: appearanceLeftColor,
+            appearanceRightColor: appearanceRightColor,
+            appearanceBackgroundColor: appearanceBackgroundColor,
+            appearanceShowRoundTabletLine: appearanceShowRoundTabletLine,
+            appearanceShowOvalTabletLine: appearanceShowOvalTabletLine,
+            appearanceShowOblongTabletLine: appearanceShowOblongTabletLine,
+            appearancePhotoData: appearancePhotoData
         )
         modelContext.insert(medication)
         try? modelContext.save()
         loadMedications()
+        syncManager?.syncMedication(medication)
         return medication
     }
     
     func deleteMedication(_ medication: Medication) {
+        let medicationId = medication.id
         modelContext.delete(medication)
         try? modelContext.save()
         loadMedications()
+        syncManager?.deleteMedicationFromCloud(id: medicationId)
     }
     
     // MARK: - Stock Source Management
@@ -130,12 +151,21 @@ class PillBoxViewModel {
         modelContext.insert(source)
         try? modelContext.save()
         loadMedications()
+        // Sync the parent medication after stock source addition
+        if let med = source.medication {
+            syncManager?.syncMedication(med)
+        }
     }
     
     func deleteStockSource(_ source: StockSource) {
+        let medication = source.medication
         modelContext.delete(source)
         try? modelContext.save()
         loadMedications()
+        // Sync the parent medication after stock source deletion
+        if let med = medication {
+            syncManager?.syncMedication(med)
+        }
     }
     
     func enableCounting(for source: StockSource, currentQuantity: Int?) {
@@ -182,13 +212,16 @@ class PillBoxViewModel {
         modelContext.insert(group)
         try? modelContext.save()
         loadGroups()
+        syncManager?.syncGroup(group)
         return group
     }
     
     func deleteGroup(_ group: MedicationGroup) {
+        let groupId = group.id
         modelContext.delete(group)
         try? modelContext.save()
         loadGroups()
+        syncManager?.deleteGroupFromCloud(id: groupId)
     }
     
     // MARK: - Dose Configuration
@@ -228,13 +261,16 @@ class PillBoxViewModel {
         
         try? modelContext.save()
         loadGroups()
+        syncManager?.syncDoseConfiguration(doseConfig)
         return doseConfig
     }
     
     func deleteDoseConfiguration(_ config: DoseConfiguration) {
+        let configId = config.id
         modelContext.delete(config)
         try? modelContext.save()
         loadGroups()
+        syncManager?.deleteDoseConfigurationFromCloud(id: configId)
     }
     
     // MARK: - Schedule Information

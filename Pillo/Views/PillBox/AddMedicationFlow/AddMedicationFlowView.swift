@@ -54,6 +54,13 @@ struct AddMedicationFlowView: View {
             return
         }
         
+        // Convert appearance data
+        let shapeString = state.selectedShape.rawValue
+        let leftColorString = state.leftColor.colorName()
+        let rightColorString = state.rightColor.colorName()
+        let backgroundColorString = state.backgroundColor.colorName()
+        let photoData = state.selectedPhoto?.jpegData(compressionQuality: 0.8)
+        
         // Create medications for each strength
         var medicationsForStrengths: [Medication] = []
         for strength in state.strengths {
@@ -62,7 +69,15 @@ struct AddMedicationFlowView: View {
                 form: form,
                 strength: strength.value,
                 strengthUnit: strength.unit,
-                customFormName: form == .other ? state.customFormName : nil
+                customFormName: form == .other ? state.customFormName : nil,
+                appearanceShape: shapeString,
+                appearanceLeftColor: leftColorString,
+                appearanceRightColor: rightColorString,
+                appearanceBackgroundColor: backgroundColorString,
+                appearanceShowRoundTabletLine: state.showRoundTabletLine,
+                appearanceShowOvalTabletLine: state.showOvalTabletLine,
+                appearanceShowOblongTabletLine: state.showOblongTabletLine,
+                appearancePhotoData: photoData
             )
             medicationsForStrengths.append(med)
         }

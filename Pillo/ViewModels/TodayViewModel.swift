@@ -14,6 +14,7 @@ class TodayViewModel {
     private var modelContext: ModelContext
     private var dailyPlanManager: DailyPlanManager
     private var intakeManager: IntakeManager
+    private var syncManager: SyncManager?
     
     var selectedDate: Date = Date()
     var dailyPlan: DailyPlan = .empty
@@ -21,10 +22,11 @@ class TodayViewModel {
     var isLoading: Bool = false
     var errorMessage: String?
     
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, syncManager: SyncManager? = nil) {
         self.modelContext = modelContext
         self.dailyPlanManager = DailyPlanManager(modelContext: modelContext)
         self.intakeManager = IntakeManager(modelContext: modelContext)
+        self.syncManager = syncManager
         loadPlan()
     }
     
@@ -207,7 +209,8 @@ class TodayViewModel {
         )
         
         switch result {
-        case .success:
+        case .success(let intakeLog):
+            syncManager?.syncIntakeLog(intakeLog)
             loadPlan()
         case .failure(let error):
             errorMessage = "Failed to log intake: \(error)"
@@ -229,7 +232,8 @@ class TodayViewModel {
             )
             
             switch result {
-            case .success:
+            case .success(let intakeLog):
+                syncManager?.syncIntakeLog(intakeLog)
                 continue
             case .failure(let error):
                 errorMessage = "Failed to log intake: \(error)"
@@ -263,7 +267,9 @@ class TodayViewModel {
     // Undo an intake log
     func undoIntake(log: IntakeLog) {
         errorMessage = nil
+        let logId = log.id
         intakeManager.undoIntake(log: log)
+        syncManager?.deleteIntakeLogFromCloud(id: logId)
         loadPlan()
     }
     
@@ -273,7 +279,9 @@ class TodayViewModel {
         let logs = getSelectedIntakeLogs()
         
         for log in logs {
+            let logId = log.id
             intakeManager.undoIntake(log: log)
+            syncManager?.deleteIntakeLogFromCloud(id: logId)
         }
         
         // Reload to reflect changes

@@ -24,6 +24,16 @@ final class Medication {
     var customFormName: String?
     var createdAt: Date
     
+    // Appearance properties
+    var appearanceShape: String? // PillShape rawValue
+    var appearanceLeftColor: String? // Color name (e.g., "PillColor-White")
+    var appearanceRightColor: String? // Color name for two-tone shapes
+    var appearanceBackgroundColor: String? // Background color name
+    var appearanceShowRoundTabletLine: Bool = false
+    var appearanceShowOvalTabletLine: Bool = false
+    var appearanceShowOblongTabletLine: Bool = false
+    var appearancePhotoData: Data? // UIImage as Data
+    
     @Relationship(deleteRule: .cascade)
     var stockSources: [StockSource] = []
     
@@ -37,7 +47,15 @@ final class Medication {
         strength: Double,
         strengthUnit: String,
         customFormName: String? = nil,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        appearanceShape: String? = nil,
+        appearanceLeftColor: String? = nil,
+        appearanceRightColor: String? = nil,
+        appearanceBackgroundColor: String? = nil,
+        appearanceShowRoundTabletLine: Bool = false,
+        appearanceShowOvalTabletLine: Bool = false,
+        appearanceShowOblongTabletLine: Bool = false,
+        appearancePhotoData: Data? = nil
     ) {
         self.id = id
         self.name = name
@@ -46,6 +64,14 @@ final class Medication {
         self.strengthUnit = strengthUnit
         self.customFormName = customFormName
         self.createdAt = createdAt
+        self.appearanceShape = appearanceShape
+        self.appearanceLeftColor = appearanceLeftColor
+        self.appearanceRightColor = appearanceRightColor
+        self.appearanceBackgroundColor = appearanceBackgroundColor
+        self.appearanceShowRoundTabletLine = appearanceShowRoundTabletLine
+        self.appearanceShowOvalTabletLine = appearanceShowOvalTabletLine
+        self.appearanceShowOblongTabletLine = appearanceShowOblongTabletLine
+        self.appearancePhotoData = appearancePhotoData
     }
     
     var formDisplayName: String {

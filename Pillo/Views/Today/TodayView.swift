@@ -10,6 +10,7 @@ import SwiftData
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(SyncManager.self) private var syncManager
     @State private var viewModel: TodayViewModel?
     
     var body: some View {
@@ -24,7 +25,7 @@ struct TodayView: View {
             .navigationTitle("Today")
             .onAppear {
                 if viewModel == nil {
-                    viewModel = TodayViewModel(modelContext: modelContext)
+                    viewModel = TodayViewModel(modelContext: modelContext, syncManager: syncManager)
                 } else {
                     // Reload plan when view appears to catch newly added medications
                     viewModel?.loadPlan()
@@ -142,32 +143,53 @@ struct TimeFrameSection: View {
 struct GroupCard: View {
     let group: GroupPlan
     @Bindable var viewModel: TodayViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var showingUndoConfirmation = false
+    @State private var medication: Medication?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Show medication name (extract from first option's first component)
-            if let firstComponent = group.doseOptions.first?.components.first {
-                Text(firstComponent.medicationName)
-                    .font(.headline)
+        HStack(alignment: .top, spacing: 12) {
+            // Pill icon on the left
+            if let medication = medication {
+                PillIconView(medication: medication, size: 50)
+            } else {
+                // Default icon while loading
+                ZStack {
+                    Circle()
+                        .fill(Color(.systemGray5))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: "pills.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(Color.secondary)
+                }
             }
             
-            if !group.doseOptions.isEmpty {
-                // Show all doses (single or multiple) as pill buttons for consistency
-                CompactDoseSelector(
-                    options: group.doseOptions,
-                    selectedId: viewModel.selectedDoses[group.group.id]?.id,
-                    completedId: group.completedDose?.id,
-                    onSelect: { dose in
-                        // Toggle selection when tapping a chip
-                        viewModel.toggleDoseSelection(dose, for: group.group)
-                    }
-                )
-            } else {
-                // No dose options - medication exists but not configured for dosing
-                Text("Not scheduled")
-                    .font(.caption)
-                    .foregroundStyle(Color.secondary)
+            // Content on the right
+            VStack(alignment: .leading, spacing: 8) {
+                // Show medication name (extract from first option's first component)
+                if let firstComponent = group.doseOptions.first?.components.first {
+                    Text(firstComponent.medicationName)
+                        .font(.headline)
+                }
+                
+                if !group.doseOptions.isEmpty {
+                    // Show all doses (single or multiple) as pill buttons for consistency
+                    CompactDoseSelector(
+                        options: group.doseOptions,
+                        selectedId: viewModel.selectedDoses[group.group.id]?.id,
+                        completedId: group.completedDose?.id,
+                        onSelect: { dose in
+                            // Toggle selection when tapping a chip
+                            viewModel.toggleDoseSelection(dose, for: group.group)
+                        }
+                    )
+                } else {
+                    // No dose options - medication exists but not configured for dosing
+                    Text("Not scheduled")
+                        .font(.caption)
+                        .foregroundStyle(Color.secondary)
+                }
             }
         }
         .padding()
@@ -178,6 +200,16 @@ struct GroupCard: View {
                 .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
         )
         .contentShape(Rectangle()) // Make entire area tappable
+        .onAppear {
+            // Fetch medication when view appears
+            if medication == nil, let firstComponent = group.doseOptions.first?.components.first {
+                let medicationId = firstComponent.medicationId
+                let descriptor = FetchDescriptor<Medication>(
+                    predicate: #Predicate<Medication> { $0.id == medicationId }
+                )
+                medication = try? modelContext.fetch(descriptor).first
+            }
+        }
         .onTapGesture {
             // Make all cards tappable to toggle selection
             if group.doseOptions.count == 1,

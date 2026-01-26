@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 class FirestoreService {
-    private let db = Firestore.firestore()
+    private lazy var db = Firestore.firestore()
     
     // MARK: - Collection References
     

@@ -10,6 +10,7 @@ import SwiftData
 
 struct PillBoxView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(SyncManager.self) private var syncManager
     @State private var viewModel: PillBoxViewModel?
     
     var body: some View {
@@ -24,7 +25,7 @@ struct PillBoxView: View {
             .navigationTitle("Pill Box")
             .onAppear {
                 if viewModel == nil {
-                    viewModel = PillBoxViewModel(modelContext: modelContext)
+                    viewModel = PillBoxViewModel(modelContext: modelContext, syncManager: syncManager)
                 }
             }
         }
