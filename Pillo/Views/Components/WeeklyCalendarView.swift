@@ -50,8 +50,8 @@ struct WeeklyCalendarView: View {
             
             Spacer()
             
-            // Show "Today" button when not viewing today
-            if !calendar.isDateInToday(selectedDate) {
+            // Show "Today" button when not viewing today or when scrolled to a different week
+            if !calendar.isDateInToday(selectedDate) || currentWeekOffset != 0 {
                 Button {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         selectedDate = Date()
