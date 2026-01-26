@@ -397,13 +397,13 @@ struct ScheduleView: View {
                 } label: {
                     Text("Next")
                         .font(.headline)
-                        .foregroundStyle(state.canProceedFromStep(5) ? Color.white : Color.secondary)
+                        .foregroundStyle(state.canProceedFromStep(4) ? Color.white : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(state.canProceedFromStep(5) ? Color.cyan : Color(.tertiarySystemFill))
+                        .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .disabled(!state.canProceedFromStep(5))
+                .disabled(!state.canProceedFromStep(4))
             }
             .padding()
             .background(Color(.systemBackground))

@@ -146,13 +146,13 @@ struct DosingTypeView: View {
                 } label: {
                     Text("Next")
                         .font(.headline)
-                        .foregroundStyle(state.canProceedFromStep(4) ? Color.white : Color.secondary)
+                        .foregroundStyle(state.canProceedFromStep(3) ? Color.white : Color.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
+                        .background(state.canProceedFromStep(3) ? Color.cyan : Color(.tertiarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .disabled(!state.canProceedFromStep(4))
+                .disabled(!state.canProceedFromStep(3))
             }
             .padding()
             .background(Color(.systemBackground))
