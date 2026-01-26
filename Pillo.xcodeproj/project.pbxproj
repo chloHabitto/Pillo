@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		89F384C12F2762CB00D196EF /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 89F384C02F2762CB00D196EF /* FirebaseAnalytics */; };
+		89F384C42F27639B00D196EF /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 89F384C32F27639B00D196EF /* FirebaseAuth */; };
+		89F384C62F2763A500D196EF /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 89F384C52F2763A500D196EF /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +80,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				89F384C12F2762CB00D196EF /* FirebaseAnalytics in Frameworks */,
+				89F384C42F27639B00D196EF /* FirebaseAuth in Frameworks */,
+				89F384C62F2763A500D196EF /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +108,7 @@
 				89881B0C2EE9E4E400AA9A82 /* Pillo */,
 				89881B1A2EE9E4E600AA9A82 /* PilloTests */,
 				89881B242EE9E4E600AA9A82 /* PilloUITests */,
+				89F384C22F27639B00D196EF /* Frameworks */,
 				89881B0B2EE9E4E400AA9A82 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -116,6 +121,13 @@
 				89881B212EE9E4E600AA9A82 /* PilloUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		89F384C22F27639B00D196EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +151,8 @@
 			name = Pillo;
 			packageProductDependencies = (
 				89F384C02F2762CB00D196EF /* FirebaseAnalytics */,
+				89F384C32F27639B00D196EF /* FirebaseAuth */,
+				89F384C52F2763A500D196EF /* FirebaseFirestore */,
 			);
 			productName = Pillo;
 			productReference = 89881B0A2EE9E4E400AA9A82 /* Pillo.app */;
@@ -420,6 +434,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pillo/Pillo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GVG7JYM6M8;
@@ -464,6 +479,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pillo/Pillo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GVG7JYM6M8;
@@ -662,6 +678,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		89F384C32F27639B00D196EF /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		89F384C52F2763A500D196EF /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89F384BF2F2762CB00D196EF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

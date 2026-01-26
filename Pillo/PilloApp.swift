@@ -22,6 +22,7 @@ struct PilloApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var appSettings = AppSettings()
+    @State private var authManager = AuthManager()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -56,9 +57,17 @@ struct PilloApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .preferredColorScheme(appSettings.colorScheme)
-                .environment(appSettings)
+            Group {
+                if authManager.isAuthenticated {
+                    ContentView()
+                        .preferredColorScheme(appSettings.colorScheme)
+                } else {
+                    SignInView()
+                        .preferredColorScheme(.dark)
+                }
+            }
+            .environment(appSettings)
+            .environment(authManager)
         }
         .modelContainer(sharedModelContainer)
     }
