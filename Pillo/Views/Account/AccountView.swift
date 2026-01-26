@@ -6,16 +6,28 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct AccountView: View {
     @Environment(AppSettings.self) private var appSettings
+    @Environment(AuthManager.self) private var authManager
+    @State private var showingSignOutAlert = false
     
     var body: some View {
         NavigationStack {
             List {
                 Section("Profile") {
-                    Text("Profile settings coming soon")
-                        .foregroundStyle(.secondary)
+                    if let email = authManager.currentUser?.email {
+                        LabeledContent("Email", value: email)
+                    } else {
+                        LabeledContent("Signed in with", value: "Apple ID")
+                    }
+                    
+                    if let userId = authManager.userId {
+                        LabeledContent("User ID", value: String(userId.prefix(8)) + "...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 
                 Section("App Settings") {
@@ -44,6 +56,18 @@ struct AccountView: View {
                 }
                 
                 Section {
+                    Button(role: .destructive) {
+                        showingSignOutAlert = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("Sign Out")
+                            Spacer()
+                        }
+                    }
+                }
+                
+                Section {
                     Text("Pillo v1.0")
                         .foregroundStyle(.secondary)
                 } footer: {
@@ -51,6 +75,14 @@ struct AccountView: View {
                 }
             }
             .navigationTitle("Account")
+            .alert("Sign Out", isPresented: $showingSignOutAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Sign Out", role: .destructive) {
+                    authManager.signOut()
+                }
+            } message: {
+                Text("Are you sure you want to sign out?")
+            }
         }
     }
 }
@@ -58,5 +90,6 @@ struct AccountView: View {
 #Preview {
     AccountView()
         .environment(AppSettings())
+        .environment(AuthManager())
 }
 
