@@ -119,8 +119,9 @@ struct TimeFrameSection: View {
             // Header
             HStack {
                 Text(timeFrame.timeFrame.rawValue.capitalized)
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.secondary)
                 
                 Spacer()
                 
@@ -263,16 +264,16 @@ struct CompactDoseSelector: View {
                         }
                         
                         Text(option.doseConfig.displayName)
-                            .font(.caption)
+                            .font(.subheadline)
                             .fontWeight(.medium)
                         
                         if option.hasLowStock {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 8))
+                                .font(.system(size: 10))
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
                     .background(
                         Capsule()
                             .fill(backgroundColor(for: option.doseConfig.id))
