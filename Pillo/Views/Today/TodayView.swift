@@ -194,9 +194,9 @@ struct GroupCard: View {
         }
         .padding()
         .background(backgroundColor(for: group))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 18)
                 .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
         )
         .contentShape(Rectangle()) // Make entire area tappable
@@ -288,10 +288,10 @@ struct CompactDoseSelector: View {
                     onSelect(option.doseConfig)
                 } label: {
                     HStack(spacing: 4) {
-                        // Show checkmark if this dose is completed
-                        if completedId == option.doseConfig.id {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 10))
+                        // Show checkmark if this dose is selected or completed
+                        if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(Color.white)
                         }
                         
