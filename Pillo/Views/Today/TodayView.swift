@@ -182,62 +182,83 @@ struct GroupCard: View {
     @State private var showingManageIntakeSheet = false
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Pill icon on the left
-            if let medication = medication {
-                PillIconView(medication: medication, size: 50)
-            } else {
-                // Default icon while loading
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color(.systemGray5))
-                        .frame(width: 50, height: 50)
-                    
-                    Image(systemName: "pills.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(Color.secondary)
-                }
-            }
-            
-            // Content on the right
-            VStack(alignment: .leading, spacing: 8) {
-                // Show medication name (extract from first option's first component)
-                if let firstComponent = group.doseOptions.first?.components.first {
-                    Text(firstComponent.medicationName)
-                        .font(.headline)
+        HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: 16) {
+                // Icon 36×36
+                if let medication = medication {
+                    PillIconView(medication: medication, size: 36)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(.systemGray5))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "pills.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.secondary)
+                    }
                 }
                 
-                if !group.doseOptions.isEmpty {
-                    // Show all doses (single or multiple) as pill buttons for consistency
-                    CompactDoseSelector(
-                        options: group.doseOptions,
-                        selectedId: viewModel.selectedDoses[group.group.id]?.id,
-                        completedId: group.completedDose?.id,
-                        onSelect: { dose in
-                            if let completedDose = group.completedDose {
-                                if completedDose.id == dose.id {
-                                    // Tapped the same (completed) dose → manage intake
-                                    showingManageIntakeSheet = true
-                                } else {
-                                    // Tapped a different dose → select it and show change confirmation
-                                    viewModel.selectDose(dose, for: group.group)
-                                    pendingNewDose = dose
-                                    showingChangeDoseConfirmation = true
+                // VStack: no padding, spacing 8, width filled
+                VStack(alignment: .leading, spacing: 8) {
+                    if let firstComponent = group.doseOptions.first?.components.first {
+                        Text(firstComponent.medicationName)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    if !group.doseOptions.isEmpty {
+                        HStack(spacing: 8) {
+                            CompactDoseSelector(
+                                options: group.doseOptions,
+                                selectedId: viewModel.selectedDoses[group.group.id]?.id,
+                                completedId: group.completedDose?.id,
+                                onSelect: { dose in
+                                    if let completedDose = group.completedDose {
+                                        if completedDose.id == dose.id {
+                                            showingManageIntakeSheet = true
+                                        } else {
+                                            viewModel.selectDose(dose, for: group.group)
+                                            pendingNewDose = dose
+                                            showingChangeDoseConfirmation = true
+                                        }
+                                    } else {
+                                        viewModel.selectDose(dose, for: group.group)
+                                    }
                                 }
-                            } else {
-                                viewModel.selectDose(dose, for: group.group)
-                            }
+                            )
                         }
-                    )
-                } else {
-                    // No dose options - medication exists but not configured for dosing
-                    Text("Not scheduled")
-                        .font(.caption)
-                        .foregroundStyle(Color.secondary)
+                    } else {
+                        Text("Not scheduled")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Ellipsis button: container hugs icon, 24×24 centered
+                Button {
+                    // Ellipsis actions (e.g. manage intake when completed)
+                    if group.completedDose != nil {
+                        showingManageIntakeSheet = true
+                    } else {
+                        showingLogOptionsSheet = true
+                    }
+                } label: {
+                    Image("Icon-more_vert")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(Color("appOutline01"))
+                        .frame(width: 24, height: 24)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 16)
             }
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 0))
         }
-        .padding()
         .background(backgroundColor(for: group))
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
@@ -269,24 +290,6 @@ struct GroupCard: View {
                     // Nothing selected → show log options sheet
                     showingLogOptionsSheet = true
                 }
-            }
-        }
-        .overlay(alignment: .topTrailing) {
-            // Undo button on the top right (only shown when completed and not selected)
-            if group.completedDose != nil && !isSelected(group) {
-                Button {
-                    showingUndoConfirmation = true
-                } label: {
-                    Image(systemName: "arrow.uturn.backward")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.orange)
-                        .padding(8)
-                        .background(Color.orange.opacity(0.15))
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 8)
-                .padding(.trailing, 8)
             }
         }
         .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
