@@ -81,9 +81,10 @@ struct AccountView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(Color("appSurface01"))
             .listSectionSpacing(.compact)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("appSurface01"))
             .toolbar(.hidden, for: .navigationBar)
             .alert("Sign Out", isPresented: $showingSignOutAlert) {
                 Button("Cancel", role: .cancel) { }
