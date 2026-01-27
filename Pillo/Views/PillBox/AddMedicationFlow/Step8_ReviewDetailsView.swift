@@ -121,7 +121,7 @@ struct ReviewDetailsView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -159,10 +159,10 @@ struct ReviewDetailsView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.cyan)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(Capsule())
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
         }
     }
     

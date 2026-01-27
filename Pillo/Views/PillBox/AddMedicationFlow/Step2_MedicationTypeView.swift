@@ -201,7 +201,7 @@ struct MedicationTypeView: View {
             }
             .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
         }
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -240,11 +240,11 @@ struct MedicationTypeView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(state.canProceedFromStep(5) ? Color.cyan : Color(.tertiarySystemFill))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(Capsule())
             }
             .disabled(!state.canProceedFromStep(5))
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
         }
     }
     

@@ -107,7 +107,7 @@ struct MedicationStrengthView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -164,7 +164,7 @@ struct MedicationStrengthView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(state.currentStrengthValue.isEmpty ? Color(.tertiarySystemFill) : Color.cyan)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                     }
                     .disabled(state.currentStrengthValue.isEmpty)
                     
@@ -176,11 +176,11 @@ struct MedicationStrengthView: View {
                             .foregroundStyle(Color.white)
                             .frame(width: 50, height: 50)
                             .background(Color.cyan)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(Capsule())
                     }
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(Color("appSurface01"))
             } else {
                 // Existing Next/Skip buttons when TextField is not focused
                 HStack(spacing: 12) {
@@ -193,7 +193,7 @@ struct MedicationStrengthView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(Capsule())
                     }
                     
                     Button {
@@ -205,12 +205,12 @@ struct MedicationStrengthView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(state.canProceedFromStep(2) ? Color.cyan : Color(.tertiarySystemFill))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(Capsule())
                     }
                     .disabled(!state.canProceedFromStep(2))
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(Color("appSurface01"))
             }
         }
         .sheet(isPresented: $showingUnitPicker) {
@@ -413,7 +413,7 @@ struct UnitPickerSheet: View {
                 }
                 .padding(.top, 16)
             }
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
             .navigationTitle("Select Unit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

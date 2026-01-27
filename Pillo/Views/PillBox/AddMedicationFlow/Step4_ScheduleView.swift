@@ -327,7 +327,7 @@ struct ScheduleView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -389,7 +389,7 @@ struct ScheduleView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                 }
                 
                 Button {
@@ -401,12 +401,12 @@ struct ScheduleView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(state.canProceedFromStep(4) ? Color.cyan : Color(.tertiarySystemFill))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                 }
                 .disabled(!state.canProceedFromStep(4))
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
         }
         .sheet(isPresented: $showingCustomTimeFramePicker) {
             if let index = editingTimeFrameIndex, index < state.timeFrames.count {
@@ -483,7 +483,7 @@ struct StartDatePickerSheet: View {
                 }
                 .padding(.top, 8)
             }
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
             .navigationTitle("Start Date")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -578,7 +578,7 @@ struct EndDatePickerSheet: View {
                 }
                 .padding(.top, 8)
             }
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
             .navigationTitle("End Date")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

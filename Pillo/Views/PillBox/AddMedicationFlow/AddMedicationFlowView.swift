@@ -45,6 +45,7 @@ struct AddMedicationFlowView: View {
                 removal: .move(edge: .leading).combined(with: .opacity)
             ))
             .animation(.easeInOut(duration: 0.3), value: flowState.currentStep)
+            .background(Color("appSurface01"))
         }
     }
     

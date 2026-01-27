@@ -89,7 +89,7 @@ struct ShapeSelectionView: View {
                 Spacer(minLength: 100)
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -134,7 +134,7 @@ struct ShapeSelectionView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                 }
                 
                 Button {
@@ -146,11 +146,11 @@ struct ShapeSelectionView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.cyan)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color("appSurface01"))
         }
     }
     

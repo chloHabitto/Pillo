@@ -45,14 +45,14 @@ struct MedicationNameView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(state.canProceedFromStep(1) ? Color.cyan : Color(.tertiarySystemFill))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(Capsule())
             }
             .disabled(!state.canProceedFromStep(1))
             .padding(.horizontal, 20)
             .padding(.bottom, 32)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .background(Color("appSurface01"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
