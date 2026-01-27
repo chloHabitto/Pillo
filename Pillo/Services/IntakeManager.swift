@@ -143,8 +143,13 @@ class IntakeManager {
             return false
         }
 
+        let doseConfigId = log.doseConfiguration?.id
+        print("DEBUG: Undoing intake for doseConfig: \(doseConfigId?.uuidString ?? "nil")")
+
         // 2. Restore all stock deductions (iterate a copy to avoid modifying while iterating)
         let deductions = Array(log.stockDeductions)
+        print("DEBUG: Found \(deductions.count) deductions to restore")
+
         for deduction in deductions {
             if deduction.wasDeducted {
                 stockManager.restoreStock(deduction: deduction)
@@ -159,6 +164,7 @@ class IntakeManager {
         // 4. Save context with proper error handling
         do {
             try modelContext.save()
+            modelContext.processPendingChanges()
             print("DEBUG: Successfully undid intake log \(logId)")
             return true
         } catch {
@@ -186,8 +192,10 @@ class IntakeManager {
             predicate: predicate,
             sortBy: [SortDescriptor(\.scheduledFor, order: .forward)]
         )
-        
-        return (try? modelContext.fetch(descriptor)) ?? []
+
+        let results = (try? modelContext.fetch(descriptor)) ?? []
+        print("DEBUG: getIntakes for \(date) returned \(results.count) logs: \(results.map { $0.id.uuidString.prefix(8) })")
+        return results
     }
     
     // Check if a dose was taken today

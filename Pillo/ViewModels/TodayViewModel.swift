@@ -36,8 +36,8 @@ class TodayViewModel {
     // Load or reload the daily plan
     func loadPlan() {
         isLoading = true
+        modelContext.processPendingChanges()
         dailyPlan = dailyPlanManager.getPlan(for: selectedDate)
-        // Don't pre-populate selections - let users explicitly select doses
         isLoading = false
     }
     
@@ -274,10 +274,11 @@ class TodayViewModel {
 
         if success {
             syncManager?.deleteIntakeLogFromCloud(id: logId)
+            modelContext.processPendingChanges()
             loadPlan()
             showUndoSuccessToast = true
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
                 self?.showUndoSuccessToast = false
             }
         } else {

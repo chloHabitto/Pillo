@@ -109,25 +109,30 @@ struct TodayContentView: View {
             // Reload plan when content view appears to ensure fresh data
             viewModel.loadPlan()
         }
-        .overlay(alignment: .top) {
+        .overlay(alignment: .bottom) {
             if viewModel.showUndoSuccessToast {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    Text("Intake undone successfully")
+                    Text("Intake undone")
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-                .shadow(radius: 4)
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .animation(.spring(), value: viewModel.showUndoSuccessToast)
-                .padding(.top, 8)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+                )
+                .padding(.bottom, viewModel.selectedDoses.isEmpty ? 40 : 100)
+                .transition(.asymmetric(
+                    insertion: .move(edge: .bottom).combined(with: .opacity),
+                    removal: .opacity
+                ))
             }
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showUndoSuccessToast)
     }
 }
 
@@ -267,12 +272,12 @@ struct GroupCard: View {
             }
         }
         .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
-            Button("Undo", role: .destructive) {
+            Button("Undo Intake", role: .destructive) {
                 if let logId = group.completedIntakeLog?.id {
                     viewModel.undoIntake(logId: logId)
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will restore the stock and remove the intake log.")
         }
