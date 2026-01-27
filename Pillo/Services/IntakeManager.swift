@@ -132,23 +132,44 @@ class IntakeManager {
         return .success(intakeLog)
     }
     
-    // Undo an intake
-    func undoIntake(log: IntakeLog) {
-        // 1. Restore all stock deductions
-        for deduction in log.stockDeductions {
+    // Undo by ID to avoid stale reference issues
+    func undoIntake(logId: UUID) -> Bool {
+        // 1. Fetch fresh IntakeLog by ID
+        let predicate = #Predicate<IntakeLog> { $0.id == logId }
+        let descriptor = FetchDescriptor<IntakeLog>(predicate: predicate)
+
+        guard let log = try? modelContext.fetch(descriptor).first else {
+            print("DEBUG: Could not find IntakeLog with id \(logId)")
+            return false
+        }
+
+        // 2. Restore all stock deductions (iterate a copy to avoid modifying while iterating)
+        let deductions = Array(log.stockDeductions)
+        for deduction in deductions {
             if deduction.wasDeducted {
                 stockManager.restoreStock(deduction: deduction)
             } else {
-                // Just delete the deduction record if it wasn't actually deducted
                 modelContext.delete(deduction)
             }
         }
-        
-        // 2. Delete the IntakeLog
+
+        // 3. Delete the IntakeLog
         modelContext.delete(log)
-        
-        // Save context
-        try? modelContext.save()
+
+        // 4. Save context with proper error handling
+        do {
+            try modelContext.save()
+            print("DEBUG: Successfully undid intake log \(logId)")
+            return true
+        } catch {
+            print("ERROR: Failed to save after undo: \(error)")
+            return false
+        }
+    }
+
+    // Undo an intake (kept for compatibility; delegates to ID-based undo)
+    func undoIntake(log: IntakeLog) {
+        _ = undoIntake(logId: log.id)
     }
     
     // Get intakes for a specific date

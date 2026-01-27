@@ -21,6 +21,9 @@ class TodayViewModel {
     var selectedDoses: [UUID: DoseConfiguration] = [:]  // groupId -> selected dose
     var isLoading: Bool = false
     var errorMessage: String?
+    var showUndoSuccessToast: Bool = false
+    var showChangeDoseConfirmation: Bool = false
+    var pendingDoseChange: (groupId: UUID, oldDose: DoseConfiguration, newDose: DoseConfiguration)?
     
     init(modelContext: ModelContext, syncManager: SyncManager? = nil) {
         self.modelContext = modelContext
@@ -264,29 +267,94 @@ class TodayViewModel {
         Calendar.current.isDateInToday(selectedDate)
     }
     
-    // Undo an intake log
-    func undoIntake(log: IntakeLog) {
+    // Undo an intake log by ID (avoids stale reference)
+    func undoIntake(logId: UUID) {
         errorMessage = nil
-        let logId = log.id
-        intakeManager.undoIntake(log: log)
-        syncManager?.deleteIntakeLogFromCloud(id: logId)
-        loadPlan()
+        let success = intakeManager.undoIntake(logId: logId)
+
+        if success {
+            syncManager?.deleteIntakeLogFromCloud(id: logId)
+            loadPlan()
+            showUndoSuccessToast = true
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                self?.showUndoSuccessToast = false
+            }
+        } else {
+            errorMessage = "Failed to undo intake"
+        }
+    }
+
+    // Undo an intake log (kept for compatibility; delegates to ID-based undo)
+    func undoIntake(log: IntakeLog) {
+        undoIntake(logId: log.id)
     }
     
     // Unlog all selected completed doses
     func unlogSelectedIntakes() {
         errorMessage = nil
         let logs = getSelectedIntakeLogs()
-        
+        var anySuccess = false
+
         for log in logs {
             let logId = log.id
-            intakeManager.undoIntake(log: log)
-            syncManager?.deleteIntakeLogFromCloud(id: logId)
+            if intakeManager.undoIntake(logId: logId) {
+                syncManager?.deleteIntakeLogFromCloud(id: logId)
+                anySuccess = true
+            }
         }
-        
-        // Reload to reflect changes
+
         loadPlan()
         selectedDoses.removeAll()
+        if anySuccess {
+            showUndoSuccessToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                self?.showUndoSuccessToast = false
+            }
+        }
+    }
+
+    // Change from one logged dose to another (undo old, log new)
+    func changeDose(for groupId: UUID, from oldDose: DoseConfiguration, to newDose: DoseConfiguration) {
+        let groupPlan = dailyPlan.timeFrames
+            .flatMap { $0.groups }
+            .first { $0.group.id == groupId }
+
+        guard let existingLogId = groupPlan?.completedIntakeLog?.id else { return }
+
+        let undoSuccess = intakeManager.undoIntake(logId: existingLogId)
+        if undoSuccess {
+            syncManager?.deleteIntakeLogFromCloud(id: existingLogId)
+        }
+
+        let result = intakeManager.logIntake(
+            doseConfig: newDose,
+            deductStock: true,
+            date: selectedDate
+        )
+
+        switch result {
+        case .success(let intakeLog):
+            syncManager?.syncIntakeLog(intakeLog)
+        case .failure(let error):
+            errorMessage = "Failed to log new intake: \(error)"
+        }
+
+        loadPlan()
+        selectedDoses.removeAll()
+    }
+
+    // Whether selecting this dose should show "change dose" confirmation (another dose already logged)
+    func shouldShowChangeDoseConfirmation(for group: MedicationGroup, newDose: DoseConfiguration) -> Bool {
+        let groupPlan = dailyPlan.timeFrames
+            .flatMap { $0.groups }
+            .first { $0.group.id == group.id }
+
+        if let completedDose = groupPlan?.completedDose,
+           completedDose.id != newDose.id {
+            return true
+        }
+        return false
     }
 }
 

@@ -109,6 +109,25 @@ struct TodayContentView: View {
             // Reload plan when content view appears to ensure fresh data
             viewModel.loadPlan()
         }
+        .overlay(alignment: .top) {
+            if viewModel.showUndoSuccessToast {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                    Text("Intake undone successfully")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .shadow(radius: 4)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.spring(), value: viewModel.showUndoSuccessToast)
+                .padding(.top, 8)
+            }
+        }
     }
 }
 
@@ -146,6 +165,8 @@ struct GroupCard: View {
     @Bindable var viewModel: TodayViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var showingUndoConfirmation = false
+    @State private var showingChangeDoseConfirmation = false
+    @State private var pendingNewDose: DoseConfiguration?
     @State private var medication: Medication?
     
     var body: some View {
@@ -181,8 +202,13 @@ struct GroupCard: View {
                         selectedId: viewModel.selectedDoses[group.group.id]?.id,
                         completedId: group.completedDose?.id,
                         onSelect: { dose in
-                            // Toggle selection when tapping a chip
-                            viewModel.toggleDoseSelection(dose, for: group.group)
+                            if let completedDose = group.completedDose,
+                               completedDose.id != dose.id {
+                                pendingNewDose = dose
+                                showingChangeDoseConfirmation = true
+                            } else {
+                                viewModel.selectDose(dose, for: group.group)
+                            }
                         }
                     )
                 } else {
@@ -242,13 +268,32 @@ struct GroupCard: View {
         }
         .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
             Button("Undo", role: .destructive) {
-                if let intakeLog = group.completedIntakeLog {
-                    viewModel.undoIntake(log: intakeLog)
+                if let logId = group.completedIntakeLog?.id {
+                    viewModel.undoIntake(logId: logId)
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This will restore the stock and remove the intake log. Are you sure?")
+            Text("This will restore the stock and remove the intake log.")
+        }
+        .confirmationDialog("Change Dose", isPresented: $showingChangeDoseConfirmation) {
+            Button("Change Dose", role: .destructive) {
+                if let newDose = pendingNewDose,
+                   let oldDose = group.completedDose {
+                    viewModel.changeDose(for: group.group.id, from: oldDose, to: newDose)
+                }
+                pendingNewDose = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingNewDose = nil
+            }
+        } message: {
+            if let oldDose = group.completedDose,
+               let newDose = pendingNewDose {
+                Text("Change dose from \(oldDose.displayName) to \(newDose.displayName)?")
+            } else {
+                Text("Change the logged dose?")
+            }
         }
     }
     
