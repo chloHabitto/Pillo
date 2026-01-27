@@ -201,16 +201,26 @@ class TodayViewModel {
     // Log a single dose
     func logSingleIntake(dose: DoseConfiguration, deductStock: Bool = true) {
         errorMessage = nil
-        
+
         // Skip if already completed
-        guard !isDoseCompleted(dose) else { return }
-        
+        guard !isDoseCompleted(dose) else {
+            print("DEBUG: Skipping log - dose already completed")
+            return
+        }
+
+        // PREVENT DUPLICATE: Check if group already has an intake for today
+        if let groupId = dose.group?.id,
+           intakeManager.hasIntakeForGroup(groupId: groupId, on: selectedDate) {
+            print("DEBUG: Skipping log - group already has intake for this date")
+            return
+        }
+
         let result = intakeManager.logIntake(
             doseConfig: dose,
             deductStock: deductStock,
             date: selectedDate
         )
-        
+
         switch result {
         case .success(let intakeLog):
             syncManager?.syncIntakeLog(intakeLog)
@@ -219,21 +229,30 @@ class TodayViewModel {
             errorMessage = "Failed to log intake: \(error)"
         }
     }
-    
+
     // Log all selected doses
     func logSelectedIntakes(deductStock: Bool = true) {
         errorMessage = nil
-        
-        for (_, dose) in selectedDoses {
+
+        for (groupId, dose) in selectedDoses {
             // Skip already completed
-            if isDoseCompleted(dose) { continue }
-            
+            if isDoseCompleted(dose) {
+                print("DEBUG: Skipping \(dose.displayName) - already completed")
+                continue
+            }
+
+            // PREVENT DUPLICATE: Check if group already has an intake
+            if intakeManager.hasIntakeForGroup(groupId: groupId, on: selectedDate) {
+                print("DEBUG: Skipping \(dose.displayName) - group already has intake")
+                continue
+            }
+
             let result = intakeManager.logIntake(
                 doseConfig: dose,
                 deductStock: deductStock,
                 date: selectedDate
             )
-            
+
             switch result {
             case .success(let intakeLog):
                 syncManager?.syncIntakeLog(intakeLog)
@@ -243,11 +262,9 @@ class TodayViewModel {
                 break
             }
         }
-        
+
         // Reload to reflect changes
         loadPlan()
-        // Keep selections so user can immediately unlog if needed
-        // The selected doses are now completed, so button will show "Unlog Selected"
     }
     
     // Change selected date
@@ -267,27 +284,17 @@ class TodayViewModel {
         Calendar.current.isDateInToday(selectedDate)
     }
     
-    // Undo an intake log by ID (avoids stale reference)
-    func undoIntake(logId: UUID) {
+    // Undo ALL intakes for a group (handles duplicate logs)
+    func undoIntakesForGroup(groupId: UUID) {
         errorMessage = nil
 
-        // Find which group this intake belongs to before undoing
-        let groupIdToDeselect: UUID? = dailyPlan.timeFrames
-            .flatMap { $0.groups }
-            .first { $0.completedIntakeLog?.id == logId }?
-            .group.id
+        let deletedCount = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
 
-        let success = intakeManager.undoIntake(logId: logId)
-
-        if success {
-            syncManager?.deleteIntakeLogFromCloud(id: logId)
-
-            // Clear selection for the undone group
-            if let groupId = groupIdToDeselect {
-                var updated = selectedDoses
-                updated.removeValue(forKey: groupId)
-                selectedDoses = updated
-            }
+        if deletedCount > 0 {
+            // Clear selection for this group
+            var updated = selectedDoses
+            updated.removeValue(forKey: groupId)
+            selectedDoses = updated
 
             modelContext.processPendingChanges()
             loadPlan()
@@ -296,8 +303,40 @@ class TodayViewModel {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
                 self?.showUndoSuccessToast = false
             }
+
+            if deletedCount > 1 {
+                print("DEBUG: Cleaned up \(deletedCount) duplicate intake logs")
+            }
         } else {
             errorMessage = "Failed to undo intake"
+        }
+    }
+
+    // Keep the old method for compatibility but redirect to group-based undo
+    func undoIntake(logId: UUID) {
+        // Find the group for this intake log
+        let groupId = dailyPlan.timeFrames
+            .flatMap { $0.groups }
+            .first { $0.completedIntakeLog?.id == logId }?
+            .group.id
+
+        if let groupId = groupId {
+            undoIntakesForGroup(groupId: groupId)
+        } else {
+            // Fallback to single log deletion if group not found
+            errorMessage = nil
+            let success = intakeManager.undoIntake(logId: logId)
+            if success {
+                syncManager?.deleteIntakeLogFromCloud(id: logId)
+                modelContext.processPendingChanges()
+                loadPlan()
+                showUndoSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+                    self?.showUndoSuccessToast = false
+                }
+            } else {
+                errorMessage = "Failed to undo intake"
+            }
         }
     }
 
@@ -330,18 +369,9 @@ class TodayViewModel {
         }
     }
 
-    // Change from one logged dose to another (undo old, log new)
+    // Change from one logged dose to another (undo all for group, then log new)
     func changeDose(for groupId: UUID, from oldDose: DoseConfiguration, to newDose: DoseConfiguration) {
-        let groupPlan = dailyPlan.timeFrames
-            .flatMap { $0.groups }
-            .first { $0.group.id == groupId }
-
-        guard let existingLogId = groupPlan?.completedIntakeLog?.id else { return }
-
-        let undoSuccess = intakeManager.undoIntake(logId: existingLogId)
-        if undoSuccess {
-            syncManager?.deleteIntakeLogFromCloud(id: existingLogId)
-        }
+        _ = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
 
         let result = intakeManager.logIntake(
             doseConfig: newDose,

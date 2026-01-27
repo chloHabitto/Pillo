@@ -177,7 +177,74 @@ class IntakeManager {
     func undoIntake(log: IntakeLog) {
         _ = undoIntake(logId: log.id)
     }
-    
+
+    // Undo ALL intakes for a group on a specific date (handles duplicate logs)
+    func undoAllIntakesForGroup(groupId: UUID, on date: Date) -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        // Fetch all intake logs for this date
+        let predicate = #Predicate<IntakeLog> { log in
+            log.scheduledFor >= startOfDay && log.scheduledFor < endOfDay
+        }
+        let descriptor = FetchDescriptor<IntakeLog>(predicate: predicate)
+
+        guard let allLogs = try? modelContext.fetch(descriptor) else {
+            print("DEBUG: Failed to fetch intake logs for group cleanup")
+            return 0
+        }
+
+        // Filter to logs belonging to this group
+        let groupLogs = allLogs.filter { log in
+            log.doseConfiguration?.group?.id == groupId
+        }
+
+        print("DEBUG: Found \(groupLogs.count) intake logs for group \(groupId) to delete")
+
+        var deletedCount = 0
+        var deletedLogIds: [UUID] = []
+
+        for log in groupLogs {
+            let logId = log.id
+            deletedLogIds.append(logId)
+
+            // Restore stock deductions
+            let deductions = Array(log.stockDeductions)
+            for deduction in deductions {
+                if deduction.wasDeducted {
+                    stockManager.restoreStock(deduction: deduction)
+                } else {
+                    modelContext.delete(deduction)
+                }
+            }
+
+            // Delete the log
+            modelContext.delete(log)
+            deletedCount += 1
+        }
+
+        // Save context
+        do {
+            try modelContext.save()
+            modelContext.processPendingChanges()
+            print("DEBUG: Successfully deleted \(deletedCount) intake logs: \(deletedLogIds.map { String($0.uuidString.prefix(8)) })")
+        } catch {
+            print("ERROR: Failed to save after deleting group intakes: \(error)")
+            return 0
+        }
+
+        return deletedCount
+    }
+
+    // Check if an intake already exists for a group on a date (to prevent duplicates)
+    func hasIntakeForGroup(groupId: UUID, on date: Date) -> Bool {
+        let intakes = getIntakes(for: date)
+        return intakes.contains { log in
+            log.doseConfiguration?.group?.id == groupId
+        }
+    }
+
     // Get intakes for a specific date
     func getIntakes(for date: Date) -> [IntakeLog] {
         let calendar = Calendar.current

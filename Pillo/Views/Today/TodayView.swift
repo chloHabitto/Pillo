@@ -274,9 +274,7 @@ struct GroupCard: View {
         }
         .confirmationDialog("Undo Intake", isPresented: $showingUndoConfirmation) {
             Button("Undo Intake", role: .destructive) {
-                if let logId = group.completedIntakeLog?.id {
-                    viewModel.undoIntake(logId: logId)
-                }
+                viewModel.undoIntakesForGroup(groupId: group.group.id)
             }
             Button("Cancel", role: .cancel) { }
         } message: {
