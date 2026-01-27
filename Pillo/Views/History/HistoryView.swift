@@ -21,6 +21,8 @@ struct HistoryView: View {
                     ProgressView("Loading...")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("appSurface01"))
             .navigationTitle("History")
             .onAppear {
                 if viewModel == nil {
@@ -46,6 +48,7 @@ struct HistoryContentView: View {
                     ),
                     displayedComponents: .date
                 )
+                .listRowBackground(Color("appCardBG01"))
             }
             
             // Intake logs
@@ -53,9 +56,11 @@ struct HistoryContentView: View {
                 if viewModel.intakeLogs.isEmpty {
                     Text("No intakes logged for this date")
                         .foregroundStyle(.secondary)
+                        .listRowBackground(Color("appCardBG01"))
                 } else {
                     ForEach(viewModel.intakeLogs) { log in
                         IntakeLogRow(log: log)
+                            .listRowBackground(Color("appCardBG01"))
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
@@ -65,6 +70,8 @@ struct HistoryContentView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color("appSurface01"))
         .refreshable {
             viewModel.loadIntakes()
         }

@@ -21,6 +21,11 @@ struct PilloApp: App {
         
         // Now safe to create AuthManager
         _authManager = State(initialValue: AuthManager())
+        
+        // Main header (nav bar title) uses semantic text color
+        let navTitleColor = UIColor(named: "appText01") ?? .label
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: navTitleColor]
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: navTitleColor]
     }
     
     var sharedModelContainer: ModelContainer = {

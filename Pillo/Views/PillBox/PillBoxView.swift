@@ -22,6 +22,8 @@ struct PillBoxView: View {
                     ProgressView("Loading...")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("appSurface01"))
             .navigationTitle("Pill Box")
             .onAppear {
                 if viewModel == nil {
@@ -43,6 +45,7 @@ struct PillBoxContentView: View {
                 if viewModel.groupedMedications.isEmpty {
                     Text("No medications added yet")
                         .foregroundStyle(Color.secondary)
+                        .listRowBackground(Color("appCardBG01"))
                 } else {
                     ForEach(viewModel.groupedMedications) { group in
                         NavigationLink(destination: MedicationGroupDetailView(
@@ -51,6 +54,7 @@ struct PillBoxContentView: View {
                         )) {
                             MedicationGroupRow(group: group, viewModel: viewModel)
                         }
+                        .listRowBackground(Color("appCardBG01"))
                     }
                     .onDelete { indexSet in
                         // Delete all medications in the group
@@ -74,12 +78,15 @@ struct PillBoxContentView: View {
                                 .foregroundStyle(Color.orange)
                             Text("\(group.name) is running low")
                         }
+                        .listRowBackground(Color("appCardBG01"))
                     }
                 } header: {
                     Text("Low Stock Warnings")
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color("appSurface01"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

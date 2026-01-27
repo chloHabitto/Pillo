@@ -23,6 +23,8 @@ struct TodayView: View {
                     ProgressView("Loading...")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("appSurface01"))
             .navigationTitle("Today")
             .onAppear {
                 if viewModel == nil {
@@ -311,7 +313,7 @@ struct GroupCard: View {
         if isSelected(group) {
             return Color.accentColor.opacity(0.1)
         } else {
-            return Color(.systemGray6)
+            return Color("appCardBG01")
         }
     }
     
@@ -360,7 +362,7 @@ struct CompactDoseSelector: View {
                                 if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 12, weight: .semibold))
-                                        .foregroundStyle(Color.white)
+                                        .foregroundStyle(completedId == option.doseConfig.id ? Color.white : Color("appOnPrimary"))
                                 }
                                 
                                 Text(option.doseConfig.displayName)
@@ -464,17 +466,19 @@ struct CompactDoseSelector: View {
         if completedId == doseId {
             return Color.green
         } else if selectedId == doseId {
-            return Color.accentColor
+            return Color("appPrimary")
         } else {
-            return Color(.systemGray5)
+            return Color("appButtonBG01")
         }
     }
     
     private func foregroundColor(for doseId: UUID) -> Color {
-        if completedId == doseId || selectedId == doseId {
+        if completedId == doseId {
             return Color.white
+        } else if selectedId == doseId {
+            return Color("appOnPrimary")
         } else {
-            return Color.primary
+            return Color("appText04")
         }
     }
 }

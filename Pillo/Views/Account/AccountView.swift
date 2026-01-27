@@ -19,14 +19,17 @@ struct AccountView: View {
                 Section("Profile") {
                     if let email = authManager.currentUser?.email {
                         LabeledContent("Email", value: email)
+                            .listRowBackground(Color("appCardBG01"))
                     } else {
                         LabeledContent("Signed in with", value: "Apple ID")
+                            .listRowBackground(Color("appCardBG01"))
                     }
                     
                     if let userId = authManager.userId {
                         LabeledContent("User ID", value: String(userId.prefix(8)) + "...")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .listRowBackground(Color("appCardBG01"))
                     }
                 }
                 
@@ -43,16 +46,19 @@ struct AccountView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .listRowBackground(Color("appCardBG01"))
                 }
                 
                 Section("Notifications") {
                     Text("Notification settings coming soon")
                         .foregroundStyle(.secondary)
+                        .listRowBackground(Color("appCardBG01"))
                 }
                 
                 Section("Data") {
                     Text("Export and backup coming soon")
                         .foregroundStyle(.secondary)
+                        .listRowBackground(Color("appCardBG01"))
                 }
                 
                 Section {
@@ -65,15 +71,19 @@ struct AccountView: View {
                             Spacer()
                         }
                     }
+                    .listRowBackground(Color("appCardBG01"))
                 }
                 
                 Section {
                     Text("Pillo v1.0")
                         .foregroundStyle(.secondary)
+                        .listRowBackground(Color("appCardBG01"))
                 } footer: {
                     Text("This app is not a substitute for professional medical advice.")
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color("appSurface01"))
             .navigationTitle("Account")
             .alert("Sign Out", isPresented: $showingSignOutAlert) {
                 Button("Cancel", role: .cancel) { }

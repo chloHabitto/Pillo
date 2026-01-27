@@ -7,7 +7,7 @@ struct WeeklyCalendarView: View {
     private let calendar = Calendar.current
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             // Header with month/year and Today button
             headerView
             
@@ -47,10 +47,11 @@ struct WeeklyCalendarView: View {
         HStack {
             Text(monthYearString(for: selectedDate))
                 .font(.headline)
+                .foregroundStyle(Color("appText02"))
             
             Spacer()
             
-            // Show "Today" button when not viewing today or when scrolled to a different week
+            // Show "Today" button when not viewing today or when scrolled to a different week; placeholder keeps row height consistent
             if !calendar.isDateInToday(selectedDate) || currentWeekOffset != 0 {
                 Button {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -61,10 +62,23 @@ struct WeeklyCalendarView: View {
                     Text("Today")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color("appText04"))
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color("appButtonBG01"))
+                .clipShape(Capsule())
+            } else {
+                // Invisible placeholder so header height stays the same when button is hidden
+                Text("Today")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.clear)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
             }
         }
+        .frame(height: 40)
     }
     
     // MARK: - Weekly Calendar
@@ -77,7 +91,7 @@ struct WeeklyCalendarView: View {
             }
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        .frame(height: 70)
+        .frame(height: 86)
         .onChange(of: currentWeekOffset) { oldValue, newValue in
             // Add haptic feedback when scrolling between weeks
             if oldValue != newValue {
@@ -108,23 +122,29 @@ struct WeeklyCalendarView: View {
                 // Day abbreviation (Mon, Tue, etc.)
                 Text(dayAbbreviation(for: date))
                     .font(.caption2)
-                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                    .foregroundStyle(isSelected ? Color("appOnPrimary80") : Color("appText06"))
                 
                 // Day number
                 Text("\(calendar.component(.day, from: date))")
                     .font(.body)
                     .fontWeight(isToday ? .bold : .regular)
-                    .foregroundStyle(isSelected ? .white : (isToday ? Color.accentColor : .primary))
+                    .foregroundStyle(isSelected ? Color("appOnPrimary") : Color("appText03"))
+                
+                // Dot indicator for today (appOnPrimary when selected, appPrimary when not; placeholder keeps row height consistent)
+                if isToday {
+                    Circle()
+                        .fill(isSelected ? Color("appOnPrimary") : Color("appPrimary"))
+                        .frame(width: 6, height: 6)
+                } else {
+                    Color.clear.frame(width: 6, height: 6)
+                }
             }
+            .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 72)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.accentColor : (isToday ? Color.accentColor.opacity(0.1) : Color.clear))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isToday && !isSelected ? Color.accentColor : Color.clear, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 40)
+                    .fill(isSelected ? Color("appPrimary") : Color("appSurface01"))
             )
         }
         .buttonStyle(PlainButtonStyle())
