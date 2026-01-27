@@ -236,28 +236,25 @@ struct GroupCard: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Ellipsis button: container hugs icon, 24×24 centered
-                Button {
-                    // Ellipsis actions (e.g. manage intake when completed)
-                    if group.completedDose != nil {
-                        showingManageIntakeSheet = true
-                    } else {
-                        showingLogOptionsSheet = true
-                    }
-                } label: {
-                    Image("Icon-more_vert")
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundStyle(Color("appOutline01"))
-                        .frame(width: 24, height: 24)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 16)
             }
             .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 0))
+            
+            // Ellipsis button: sibling at outer HStack, frame 44×56, icon 24×24 centered
+            Button {
+                if group.completedDose != nil {
+                    showingManageIntakeSheet = true
+                } else {
+                    showingLogOptionsSheet = true
+                }
+            } label: {
+                Image("Icon-more_vert")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(Color("appOutline01"))
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
+            .frame(width: 44, height: 56)
         }
         .background(backgroundColor(for: group))
         .clipShape(RoundedRectangle(cornerRadius: 20))
