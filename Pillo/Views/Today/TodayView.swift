@@ -23,7 +23,7 @@ struct TodayView: View {
                     ProgressView("Loading...")
                 }
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationTitle("Today")
             .onAppear {
                 if viewModel == nil {
                     viewModel = TodayViewModel(modelContext: modelContext, syncManager: syncManager)
@@ -39,49 +39,8 @@ struct TodayView: View {
 struct TodayContentView: View {
     @Bindable var viewModel: TodayViewModel
     
-    private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        if hour < 12 { return "Good Morning" }
-        if hour < 17 { return "Good Afternoon" }
-        return "Good Evening"
-    }
-    
-    private var isViewingToday: Bool {
-        Calendar.current.isDateInToday(viewModel.selectedDate)
-    }
-    
-    private var completionPercentage: Double {
-        let total = viewModel.dailyPlan.timeFrames.flatMap { $0.groups }.count
-        guard total > 0 else { return 0 }
-        let completed = viewModel.dailyPlan.timeFrames.flatMap { $0.groups }.filter { $0.completedDose != nil }.count
-        return Double(completed) / Double(total) * 100
-    }
-    
-    private var allMedicationsTaken: Bool {
-        let groups = viewModel.dailyPlan.timeFrames.flatMap { $0.groups }
-        return !groups.isEmpty && groups.allSatisfy { $0.completedDose != nil }
-    }
-    
     var body: some View {
         VStack(spacing: 0) {
-            // Custom header instead of .navigationTitle
-            VStack(alignment: .leading, spacing: 4) {
-                Text(greeting)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                HStack {
-                    Text(isViewingToday ? "Today" : viewModel.selectedDate.formatted(.dateTime.weekday(.wide)))
-                        .font(.system(size: 28, weight: .heavy))
-                    
-                    Spacer()
-                    
-                    ProgressRingView(progress: completionPercentage)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 12)
-            
             // Weekly calendar at the top
             WeeklyCalendarView(selectedDate: Binding(
                 get: { viewModel.selectedDate },
@@ -101,41 +60,6 @@ struct TodayContentView: View {
                             description: Text("Add medications in the Pill Box tab to get started.")
                         )
                     } else {
-                        // Celebration banner when all medications taken
-                        if allMedicationsTaken {
-                            HStack(spacing: 12) {
-                                Image(systemName: "sparkles")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.appSuccess)
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Amazing job!")
-                                        .font(.headline)
-                                        .foregroundStyle(Color.appSuccess)
-                                    Text("You've taken all your medicines today")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                Spacer()
-                            }
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.appSuccessLight, Color.appPrimaryLight],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.appSuccess.opacity(0.2), lineWidth: 1)
-                            )
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                            .animation(.easeInOut, value: allMedicationsTaken)
-                        }
-                        
                         // Time frame sections
                         ForEach(viewModel.dailyPlan.timeFrames) { timeFrame in
                             TimeFrameSection(
@@ -168,17 +92,13 @@ struct TodayContentView: View {
                 } label: {
                     Text(viewModel.areAllSelectedDosesCompleted ? "Unlog Selected" : "Log Selected as Taken")
                         .font(.headline)
-                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(viewModel.areAllSelectedDosesCompleted ? Color.orange : Color.appPrimary)
-                        )
-                        .shadow(color: Color.appPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .padding()
+                        .background(viewModel.areAllSelectedDosesCompleted ? Color.orange : Color.accentColor)
+                        .foregroundStyle(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 8)
+                .padding()
                 .background(.ultraThinMaterial)
             }
         }
@@ -193,7 +113,7 @@ struct TodayContentView: View {
             if viewModel.showUndoSuccessToast {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.appSuccess)
+                        .foregroundStyle(.green)
                     Text("Intake undone")
                         .font(.subheadline)
                         .fontWeight(.medium)
@@ -220,47 +140,22 @@ struct TimeFrameSection: View {
     let timeFrame: TimeFramePlan
     @Bindable var viewModel: TodayViewModel
     
-    private var displayName: String {
-        timeFrame.timeFrame.rawValue.capitalized
-    }
-    
-    private var completedCount: Int {
-        timeFrame.groups.filter { $0.completedDose != nil }.count
-    }
-    
-    private var totalCount: Int {
-        timeFrame.groups.count
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack {
-                Text(displayName)
+                Text(timeFrame.timeFrame.rawValue.capitalized)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
                 
                 Spacer()
                 
-                HStack(spacing: 8) {
-                    Text("\(completedCount)/\(totalCount)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    if completedCount == totalCount && totalCount > 0 {
-                        Text("Done!")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.appSuccess)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.appSuccessLight)
-                            .clipShape(Capsule())
-                    }
+                if timeFrame.isComplete {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.green)
                 }
             }
-            .padding(.bottom, 8)
             
             // Groups
             ForEach(timeFrame.groups) { group in
@@ -282,22 +177,19 @@ struct GroupCard: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            // Pill icon or checkmark on the left
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(group.completedDose != nil ? Color.appSuccess.opacity(0.2) : Color.appPrimaryLight)
-                    .frame(width: 50, height: 50)
-                
-                if group.completedDose != nil {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(Color.appSuccess)
-                } else if let medication = medication {
-                    PillIconView(medication: medication, size: 24)
-                } else {
+            // Pill icon on the left
+            if let medication = medication {
+                PillIconView(medication: medication, size: 50)
+            } else {
+                // Default icon while loading
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color(.systemGray5))
+                        .frame(width: 50, height: 50)
+                    
                     Image(systemName: "pills.fill")
                         .font(.system(size: 20))
-                        .foregroundStyle(Color.appPrimary)
+                        .foregroundStyle(Color.secondary)
                 }
             }
             
@@ -334,13 +226,12 @@ struct GroupCard: View {
             }
         }
         .padding()
-        .background(cardBackgroundColor(for: group))
+        .background(backgroundColor(for: group))
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(cardBorderColor(for: group), lineWidth: isSelected(group) || group.completedDose != nil ? 2 : 0)
+                .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
         )
-        .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
         .contentShape(Rectangle()) // Make entire area tappable
         .onAppear {
             // Fetch medication when view appears
@@ -417,24 +308,22 @@ struct GroupCard: View {
         viewModel.selectedDoses[group.group.id] != nil
     }
     
-    // Helper to get card background color based on completion and selection state
-    private func cardBackgroundColor(for group: GroupPlan) -> Color {
-        if group.completedDose != nil {
-            return Color.appSuccessLight
-        } else if isSelected(group) {
-            return Color.appPrimaryLight
+    // Helper to get background color based on selection and completion state
+    private func backgroundColor(for group: GroupPlan) -> Color {
+        if isSelected(group) {
+            return Color.accentColor.opacity(0.1)
+        } else {
+            return Color(.systemGray6)
         }
-        return Color(.systemBackground)
     }
     
-    // Helper to get card border color based on completion and selection state
-    private func cardBorderColor(for group: GroupPlan) -> Color {
-        if group.completedDose != nil {
-            return Color.appSuccess.opacity(0.3)
-        } else if isSelected(group) {
-            return Color.appPrimary
+    // Helper to get border color based on selection state
+    private func borderColor(for group: GroupPlan) -> Color {
+        if isSelected(group) {
+            return Color.accentColor
+        } else {
+            return Color.clear
         }
-        return Color.clear
     }
 }
 
@@ -464,23 +353,24 @@ struct CompactDoseSelector: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(sortedOptions) { option in
-                        let isSelected = selectedId == option.doseConfig.id
-                        let isCompleted = completedId == option.doseConfig.id
                         Button {
                             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                             impactFeedback.impactOccurred()
                             onSelect(option.doseConfig)
                         } label: {
                             HStack(spacing: 4) {
-                                if isCompleted {
+                                if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
                                     Image(systemName: "checkmark")
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundStyle(Color.white)
                                 }
+                                
                                 Text(option.doseConfig.displayName)
                                     .font(.subheadline)
-                                    .fontWeight(.semibold)
+                                    .fontWeight(.medium)
                                     .lineLimit(1)
                                     .fixedSize(horizontal: true, vertical: false)
+                                
                                 if option.hasLowStock {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .font(.system(size: 10))
@@ -488,9 +378,12 @@ struct CompactDoseSelector: View {
                             }
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
-                            .background(chipBackground(isSelected: isSelected, isCompleted: isCompleted))
-                            .foregroundStyle(chipForeground(isSelected: isSelected, isCompleted: isCompleted))
-                            .clipShape(Capsule())
+                            .background(
+                                Capsule()
+                                    .fill(backgroundColor(for: option.doseConfig.id))
+                            )
+                            .foregroundStyle(foregroundColor(for: option.doseConfig.id))
+                            // Apply faded opacity to non-selected buttons when a dose is completed
                             .opacity(opacityForButton(option.doseConfig.id))
                         }
                         .disabled(false)
@@ -569,15 +462,22 @@ struct CompactDoseSelector: View {
         return 0.5
     }
     
-    private func chipBackground(isSelected: Bool, isCompleted: Bool) -> Color {
-        if isCompleted { return Color.appSuccess }
-        if isSelected { return Color.appPrimary }
-        return Color.appChip
+    private func backgroundColor(for doseId: UUID) -> Color {
+        if completedId == doseId {
+            return Color.green
+        } else if selectedId == doseId {
+            return Color.accentColor
+        } else {
+            return Color(.systemGray5)
+        }
     }
     
-    private func chipForeground(isSelected: Bool, isCompleted: Bool) -> Color {
-        if isCompleted || isSelected { return .white }
-        return .secondary
+    private func foregroundColor(for doseId: UUID) -> Color {
+        if completedId == doseId || selectedId == doseId {
+            return Color.white
+        } else {
+            return Color.primary
+        }
     }
 }
 
@@ -635,4 +535,3 @@ struct DoseOptionRow: View {
             StockDeduction.self
         ])
 }
-
