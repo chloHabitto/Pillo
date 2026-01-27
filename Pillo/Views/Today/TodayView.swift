@@ -248,10 +248,11 @@ struct GroupCard: View {
                 }
             } label: {
                 Image("Icon-more_vert")
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color("appOutline01"))
                     .frame(width: 24, height: 24)
+                    .foregroundStyle(Color("appOutline01"))
             }
             .buttonStyle(.plain)
             .frame(width: 44, height: 56)
