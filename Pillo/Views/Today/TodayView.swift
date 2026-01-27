@@ -361,7 +361,7 @@ struct CompactDoseSelector: View {
                                 if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 12, weight: .semibold))
-                                        .foregroundStyle(completedId == option.doseConfig.id ? Color.white : Color("appOnPrimary"))
+                                        .foregroundStyle(Color("appOnPrimary"))
                                 }
                                 
                                 Text(option.doseConfig.displayName)
@@ -462,9 +462,7 @@ struct CompactDoseSelector: View {
     }
     
     private func backgroundColor(for doseId: UUID) -> Color {
-        if completedId == doseId {
-            return Color.green
-        } else if selectedId == doseId {
+        if completedId == doseId || selectedId == doseId {
             return Color("appPrimary")
         } else {
             return Color("appButtonBG01")
@@ -472,9 +470,7 @@ struct CompactDoseSelector: View {
     }
     
     private func foregroundColor(for doseId: UUID) -> Color {
-        if completedId == doseId {
-            return Color.white
-        } else if selectedId == doseId {
+        if completedId == doseId || selectedId == doseId {
             return Color("appOnPrimary")
         } else {
             return Color("appText04")
