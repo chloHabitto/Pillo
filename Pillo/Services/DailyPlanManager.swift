@@ -71,7 +71,7 @@ class DailyPlanManager {
                 
                 // Find which dose was completed (if any)
                 // Only count intakes that reference valid dose configurations (not orphaned)
-                let completedIntake = intakes.first { intake in
+                let matchingIntakes = intakes.filter { intake in
                     guard let doseConfig = intake.doseConfiguration,
                           doseConfig.group?.id == group.id else {
                         return false
@@ -79,8 +79,27 @@ class DailyPlanManager {
                     // Check if the dose configuration has valid components (medications not deleted)
                     return doseConfig.components.contains { $0.medication != nil }
                 }
+
+                // DEBUG: Log all matching intakes for this group
+                if !matchingIntakes.isEmpty {
+                    print("DEBUG: Group '\(group.name)' has \(matchingIntakes.count) matching intakes:")
+                    for intake in matchingIntakes {
+                        let logIdPrefix = String(intake.id.uuidString.prefix(8))
+                        let doseConfigName = intake.doseConfiguration?.displayName ?? "nil"
+                        print("DEBUG:   - IntakeLog \(logIdPrefix) for doseConfig '\(doseConfigName)'")
+                    }
+                }
+
+                let completedIntake = matchingIntakes.first
                 let completedDose = completedIntake?.doseConfiguration
                 let completedIntakeLog = completedIntake
+
+                // DEBUG: Log the final completedDose decision
+                if let completed = completedDose {
+                    print("DEBUG: Group '\(group.name)' completedDose = '\(completed.displayName)' (id: \(String(completed.id.uuidString.prefix(8))))")
+                } else {
+                    print("DEBUG: Group '\(group.name)' completedDose = nil")
+                }
                 
                 // Build dose options
                 var doseOptions: [DoseOption] = []

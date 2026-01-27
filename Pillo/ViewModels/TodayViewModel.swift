@@ -270,10 +270,25 @@ class TodayViewModel {
     // Undo an intake log by ID (avoids stale reference)
     func undoIntake(logId: UUID) {
         errorMessage = nil
+
+        // Find which group this intake belongs to before undoing
+        let groupIdToDeselect: UUID? = dailyPlan.timeFrames
+            .flatMap { $0.groups }
+            .first { $0.completedIntakeLog?.id == logId }?
+            .group.id
+
         let success = intakeManager.undoIntake(logId: logId)
 
         if success {
             syncManager?.deleteIntakeLogFromCloud(id: logId)
+
+            // Clear selection for the undone group
+            if let groupId = groupIdToDeselect {
+                var updated = selectedDoses
+                updated.removeValue(forKey: groupId)
+                selectedDoses = updated
+            }
+
             modelContext.processPendingChanges()
             loadPlan()
             showUndoSuccessToast = true
