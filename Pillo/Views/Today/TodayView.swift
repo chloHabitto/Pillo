@@ -98,10 +98,9 @@ struct TodayContentView: View {
                         .padding()
                         .background(viewModel.areAllSelectedDosesCompleted ? Color.orange : Color.accentColor)
                         .foregroundStyle(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Capsule())
                 }
                 .padding()
-                .background(.ultraThinMaterial)
             }
         }
         .refreshable {

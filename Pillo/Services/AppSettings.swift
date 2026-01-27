@@ -39,17 +39,24 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 class AppSettings {
     @ObservationIgnored
     @AppStorage("appearanceMode") var appearanceModeRaw: String = AppearanceMode.auto.rawValue
-    
+
+    /// Observable trigger so UI updates when appearance changes (AppStorage is observation-ignored).
+    private var appearanceVersion: Int = 0
+
     var appearanceMode: AppearanceMode {
         get {
-            AppearanceMode(rawValue: appearanceModeRaw) ?? .auto
+            _ = appearanceVersion
+            return AppearanceMode(rawValue: appearanceModeRaw) ?? .auto
         }
         set {
+            guard newValue != appearanceMode else { return }
             appearanceModeRaw = newValue.rawValue
+            appearanceVersion += 1
         }
     }
-    
+
     var colorScheme: ColorScheme? {
+        _ = appearanceVersion
         switch appearanceMode {
         case .auto:
             return nil
