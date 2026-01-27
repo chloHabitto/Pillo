@@ -41,6 +41,13 @@ struct TodayView: View {
 struct TodayContentView: View {
     @Bindable var viewModel: TodayViewModel
     
+    private var bottomButtonBackgroundColor: Color {
+        if viewModel.areAllSelectedDosesCompleted {
+            return Color.orange
+        }
+        return Color.accentColor
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Weekly calendar at the top
@@ -86,17 +93,13 @@ struct TodayContentView: View {
         .overlay(alignment: .bottom) {
             if !viewModel.selectedDoses.isEmpty {
                 Button {
-                    if viewModel.areAllSelectedDosesCompleted {
-                        viewModel.unlogSelectedIntakes()
-                    } else {
-                        viewModel.logSelectedIntakes(deductStock: true)
-                    }
+                    viewModel.performBottomAction()
                 } label: {
-                    Text(viewModel.areAllSelectedDosesCompleted ? "Unlog Selected" : "Log Selected as Taken")
+                    Text(viewModel.bottomActionButtonLabel)
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(viewModel.areAllSelectedDosesCompleted ? Color.orange : Color.accentColor)
+                        .background(bottomButtonBackgroundColor)
                         .foregroundStyle(Color.white)
                         .clipShape(Capsule())
                 }
@@ -175,6 +178,8 @@ struct GroupCard: View {
     @State private var showingChangeDoseConfirmation = false
     @State private var pendingNewDose: DoseConfiguration?
     @State private var medication: Medication?
+    @State private var showingLogOptionsSheet = false
+    @State private var showingManageIntakeSheet = false
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -209,10 +214,16 @@ struct GroupCard: View {
                         selectedId: viewModel.selectedDoses[group.group.id]?.id,
                         completedId: group.completedDose?.id,
                         onSelect: { dose in
-                            if let completedDose = group.completedDose,
-                               completedDose.id != dose.id {
-                                pendingNewDose = dose
-                                showingChangeDoseConfirmation = true
+                            if let completedDose = group.completedDose {
+                                if completedDose.id == dose.id {
+                                    // Tapped the same (completed) dose → manage intake
+                                    showingManageIntakeSheet = true
+                                } else {
+                                    // Tapped a different dose → select it and show change confirmation
+                                    viewModel.selectDose(dose, for: group.group)
+                                    pendingNewDose = dose
+                                    showingChangeDoseConfirmation = true
+                                }
                             } else {
                                 viewModel.selectDose(dose, for: group.group)
                             }
@@ -245,14 +256,19 @@ struct GroupCard: View {
             }
         }
         .onTapGesture {
-            // Make all cards tappable to toggle selection
-            if group.doseOptions.count == 1,
-               let singleOption = group.doseOptions.first {
-                // Single dose: toggle selection
-                viewModel.toggleDoseSelection(singleOption.doseConfig, for: group.group)
-            } else if group.doseOptions.count > 1 {
-                // Multiple doses: select first available or toggle off if already selected
-                viewModel.selectFirstAvailableDose(for: group.group)
+            // Card body tap: behavior depends on completion and selection state
+            if group.completedDose != nil {
+                // Dose already logged → show manage intake sheet
+                showingManageIntakeSheet = true
+            } else {
+                // Nothing logged
+                if viewModel.selectedDoses[group.group.id] != nil {
+                    // Something selected → deselect it
+                    viewModel.deselectGroup(group.group)
+                } else {
+                    // Nothing selected → show log options sheet
+                    showingLogOptionsSheet = true
+                }
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -299,6 +315,34 @@ struct GroupCard: View {
             } else {
                 Text("Change the logged dose?")
             }
+        }
+        .confirmationDialog("Log", isPresented: $showingLogOptionsSheet) {
+            if let firstOption = group.doseOptions.first {
+                Button("Log \(firstOption.doseConfig.displayName)") {
+                    viewModel.selectDose(firstOption.doseConfig, for: group.group)
+                }
+            }
+            Button("Skip for today") { }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Choose an option")
+        }
+        .confirmationDialog("Manage Intake", isPresented: $showingManageIntakeSheet) {
+            Button("Undo Intake", role: .destructive) {
+                viewModel.undoIntakesForGroup(groupId: group.group.id)
+            }
+            Button("Change Dose") {
+                // Dismiss sheet; user can then tap a different dose button to trigger change confirmation
+            }
+            Button("Add Memo") {
+                print("DEBUG: Add Memo tapped – placeholder")
+            }
+            Button("Record Symptoms") {
+                print("DEBUG: Record Symptoms tapped – placeholder")
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Manage this intake")
         }
     }
     

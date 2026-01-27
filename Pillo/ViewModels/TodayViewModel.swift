@@ -156,6 +156,51 @@ class TodayViewModel {
         return true
     }
     
+    // Selected groups where a dose is completed but user selected a different dose (change scenario)
+    var selectedGroupsInChangeScenario: [(groupId: UUID, oldDose: DoseConfiguration, newDose: DoseConfiguration)] {
+        var result: [(UUID, DoseConfiguration, DoseConfiguration)] = []
+        for (groupId, selectedDose) in selectedDoses {
+            let groupPlan = dailyPlan.timeFrames
+                .flatMap { $0.groups }
+                .first { $0.group.id == groupId }
+            if let completedDose = groupPlan?.completedDose, completedDose.id != selectedDose.id {
+                result.append((groupId, completedDose, selectedDose))
+            }
+        }
+        return result
+    }
+    
+    // Label for the bottom action button
+    var bottomActionButtonLabel: String {
+        let changeScenarios = selectedGroupsInChangeScenario
+        if !changeScenarios.isEmpty {
+            let first = changeScenarios[0]
+            return changeScenarios.count == 1
+                ? "Change to \(first.newDose.displayName)"
+                : "Change selected doses"
+        }
+        if areAllSelectedDosesCompleted {
+            return "Unlog Selected"
+        }
+        return "Log Selected as Taken"
+    }
+    
+    // Perform the bottom bar action: change dose(s), unlog, or log
+    func performBottomAction() {
+        let changeScenarios = selectedGroupsInChangeScenario
+        if !changeScenarios.isEmpty {
+            for (groupId, oldDose, newDose) in changeScenarios {
+                changeDose(for: groupId, from: oldDose, to: newDose)
+            }
+            return
+        }
+        if areAllSelectedDosesCompleted {
+            unlogSelectedIntakes()
+        } else {
+            logSelectedIntakes(deductStock: true)
+        }
+    }
+    
     // Get the intake logs for selected completed doses
     func getSelectedIntakeLogs() -> [IntakeLog] {
         var logs: [IntakeLog] = []
