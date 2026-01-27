@@ -15,7 +15,9 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            List {
+            VStack(spacing: 0) {
+                ScreenHeader(title: "Account")
+                List {
                 Section("Profile") {
                     if let email = authManager.currentUser?.email {
                         LabeledContent("Email", value: email)
@@ -81,7 +83,8 @@ struct AccountView: View {
             .scrollContentBackground(.hidden)
             .background(Color("appSurface01"))
             .listSectionSpacing(.compact)
-            .navigationTitle("Account")
+            }
+            .toolbar(.hidden, for: .navigationBar)
             .alert("Sign Out", isPresented: $showingSignOutAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Sign Out", role: .destructive) {

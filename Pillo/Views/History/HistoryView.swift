@@ -23,7 +23,7 @@ struct HistoryView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("appSurface01"))
-            .navigationTitle("History")
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 if viewModel == nil {
                     viewModel = HistoryViewModel(modelContext: modelContext)
@@ -35,9 +35,11 @@ struct HistoryView: View {
 
 struct HistoryContentView: View {
     @Bindable var viewModel: HistoryViewModel
-    
+
     var body: some View {
-        List {
+        VStack(spacing: 0) {
+            ScreenHeader(title: "History")
+            List {
             // Date picker
             Section {
                 DatePicker(
@@ -72,6 +74,7 @@ struct HistoryContentView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color("appSurface01"))
+        }
         .refreshable {
             viewModel.loadIntakes()
         }

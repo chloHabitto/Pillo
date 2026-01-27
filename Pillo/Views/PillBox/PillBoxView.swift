@@ -24,7 +24,7 @@ struct PillBoxView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("appSurface01"))
-            .navigationTitle("Pill Box")
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 if viewModel == nil {
                     viewModel = PillBoxViewModel(modelContext: modelContext, syncManager: syncManager)
@@ -37,9 +37,11 @@ struct PillBoxView: View {
 struct PillBoxContentView: View {
     @Bindable var viewModel: PillBoxViewModel
     @State private var showingAddMedication = false
-    
+
     var body: some View {
-        List {
+        VStack(spacing: 0) {
+            ScreenHeader(title: "Pill Box")
+            List {
             // Medications Section
             Section("My Medications") {
                 if viewModel.groupedMedications.isEmpty {
@@ -87,6 +89,7 @@ struct PillBoxContentView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color("appSurface01"))
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

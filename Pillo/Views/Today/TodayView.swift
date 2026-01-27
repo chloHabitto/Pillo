@@ -25,7 +25,7 @@ struct TodayView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("appSurface01"))
-            .navigationTitle("Today")
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 if viewModel == nil {
                     viewModel = TodayViewModel(modelContext: modelContext, syncManager: syncManager)
@@ -50,6 +50,7 @@ struct TodayContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            ScreenHeader(title: "Today")
             // Weekly calendar at the top
             WeeklyCalendarView(selectedDate: Binding(
                 get: { viewModel.selectedDate },
