@@ -40,5 +40,7 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
-  }
+  },
+  "hexLight" : "#f9fafb",
+  "hexDark" : "#10121B"
 }
