@@ -282,51 +282,133 @@ struct CompactDoseSelector: View {
     let completedId: UUID?
     let onSelect: (DoseConfiguration) -> Void
     
+    // Sort options by dose strength (extract numeric value from displayName like "18mg")
+    private var sortedOptions: [DoseOption] {
+        options.sorted { option1, option2 in
+            let value1 = extractNumericValue(from: option1.doseConfig.displayName)
+            let value2 = extractNumericValue(from: option2.doseConfig.displayName)
+            return value1 < value2
+        }
+    }
+    
+    // Extract numeric value from display name like "18mg" -> 18
+    private func extractNumericValue(from displayName: String) -> Double {
+        let numericString = displayName.filter { $0.isNumber || $0 == "." }
+        return Double(numericString) ?? 0
+    }
+    
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(options) { option in
-                    Button {
-                        // Haptic feedback on tap
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                        impactFeedback.impactOccurred()
-                        onSelect(option.doseConfig)
-                    } label: {
-                        HStack(spacing: 4) {
-                            // Show checkmark if this dose is selected or completed
-                            if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundStyle(Color.white)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(sortedOptions) { option in
+                        Button {
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                            impactFeedback.impactOccurred()
+                            onSelect(option.doseConfig)
+                        } label: {
+                            HStack(spacing: 4) {
+                                if selectedId == option.doseConfig.id || completedId == option.doseConfig.id {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundStyle(Color.white)
+                                }
+                                
+                                Text(option.doseConfig.displayName)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                                
+                                if option.hasLowStock {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 10))
+                                }
                             }
-                            
-                            Text(option.doseConfig.displayName)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .lineLimit(1)
-                                .fixedSize(horizontal: true, vertical: false)
-                            
-                            if option.hasLowStock {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 10))
-                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .fill(backgroundColor(for: option.doseConfig.id))
+                            )
+                            .foregroundStyle(foregroundColor(for: option.doseConfig.id))
+                            // Apply faded opacity to non-selected buttons when a dose is completed
+                            .opacity(opacityForButton(option.doseConfig.id))
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(
-                            Capsule()
-                                .fill(backgroundColor(for: option.doseConfig.id))
-                        )
-                        .foregroundStyle(foregroundColor(for: option.doseConfig.id))
+                        .disabled(false)
+                        .id(option.doseConfig.id) // For ScrollViewReader
                     }
-                    // Allow selecting completed doses so they can be unlogged
-                    .disabled(false)
+                }
+                .padding(.horizontal, 4)
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.viewAligned)
+            // Gradient fade mask overlay for edge hints
+            .mask(
+                HStack(spacing: 0) {
+                    // Left fade gradient
+                    LinearGradient(
+                        gradient: Gradient(colors: [.clear, .black]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 8)
+                    
+                    // Middle solid area
+                    Rectangle()
+                        .fill(Color.black)
+                    
+                    // Right fade gradient
+                    LinearGradient(
+                        gradient: Gradient(colors: [.black, .clear]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 8)
+                }
+            )
+            // Auto-scroll to completed or selected dose
+            .onAppear {
+                scrollToActiveOption(proxy: proxy)
+            }
+            .onChange(of: completedId) { _, newValue in
+                if let id = newValue {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo(id, anchor: .center)
+                    }
                 }
             }
-            .padding(.horizontal, 4) // Breathing room at edges
-            .scrollTargetLayout()
+            .onChange(of: selectedId) { _, newValue in
+                if let id = newValue {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo(id, anchor: .center)
+                    }
+                }
+            }
         }
-        .scrollTargetBehavior(.viewAligned) // Snap to buttons
+    }
+    
+    // Scroll to completed or selected dose on appear
+    private func scrollToActiveOption(proxy: ScrollViewProxy) {
+        if let completedId = completedId {
+            proxy.scrollTo(completedId, anchor: .center)
+        } else if let selectedId = selectedId {
+            proxy.scrollTo(selectedId, anchor: .center)
+        }
+    }
+    
+    // Opacity: fade non-selected buttons when a dose is completed
+    private func opacityForButton(_ doseId: UUID) -> Double {
+        // If nothing is completed, all buttons are full opacity
+        guard completedId != nil else { return 1.0 }
+        
+        // Completed or currently selected button stays full opacity
+        if completedId == doseId || selectedId == doseId {
+            return 1.0
+        }
+        
+        // Other buttons are slightly faded
+        return 0.5
     }
     
     private func backgroundColor(for doseId: UUID) -> Color {
