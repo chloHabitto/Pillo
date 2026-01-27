@@ -15,6 +15,6 @@ struct ScreenHeader: View {
             .foregroundStyle(Color("appText01"))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.top, 16)
     }
 }
