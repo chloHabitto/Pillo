@@ -179,7 +179,8 @@ class IntakeManager {
     }
 
     // Undo ALL intakes for a group on a specific date (handles duplicate logs)
-    func undoAllIntakesForGroup(groupId: UUID, on date: Date) -> Int {
+    // Returns tuple: (deletedCount, deletedLogIds) so caller can sync to cloud
+    func undoAllIntakesForGroup(groupId: UUID, on date: Date) -> (count: Int, logIds: [UUID]) {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
@@ -192,7 +193,7 @@ class IntakeManager {
 
         guard let allLogs = try? modelContext.fetch(descriptor) else {
             print("DEBUG: Failed to fetch intake logs for group cleanup")
-            return 0
+            return (0, [])
         }
 
         // Filter to logs belonging to this group
@@ -202,13 +203,11 @@ class IntakeManager {
 
         print("DEBUG: Found \(groupLogs.count) intake logs for group \(groupId) to delete")
 
+        // Collect IDs BEFORE deletion
+        let deletedLogIds = groupLogs.map { $0.id }
         var deletedCount = 0
-        var deletedLogIds: [UUID] = []
 
         for log in groupLogs {
-            let logId = log.id
-            deletedLogIds.append(logId)
-
             // Restore stock deductions
             let deductions = Array(log.stockDeductions)
             for deduction in deductions {
@@ -231,10 +230,10 @@ class IntakeManager {
             print("DEBUG: Successfully deleted \(deletedCount) intake logs: \(deletedLogIds.map { String($0.uuidString.prefix(8)) })")
         } catch {
             print("ERROR: Failed to save after deleting group intakes: \(error)")
-            return 0
+            return (0, [])
         }
 
-        return deletedCount
+        return (deletedCount, deletedLogIds)
     }
 
     // Check if an intake already exists for a group on a date (to prevent duplicates)

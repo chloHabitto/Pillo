@@ -288,9 +288,14 @@ class TodayViewModel {
     func undoIntakesForGroup(groupId: UUID) {
         errorMessage = nil
 
-        let deletedCount = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
+        let result = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
 
-        if deletedCount > 0 {
+        if result.count > 0 {
+            // Sync deletions to cloud
+            for logId in result.logIds {
+                syncManager?.deleteIntakeLogFromCloud(id: logId)
+            }
+
             // Clear selection for this group
             var updated = selectedDoses
             updated.removeValue(forKey: groupId)
@@ -304,8 +309,8 @@ class TodayViewModel {
                 self?.showUndoSuccessToast = false
             }
 
-            if deletedCount > 1 {
-                print("DEBUG: Cleaned up \(deletedCount) duplicate intake logs")
+            if result.count > 1 {
+                print("DEBUG: Cleaned up \(result.count) duplicate intake logs")
             }
         } else {
             errorMessage = "Failed to undo intake"
@@ -371,15 +376,20 @@ class TodayViewModel {
 
     // Change from one logged dose to another (undo all for group, then log new)
     func changeDose(for groupId: UUID, from oldDose: DoseConfiguration, to newDose: DoseConfiguration) {
-        _ = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
+        let result = intakeManager.undoAllIntakesForGroup(groupId: groupId, on: selectedDate)
 
-        let result = intakeManager.logIntake(
+        // Sync deletions to cloud
+        for logId in result.logIds {
+            syncManager?.deleteIntakeLogFromCloud(id: logId)
+        }
+
+        let logResult = intakeManager.logIntake(
             doseConfig: newDose,
             deductStock: true,
             date: selectedDate
         )
 
-        switch result {
+        switch logResult {
         case .success(let intakeLog):
             syncManager?.syncIntakeLog(intakeLog)
         case .failure(let error):
