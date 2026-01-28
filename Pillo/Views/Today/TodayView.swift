@@ -213,12 +213,7 @@ struct GroupCard: View {
                         MedicationActionButtons(
                             state: actionState(for: group),
                             onLogTapped: {
-                                if group.doseOptions.count == 1,
-                                   let firstDose = group.doseOptions.first?.doseConfig {
-                                    viewModel.logSingleIntake(dose: firstDose)
-                                } else {
-                                    showingLogOptionsSheet = true
-                                }
+                                showingLogOptionsSheet = true
                             },
                             onSkipTapped: {
                                 viewModel.skipGroup(group.group.id)
@@ -318,16 +313,19 @@ struct GroupCard: View {
                 Text("Change the logged dose?")
             }
         }
-        .confirmationDialog("Log", isPresented: $showingLogOptionsSheet) {
-            if let firstOption = group.doseOptions.first {
-                Button("Log \(firstOption.doseConfig.displayName)") {
-                    viewModel.selectDose(firstOption.doseConfig, for: group.group)
+        .sheet(isPresented: $showingLogOptionsSheet) {
+            LogDoseSheet(
+                group: group,
+                medication: medication,
+                onDoseSelected: { dose in
+                    viewModel.logSingleIntake(dose: dose)
+                },
+                onSkip: {
+                    viewModel.skipGroup(group.group.id)
                 }
-            }
-            Button("Skip for today") { }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Choose an option")
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
         }
         .confirmationDialog("Manage Intake", isPresented: $showingManageIntakeSheet) {
             Button("Undo Intake", role: .destructive) {
