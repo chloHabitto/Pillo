@@ -58,39 +58,40 @@ struct LogDoseSheet: View {
             
             Divider()
             
-            // Dose options section
-            VStack(alignment: .leading, spacing: 12) {
-                Text("SELECT DOSAGE")
-                    .font(.appLabelSmall)
-                    .foregroundStyle(Color("appText06"))
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                
-                // Dose options list
-                VStack(spacing: 0) {
-                    ForEach(sortedDoseOptions) { option in
-                        LogDoseOptionRow(
-                            option: option,
-                            isSelected: selectedDoseId == option.doseConfig.id,
-                            onTap: {
-                                selectedDoseId = option.doseConfig.id
+            // Scrollable dose options section
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("SELECT DOSAGE")
+                        .font(.appLabelSmall)
+                        .foregroundStyle(Color("appText06"))
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                    
+                    // Dose options list
+                    VStack(spacing: 0) {
+                        ForEach(sortedDoseOptions) { option in
+                            LogDoseOptionRow(
+                                option: option,
+                                isSelected: selectedDoseId == option.doseConfig.id,
+                                onTap: {
+                                    selectedDoseId = option.doseConfig.id
+                                }
+                            )
+                            
+                            if option.id != sortedDoseOptions.last?.id {
+                                Divider()
+                                    .padding(.leading, 20)
                             }
-                        )
-                        
-                        if option.id != sortedDoseOptions.last?.id {
-                            Divider()
-                                .padding(.leading, 20)
                         }
                     }
+                    .background(Color("appCardBG01"))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
                 }
-                .background(Color("appCardBG01"))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
             
-            Spacer()
-            
-            // Bottom buttons
+            // Bottom buttons - pinned to bottom, no Spacer needed
             VStack(spacing: 12) {
                 // Log as Taken button (primary)
                 Button {
@@ -124,6 +125,7 @@ struct LogDoseSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 34)
+            .background(Color("appSurface01"))
         }
         .background(Color("appSurface01"))
         .onAppear {

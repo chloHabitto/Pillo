@@ -182,6 +182,13 @@ struct GroupCard: View {
     @State private var showingLogOptionsSheet = false
     @State private var showingManageIntakeSheet = false
     
+    /// Sheet height for LogDoseSheet: base UI + ~52pt per dose option, capped for very long lists.
+    private var sheetHeight: CGFloat {
+        let baseHeight: CGFloat = 280
+        let optionsHeight = CGFloat(group.doseOptions.count) * 52
+        return min(baseHeight + optionsHeight, 600)
+    }
+    
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             HStack(alignment: .top, spacing: 16) {
@@ -255,6 +262,7 @@ struct GroupCard: View {
         }
         .background(backgroundColor(for: group))
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(borderColor(for: group), lineWidth: isSelected(group) ? 2 : 0)
@@ -324,7 +332,7 @@ struct GroupCard: View {
                     viewModel.skipGroup(group.group.id)
                 }
             )
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.height(sheetHeight), .large])
             .presentationDragIndicator(.hidden)
         }
         .confirmationDialog("Manage Intake", isPresented: $showingManageIntakeSheet) {
