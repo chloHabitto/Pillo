@@ -21,8 +21,10 @@ struct MedicationNameView: View {
             
             // Title
             Text("What's the medication name?")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.primary)
+                .font(.appHeadlineSmallEmphasised)
+                .foregroundStyle(Color("appText02"))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 20)
             
             // Text field
             VStack(alignment: .leading, spacing: 8) {
@@ -45,8 +47,10 @@ struct MedicationNameView: View {
             .padding(.horizontal, 20)
             
             Spacer()
-            
-            // Next button
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color("appSurface01"))
+        .safeAreaInset(edge: .bottom) {
             Button {
                 state.nextStep()
             } label: {
@@ -60,10 +64,8 @@ struct MedicationNameView: View {
             }
             .disabled(!state.canProceedFromStep(1))
             .padding(.horizontal, 20)
-            .padding(.bottom, 32)
+            .padding(.bottom, 24)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color("appSurface01"))
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isNameFieldFocused = true
