@@ -10,6 +10,7 @@ import SwiftUI
 struct MedicationNameView: View {
     @Bindable var state: AddMedicationFlowState
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var isNameFieldFocused: Bool
     
     var body: some View {
         VStack(spacing: 32) {
@@ -19,19 +20,29 @@ struct MedicationNameView: View {
             pillIconsIllustration
             
             // Title
-            Text("Medication Name")
+            Text("What's the medication name?")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(Color.primary)
             
             // Text field
-            TextField("Add Medication Name", text: $state.medicationName)
-                .textFieldStyle(.plain)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.primary)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 20)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Medication Name")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.secondary)
+                TextField("Add Medication Name", text: $state.medicationName)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.primary)
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isNameFieldFocused ? Color("appPrimary") : Color.clear, lineWidth: 2)
+                    )
+                    .focused($isNameFieldFocused)
+            }
+            .padding(.horizontal, 20)
             
             Spacer()
             
@@ -41,10 +52,10 @@ struct MedicationNameView: View {
             } label: {
                 Text("Next")
                     .font(.headline)
-                    .foregroundStyle(state.canProceedFromStep(1) ? Color.white : Color.secondary)
+                    .foregroundStyle(state.canProceedFromStep(1) ? Color("appOnPrimary") : Color.secondary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(state.canProceedFromStep(1) ? Color.cyan : Color(.tertiarySystemFill))
+                    .background(state.canProceedFromStep(1) ? Color("appPrimary") : Color(.tertiarySystemFill))
                     .clipShape(Capsule())
             }
             .disabled(!state.canProceedFromStep(1))
@@ -53,6 +64,11 @@ struct MedicationNameView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("appSurface01"))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isNameFieldFocused = true
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
