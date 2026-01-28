@@ -81,7 +81,7 @@ struct TodayContentView: View {
                     
                     Spacer(minLength: 80)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, AppSpacing.screenHorizontal)
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
                 .onTapGesture {

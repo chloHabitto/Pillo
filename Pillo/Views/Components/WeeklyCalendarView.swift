@@ -14,7 +14,7 @@ struct WeeklyCalendarView: View {
             // Weekly calendar strip
             weeklyCalendarView
         }
-        .padding(.horizontal)
+        .padding(.horizontal, AppSpacing.screenHorizontal)
         .onChange(of: selectedDate) { oldValue, newValue in
             // Sync week offset when selectedDate changes externally
             let today = Date()

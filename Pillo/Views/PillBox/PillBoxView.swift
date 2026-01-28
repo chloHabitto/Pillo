@@ -40,13 +40,25 @@ struct PillBoxContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScreenHeader(title: "Pill Box")
+            ScreenHeader(title: "Pill Box") {
+                Button {
+                    showingAddMedication = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .heavy))
+                        .foregroundStyle(Color("appOnPrimary"))
+                        .frame(width: 40, height: 40)
+                        .background(Color("appPrimary"))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            }
             Text("My Medications")
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
+                .padding(.horizontal, AppSpacing.screenHorizontal)
                 .padding(.top, 8)
                 .padding(.bottom, 12)
             List {
@@ -94,15 +106,6 @@ struct PillBoxContentView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color("appSurface01"))
-        }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingAddMedication = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
         }
         .sheet(isPresented: $showingAddMedication) {
             AddMedicationFlowView(viewModel: viewModel)
