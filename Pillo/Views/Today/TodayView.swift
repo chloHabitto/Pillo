@@ -184,7 +184,7 @@ struct GroupCard: View {
     
     /// Sheet height for LogDoseSheet: base UI + ~52pt per dose option, capped for very long lists.
     private var sheetHeight: CGFloat {
-        let baseHeight: CGFloat = 280
+        let baseHeight: CGFloat = 300
         let optionsHeight = CGFloat(group.doseOptions.count) * 52
         return min(baseHeight + optionsHeight, 600)
     }

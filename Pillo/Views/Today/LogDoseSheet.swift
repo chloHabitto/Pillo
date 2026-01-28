@@ -88,7 +88,7 @@ struct LogDoseSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal, 16)
                 }
-                .padding(.bottom, 16)
+                .padding(.bottom, 24)
             }
             
             // Bottom buttons - pinned to bottom, no Spacer needed
@@ -123,6 +123,7 @@ struct LogDoseSheet: View {
                         .padding(.vertical, 14)
                 }
             }
+            .padding(.top, 8)
             .padding(.horizontal, 20)
             .padding(.bottom, 34)
             .background(Color("appSurface01"))
