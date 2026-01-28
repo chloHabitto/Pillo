@@ -104,7 +104,7 @@ struct WeeklyCalendarView: View {
     // MARK: - Week View
     
     private func weekView(for weekOffset: Int) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 8) {
             ForEach(daysOfWeek(for: weekOffset), id: \.timeIntervalSince1970) { date in
                 dayButton(for: date)
             }
@@ -144,7 +144,7 @@ struct WeeklyCalendarView: View {
             .frame(height: 72)
             .background(
                 RoundedRectangle(cornerRadius: 40)
-                    .fill(isSelected ? Color("appPrimary") : Color("appSurface01"))
+                    .fill(isSelected ? Color("appPrimary") : Color("appCardBG01"))
             )
         }
         .buttonStyle(PlainButtonStyle())
