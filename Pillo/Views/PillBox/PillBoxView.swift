@@ -66,7 +66,7 @@ struct PillBoxContentView: View {
                     if viewModel.groupedMedications.isEmpty {
                         Text("No medications added yet")
                             .foregroundStyle(Color.secondary)
-                            .listRowInsets(EdgeInsets(top: 6, leading: AppSpacing.screenHorizontal, bottom: 6, trailing: AppSpacing.screenHorizontal))
+                            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     } else {
@@ -81,7 +81,7 @@ struct PillBoxContentView: View {
                                 .opacity(0)
                                 MedicationGroupRow(group: group, viewModel: viewModel)
                             }
-                            .listRowInsets(EdgeInsets(top: 6, leading: AppSpacing.screenHorizontal, bottom: 6, trailing: AppSpacing.screenHorizontal))
+                            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                         }
@@ -112,6 +112,7 @@ struct PillBoxContentView: View {
                     }
                 }
             }
+            .contentMargins(.horizontal, AppSpacing.screenHorizontal, for: .scrollContent)
             .scrollContentBackground(.hidden)
             .background(Color("appSurface01"))
         }
@@ -220,10 +221,11 @@ struct MedicationGroupRow: View {
                         HStack(spacing: 6) {
                             ForEach(group.strengths, id: \.self) { strength in
                                 Text(strength)
-                                    .font(.caption)
+                                    .font(.appLabelSmall)
+                                    .foregroundStyle(Color("appOnPrimaryContainer"))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.cyan.opacity(0.15))
+                                    .background(Color("appPrimaryContainer"))
                                     .clipShape(Capsule())
                             }
                         }
