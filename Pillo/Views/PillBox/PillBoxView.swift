@@ -41,54 +41,59 @@ struct PillBoxContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScreenHeader(title: "Pill Box")
+            Text("My Medications")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundStyle(Color.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
             List {
-            // Medications Section
-            Section("My Medications") {
-                if viewModel.groupedMedications.isEmpty {
-                    Text("No medications added yet")
-                        .foregroundStyle(Color.secondary)
-                        .listRowBackground(Color("appCardBG01"))
-                } else {
-                    ForEach(viewModel.groupedMedications) { group in
-                        NavigationLink(destination: MedicationGroupDetailView(
-                            medicationGroup: group,
-                            viewModel: viewModel
-                        )) {
-                            MedicationGroupRow(group: group, viewModel: viewModel)
+                Section(header: EmptyView()) {
+                    if viewModel.groupedMedications.isEmpty {
+                        Text("No medications added yet")
+                            .foregroundStyle(Color.secondary)
+                            .listRowBackground(Color("appCardBG01"))
+                    } else {
+                        ForEach(viewModel.groupedMedications) { group in
+                            NavigationLink(destination: MedicationGroupDetailView(
+                                medicationGroup: group,
+                                viewModel: viewModel
+                            )) {
+                                MedicationGroupRow(group: group, viewModel: viewModel)
+                            }
+                            .listRowBackground(Color("appCardBG01"))
                         }
-                        .listRowBackground(Color("appCardBG01"))
-                    }
-                    .onDelete { indexSet in
-                        // Delete all medications in the group
-                        for index in indexSet {
-                            let group = viewModel.groupedMedications[index]
-                            for medication in group.medications {
-                                viewModel.deleteMedication(medication)
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                let group = viewModel.groupedMedications[index]
+                                for medication in group.medications {
+                                    viewModel.deleteMedication(medication)
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            // Low Stock Warnings
-            let lowStockGroups = viewModel.groupedMedications.filter { $0.hasLowStock }
-            if !lowStockGroups.isEmpty {
-                Section {
-                    ForEach(lowStockGroups) { group in
-                        HStack {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(Color.orange)
-                            Text("\(group.name) is running low")
+
+                let lowStockGroups = viewModel.groupedMedications.filter { $0.hasLowStock }
+                if !lowStockGroups.isEmpty {
+                    Section {
+                        ForEach(lowStockGroups) { group in
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(Color.orange)
+                                Text("\(group.name) is running low")
+                            }
+                            .listRowBackground(Color("appCardBG01"))
                         }
-                        .listRowBackground(Color("appCardBG01"))
+                    } header: {
+                        Text("Low Stock Warnings")
                     }
-                } header: {
-                    Text("Low Stock Warnings")
                 }
             }
-        }
-        .scrollContentBackground(.hidden)
-        .background(Color("appSurface01"))
+            .scrollContentBackground(.hidden)
+            .background(Color("appSurface01"))
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
