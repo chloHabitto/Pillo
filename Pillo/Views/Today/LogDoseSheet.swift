@@ -84,9 +84,9 @@ struct LogDoseSheet: View {
                             }
                         }
                     }
-                    .background(Color("appCardBG01"))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 16)
+.background(Color("appCardBG01"))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 24)
             }
