@@ -66,16 +66,24 @@ struct PillBoxContentView: View {
                     if viewModel.groupedMedications.isEmpty {
                         Text("No medications added yet")
                             .foregroundStyle(Color.secondary)
-                            .listRowBackground(Color("appCardBG01"))
+                            .listRowInsets(EdgeInsets(top: 6, leading: AppSpacing.screenHorizontal, bottom: 6, trailing: AppSpacing.screenHorizontal))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     } else {
                         ForEach(viewModel.groupedMedications) { group in
-                            NavigationLink(destination: MedicationGroupDetailView(
-                                medicationGroup: group,
-                                viewModel: viewModel
-                            )) {
+                            ZStack(alignment: .leading) {
+                                NavigationLink(destination: MedicationGroupDetailView(
+                                    medicationGroup: group,
+                                    viewModel: viewModel
+                                )) {
+                                    EmptyView()
+                                }
+                                .opacity(0)
                                 MedicationGroupRow(group: group, viewModel: viewModel)
                             }
-                            .listRowBackground(Color("appCardBG01"))
+                            .listRowInsets(EdgeInsets(top: 6, leading: AppSpacing.screenHorizontal, bottom: 6, trailing: AppSpacing.screenHorizontal))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
                         .onDelete { indexSet in
                             for index in indexSet {
@@ -172,47 +180,69 @@ struct MedicationGroupRow: View {
     let group: MedicationGroup_Display
     let viewModel: PillBoxViewModel
     
+    private var firstMedication: Medication? {
+        group.medications.first
+    }
+    
+    private var formDisplayName: String {
+        firstMedication?.formDisplayName ?? group.form.rawValue.capitalized
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            // Medication name
-            Text(group.name)
-                .font(.headline)
-            
-            // Strengths as chips
-            HStack(spacing: 6) {
-                ForEach(group.strengths, id: \.self) { strength in
-                    Text(strength)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.cyan.opacity(0.15))
-                        .clipShape(Capsule())
+        HStack(alignment: .center, spacing: 12) {
+            // Left: PillIconView 36×36
+            if let medication = firstMedication {
+                PillIconView(medication: medication, size: 36)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.systemGray5))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "pills.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.secondary)
                 }
             }
             
-            // Schedule and stock info
-            HStack {
-                // Form
-                Text(group.medications.first?.formDisplayName ?? group.form.rawValue.capitalized)
-                    .font(.caption)
+            // Center: VStack with card content (fills available width)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(group.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                
+                Text(formDisplayName)
+                    .font(.subheadline)
                     .foregroundStyle(Color.secondary)
                 
-                if group.totalStock > 0 {
-                    Text("•")
-                        .foregroundStyle(Color.secondary)
-                    Text("\(group.totalStock) pills total")
-                        .font(.caption)
-                        .foregroundStyle(Color.secondary)
-                }
-                
-                if group.hasLowStock {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                        .foregroundStyle(Color.orange)
+                if !group.strengths.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(group.strengths, id: \.self) { strength in
+                                Text(strength)
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.cyan.opacity(0.15))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .scrollDisabled(group.strengths.count <= 3)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Right: Chevron
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color("appOutline01"))
         }
-        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 12))
+        .background(Color("appCardBG01"))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 }
 
