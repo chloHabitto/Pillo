@@ -19,6 +19,7 @@ class TodayViewModel {
     var selectedDate: Date = Date()
     var dailyPlan: DailyPlan = .empty
     var selectedDoses: [UUID: DoseConfiguration] = [:]  // groupId -> selected dose
+    var skippedGroups: Set<UUID> = []  // groupId for skipped groups (ephemeral, resets on date change)
     var isLoading: Bool = false
     var errorMessage: String?
     var showUndoSuccessToast: Bool = false
@@ -316,7 +317,22 @@ class TodayViewModel {
     func changeDate(to date: Date) {
         selectedDate = date
         selectedDoses.removeAll()
+        skippedGroups.removeAll()
         loadPlan()
+    }
+
+    // Skip tracking (ephemeral, not persisted)
+    func skipGroup(_ groupId: UUID) {
+        skippedGroups.insert(groupId)
+        selectedDoses.removeValue(forKey: groupId)
+    }
+
+    func unskipGroup(_ groupId: UUID) {
+        skippedGroups.remove(groupId)
+    }
+
+    func isGroupSkipped(_ groupId: UUID) -> Bool {
+        skippedGroups.contains(groupId)
     }
     
     // Go to today

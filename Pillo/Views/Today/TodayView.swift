@@ -210,26 +210,26 @@ struct GroupCard: View {
                     }
                     
                     if !group.doseOptions.isEmpty {
-                        HStack(spacing: 8) {
-                            CompactDoseSelector(
-                                options: group.doseOptions,
-                                selectedId: viewModel.selectedDoses[group.group.id]?.id,
-                                completedId: group.completedDose?.id,
-                                onSelect: { dose in
-                                    if let completedDose = group.completedDose {
-                                        if completedDose.id == dose.id {
-                                            showingManageIntakeSheet = true
-                                        } else {
-                                            viewModel.selectDose(dose, for: group.group)
-                                            pendingNewDose = dose
-                                            showingChangeDoseConfirmation = true
-                                        }
-                                    } else {
-                                        viewModel.selectDose(dose, for: group.group)
-                                    }
+                        MedicationActionButtons(
+                            state: actionState(for: group),
+                            onLogTapped: {
+                                if group.doseOptions.count == 1,
+                                   let firstDose = group.doseOptions.first?.doseConfig {
+                                    viewModel.logSingleIntake(dose: firstDose)
+                                } else {
+                                    showingLogOptionsSheet = true
                                 }
-                            )
-                        }
+                            },
+                            onSkipTapped: {
+                                viewModel.skipGroup(group.group.id)
+                            },
+                            onLoggedTapped: {
+                                showingManageIntakeSheet = true
+                            },
+                            onSkippedTapped: {
+                                viewModel.unskipGroup(group.group.id)
+                            }
+                        )
                     } else {
                         Text("Not scheduled")
                             .font(.caption)
@@ -348,6 +348,16 @@ struct GroupCard: View {
         }
     }
     
+    private func actionState(for group: GroupPlan) -> MedicationActionState {
+        if let completedDose = group.completedDose {
+            return .logged(dosage: completedDose.displayName)
+        } else if viewModel.isGroupSkipped(group.group.id) {
+            return .skipped
+        } else {
+            return .defaultState
+        }
+    }
+
     // Helper to check if this group has a selected dose
     private func isSelected(_ group: GroupPlan) -> Bool {
         viewModel.selectedDoses[group.group.id] != nil
