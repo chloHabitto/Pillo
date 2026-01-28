@@ -190,7 +190,7 @@ struct GroupCard: View {
                     PillIconView(medication: medication, size: 36)
                 } else {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: 12)
                             .fill(Color(.systemGray5))
                             .frame(width: 36, height: 36)
                         Image(systemName: "pills.fill")
