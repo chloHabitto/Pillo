@@ -102,14 +102,15 @@ struct LogDoseSheet: View {
                     }
                 } label: {
                     Text("Log as Taken")
-                        .font(.appButtonText1)
-                        .foregroundStyle(selectedDoseId != nil ? .white : Color("appText06"))
+                        .font(.appButtonText2)
+                        .foregroundStyle(Color("appOnPrimary"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(selectedDoseId != nil ? Color.accentColor : Color("appCardBG01"))
+                        .background(Color("appPrimary"))
                         .clipShape(Capsule())
                 }
                 .disabled(selectedDoseId == nil)
+                .opacity(selectedDoseId != nil ? 1 : 0.45)
                 
                 // Skip button (secondary)
                 Button {
